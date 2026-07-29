@@ -5,23 +5,12 @@
       "maxDuration": 30
     }
   },
-  "builds": [
-    {
-      "src": "tv/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "admin/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "destination": "/api/index.js" },
-    { "handle": "filesystem" },
-    { "src": "/admin/(.*)", "destination": "/admin/index.html" },
-    { "src": "/admin", "destination": "/admin/index.html" },
-    { "src": "/tv/(.*)", "destination": "/tv/index.html" },
-    { "src": "/tv", "destination": "/tv/index.html" },
-    { "src": "/(.*)", "destination": "/tv/$1" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/tv/(.*)", "destination": "/tv/index.html" },
+    { "source": "/tv", "destination": "/tv/index.html" },
+    { "source": "/(.*)", "destination": "/tv/$1" }
   ]
 }
