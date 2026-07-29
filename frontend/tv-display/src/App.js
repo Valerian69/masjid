@@ -41,8 +41,20 @@ function App() {
   if (loading) {
     return (
       <div className="loading-screen">
-        <div className="spinner"></div>
-        <div className="text">Memuat data...</div>
+        <div className="skeleton-header" />
+        <div className="skeleton-body">
+          <div className="skeleton-card skeleton-card-left">
+            <div className="skeleton-title" />
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="skeleton-row" style={{ animationDelay: `${i * 80}ms` }} />
+            ))}
+          </div>
+          <div className="skeleton-right">
+            <div className="skeleton-card" style={{ flex: 2, animationDelay: '100ms' }} />
+            <div className="skeleton-card" style={{ flex: 1, animationDelay: '200ms' }} />
+          </div>
+        </div>
+        <div className="skeleton-footer" />
       </div>
     );
   }

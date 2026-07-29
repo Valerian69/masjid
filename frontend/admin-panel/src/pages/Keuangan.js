@@ -9,8 +9,6 @@ const kategoriKeluar = ['Operasional', 'Gaji/Insentif', 'Pemeliharaan', 'Listrik
 const metodeOptions = ['cash', 'transfer', 'e-wallet'];
 const statusOptions = ['confirmed', 'pending', 'cancelled'];
 
-const COLORS = ['#0b3d2e', '#146b4a', '#1a9e68', '#d4913d', '#f0c66e', '#2196f3', '#9c27b0', '#e91e63'];
-
 const Keuangan = () => {
   const [view, setView] = useState('dashboard');
   const [transaksi, setTransaksi] = useState([]);
@@ -131,42 +129,26 @@ const Keuangan = () => {
     setFilter(prev => ({ ...prev, [key]: value }));
   };
 
-  const inputStyle = { width: '100%', padding: '10px 12px', border: '1.5px solid #d4ddd8', borderRadius: 8, fontSize: '0.88rem', boxSizing: 'border-box', fontFamily: 'Outfit, sans-serif', outline: 'none' };
-  const labelStyle = { display: 'block', fontSize: '0.78rem', marginBottom: 6, fontWeight: 500, color: '#4a6a5e', letterSpacing: '0.02em' };
-
   const maxTrend = Math.max(...trend.map(t => Math.max(t.masuk, t.keluar)), 1);
-
   const totalCategoryMasuk = categoryBreakdown.masuk.reduce((s, c) => s + c.jumlah, 0) || 1;
   const totalCategoryKeluar = categoryBreakdown.keluar.reduce((s, c) => s + c.jumlah, 0) || 1;
 
   return (
-    <div style={{ fontFamily: 'Outfit, sans-serif' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+    <div className="animate-in">
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0b3d2e', margin: 0 }}>Keuangan Masjid</h1>
-          <p style={{ fontSize: '0.82rem', color: '#7a9a8e', marginTop: 4 }}>Kelola pemasukan dan pengeluaran secara detail</p>
+          <h1>Keuangan Masjid</h1>
+          <p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={handleExport} style={{ padding: '10px 18px', background: 'white', color: '#0b3d2e', border: '1.5px solid #d4ddd8', borderRadius: 8, cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem', fontFamily: 'Outfit, sans-serif' }}>
-            Export CSV
-          </button>
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); resetForm(); }}
-            style={{ padding: '10px 20px', background: '#0b3d2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem', fontFamily: 'Outfit, sans-serif' }}>
-            + Transaksi Baru
-          </button>
+        <div className="page-header-actions">
+          <button onClick={handleExport} className="btn btn-outline">Export CSV</button>
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); resetForm(); }} className="btn btn-primary">+ Transaksi Baru</button>
         </div>
       </div>
 
-      {/* View Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'white', borderRadius: 10, padding: 4, width: 'fit-content', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+      <div className="tab-bar">
         {['dashboard', 'transaksi', 'laporan'].map(v => (
-          <button key={v} onClick={() => { setView(v); if (v === 'laporan') loadReport(); }}
-            style={{
-              padding: '8px 20px', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem', fontWeight: view === v ? 600 : 400,
-              background: view === v ? '#0b3d2e' : 'transparent', color: view === v ? 'white' : '#7a9a8e',
-              fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s'
-            }}>
+          <button key={v} onClick={() => { setView(v); if (v === 'laporan') loadReport(); }} className={`tab-btn ${view === v ? 'active' : ''}`}>
             {v === 'dashboard' ? 'Dashboard' : v === 'transaksi' ? 'Transaksi' : 'Laporan'}
           </button>
         ))}
@@ -175,66 +157,53 @@ const Keuangan = () => {
       {/* ═══════ DASHBOARD VIEW ═══════ */}
       {view === 'dashboard' && (
         <>
-          {/* Summary Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+          <div className="summary-grid">
             {[
               { label: 'Saldo Total', value: formatCurrency(summary.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.08)', border: 'rgba(212,145,61,0.3)' },
               { label: 'Bulan Ini Masuk', value: formatCurrency(summary.bulan_ini_masuk), color: '#0b3d2e', bg: 'rgba(11,61,46,0.06)', border: 'rgba(11,61,46,0.2)' },
               { label: 'Bulan Ini Keluar', value: formatCurrency(summary.bulan_ini_keluar), color: '#c62828', bg: 'rgba(198,40,40,0.06)', border: 'rgba(198,40,40,0.2)' },
               { label: 'Transaksi Bulan Ini', value: summary.jumlah_transaksi_bulan || 0, color: '#1565c0', bg: 'rgba(21,101,192,0.06)', border: 'rgba(21,101,192,0.2)', isNumber: true },
             ].map((card, i) => (
-              <div key={i} style={{ background: card.bg, border: `1px solid ${card.border}`, borderRadius: 12, padding: '18px 20px' }}>
-                <div style={{ fontSize: '0.75rem', color: '#7a9a8e', marginBottom: 6, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{card.label}</div>
-                <div style={{ fontSize: card.isNumber ? '1.8rem' : '1.3rem', fontWeight: 700, color: card.color, fontVariantNumeric: 'tabular-nums' }}>{card.value}</div>
+              <div key={i} className="summary-card" style={{ background: card.bg, borderColor: card.border }}>
+                <div className="summary-card-label">{card.label}</div>
+                <div className="summary-card-value" style={{ color: card.color, fontSize: card.isNumber ? '1.8rem' : '1.3rem' }}>{card.value}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 24 }}>
-            {/* Monthly Trend Chart */}
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#333', marginBottom: 16 }}>Tren 6 Bulan Terakhir</h3>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 180, paddingTop: 10 }}>
+          <div className="three-col-grid">
+            <div className="admin-card">
+              <div className="admin-card-title">Tren 6 Bulan Terakhir</div>
+              <div className="bar-chart">
                 {trend.map((item, i) => (
-                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 150, width: '100%', justifyContent: 'center' }}>
-                      <div style={{
-                        width: '35%', height: `${(item.masuk / maxTrend) * 130}px`, background: 'linear-gradient(180deg, #146b4a, #0b3d2e)',
-                        borderRadius: '4px 4px 0 0', transition: 'height 0.5s ease', minHeight: 2
-                      }} title={`Masuk: ${formatCurrency(item.masuk)}`} />
-                      <div style={{
-                        width: '35%', height: `${(item.keluar / maxTrend) * 130}px`, background: 'linear-gradient(180deg, #e57373, #c62828)',
-                        borderRadius: '4px 4px 0 0', transition: 'height 0.5s ease', minHeight: 2
-                      }} title={`Keluar: ${formatCurrency(item.keluar)}`} />
+                  <div key={i} className="bar-chart-col">
+                    <div className="bar-chart-bars">
+                      <div className="bar-chart-bar masuk" style={{ height: `${(item.masuk / maxTrend) * 130}px` }} title={`Masuk: ${formatCurrency(item.masuk)}`} />
+                      <div className="bar-chart-bar keluar" style={{ height: `${(item.keluar / maxTrend) * 130}px` }} title={`Keluar: ${formatCurrency(item.keluar)}`} />
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: '#999', fontWeight: 500 }}>{item.label}</div>
+                    <div className="bar-chart-label">{item.label}</div>
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#666' }}>
-                  <div style={{ width: 12, height: 12, borderRadius: 3, background: '#0b3d2e' }} /> Masuk
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#666' }}>
-                  <div style={{ width: 12, height: 12, borderRadius: 3, background: '#c62828' }} /> Keluar
-                </div>
+              <div className="bar-chart-legend">
+                <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#0b3d2e' }} /> Masuk</div>
+                <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#c62828' }} /> Keluar</div>
               </div>
             </div>
 
-            {/* Category Breakdown */}
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#333', marginBottom: 16 }}>Kategori Bulan Ini</h3>
+            <div className="admin-card">
+              <div className="admin-card-title">Kategori Bulan Ini</div>
               {categoryBreakdown.masuk.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#0b3d2e', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Pemasukan</div>
+                  <div className="category-section-title" style={{ color: '#0b3d2e' }}>Pemasukan</div>
                   {categoryBreakdown.masuk.slice(0, 4).map((cat, i) => (
-                    <div key={i} style={{ marginBottom: 8 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: 3 }}>
-                        <span style={{ color: '#333' }}>{cat.kategori}</span>
-                        <span style={{ color: '#666', fontWeight: 500 }}>{formatCurrency(cat.jumlah)}</span>
+                    <div key={i} className="category-bar-item">
+                      <div className="category-bar-header">
+                        <span className="category-bar-name">{cat.kategori}</span>
+                        <span className="category-bar-value">{formatCurrency(cat.jumlah)}</span>
                       </div>
-                      <div style={{ height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${(cat.jumlah / totalCategoryMasuk) * 100}%`, background: 'linear-gradient(90deg, #0b3d2e, #146b4a)', borderRadius: 3, transition: 'width 0.5s ease' }} />
+                      <div className="category-bar-track">
+                        <div className="category-bar-fill green" style={{ width: `${(cat.jumlah / totalCategoryMasuk) * 100}%` }} />
                       </div>
                     </div>
                   ))}
@@ -242,15 +211,15 @@ const Keuangan = () => {
               )}
               {categoryBreakdown.keluar.length > 0 && (
                 <div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#c62828', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Pengeluaran</div>
+                  <div className="category-section-title" style={{ color: '#c62828' }}>Pengeluaran</div>
                   {categoryBreakdown.keluar.slice(0, 4).map((cat, i) => (
-                    <div key={i} style={{ marginBottom: 8 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: 3 }}>
-                        <span style={{ color: '#333' }}>{cat.kategori}</span>
-                        <span style={{ color: '#666', fontWeight: 500 }}>{formatCurrency(cat.jumlah)}</span>
+                    <div key={i} className="category-bar-item">
+                      <div className="category-bar-header">
+                        <span className="category-bar-name">{cat.kategori}</span>
+                        <span className="category-bar-value">{formatCurrency(cat.jumlah)}</span>
                       </div>
-                      <div style={{ height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${(cat.jumlah / totalCategoryKeluar) * 100}%`, background: 'linear-gradient(90deg, #e57373, #c62828)', borderRadius: 3, transition: 'width 0.5s ease' }} />
+                      <div className="category-bar-track">
+                        <div className="category-bar-fill red" style={{ width: `${(cat.jumlah / totalCategoryKeluar) * 100}%` }} />
                       </div>
                     </div>
                   ))}
@@ -259,25 +228,20 @@ const Keuangan = () => {
             </div>
           </div>
 
-          {/* Recent Transactions */}
-          <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#333', marginBottom: 14 }}>Transaksi Terakhir</h3>
-            {transaksi.slice(0, 8).map((item, i) => (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < 7 ? '1px solid #f5f5f5' : 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem',
-                    background: item.jenis === 'masuk' ? 'rgba(11,61,46,0.08)' : 'rgba(198,40,40,0.08)',
-                    color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828'
-                  }}>
-                    {item.jenis === 'masuk' ? '↑' : '↓'}
+          <div className="admin-card">
+            <div className="admin-card-title">Transaksi Terakhir</div>
+            {transaksi.slice(0, 8).map((item) => (
+              <div key={item.id} className="transaction-row">
+                <div className="transaction-left">
+                  <div className={`transaction-icon ${item.jenis}`}>
+                    {item.jenis === 'masuk' ? '\u2191' : '\u2193'}
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 500, color: '#333' }}>{item.kategori}{item.penerima ? ` — ${item.penerima}` : ''}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#999' }}>{item.tanggal}{item.deskripsi ? ` · ${item.deskripsi.slice(0, 40)}` : ''}</div>
+                    <div className="transaction-info-title">{item.kategori}{item.penerima ? ` \u2014 ${item.penerima}` : ''}</div>
+                    <div className="transaction-info-sub">{item.tanggal}{item.deskripsi ? ` \u00b7 ${item.deskripsi.slice(0, 40)}` : ''}</div>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828', fontVariantNumeric: 'tabular-nums' }}>
+                <div className={`transaction-amount ${item.jenis}`}>
                   {item.jenis === 'masuk' ? '+' : '-'}{formatCurrency(item.jumlah)}
                 </div>
               </div>
@@ -289,151 +253,146 @@ const Keuangan = () => {
       {/* ═══════ TRANSAKSI VIEW ═══════ */}
       {view === 'transaksi' && (
         <>
-          {/* Form */}
           {showForm && (
-            <form onSubmit={handleSubmit} style={{ background: 'white', padding: 24, borderRadius: 12, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <form onSubmit={handleSubmit} className="admin-form-card">
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: 16 }}>{editingId ? 'Edit Transaksi' : 'Transaksi Baru'}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 14 }}>
-                <div>
-                  <label style={labelStyle}>Tanggal</label>
-                  <input type="date" value={form.tanggal} onChange={e => setForm({...form, tanggal: e.target.value})} style={inputStyle} required />
+              <div className="admin-form-grid-4">
+                <div className="form-group">
+                  <label className="form-label">Tanggal</label>
+                  <input type="date" value={form.tanggal} onChange={e => setForm({...form, tanggal: e.target.value})} className="form-input" required />
                 </div>
-                <div>
-                  <label style={labelStyle}>Jenis</label>
-                  <select value={form.jenis} onChange={e => setForm({...form, jenis: e.target.value, kategori: e.target.value === 'masuk' ? 'Infaq' : 'Operasional'})} style={inputStyle}>
+                <div className="form-group">
+                  <label className="form-label">Jenis</label>
+                  <select value={form.jenis} onChange={e => setForm({...form, jenis: e.target.value, kategori: e.target.value === 'masuk' ? 'Infaq' : 'Operasional'})} className="form-input">
                     <option value="masuk">Pemasukan</option><option value="keluar">Pengeluaran</option>
                   </select>
                 </div>
-                <div>
-                  <label style={labelStyle}>Kategori</label>
-                  <select value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} style={inputStyle}>
+                <div className="form-group">
+                  <label className="form-label">Kategori</label>
+                  <select value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} className="form-input">
                     {(form.jenis === 'masuk' ? kategoriMasuk : kategoriKeluar).map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={labelStyle}>Jumlah (Rp)</label>
-                  <input type="number" value={form.jumlah} onChange={e => setForm({...form, jumlah: e.target.value})} style={inputStyle} required min="0" placeholder="0" />
+                <div className="form-group">
+                  <label className="form-label">Jumlah (Rp)</label>
+                  <input type="number" value={form.jumlah} onChange={e => setForm({...form, jumlah: e.target.value})} className="form-input" required min="0" placeholder="0" />
                 </div>
-                <div>
-                  <label style={labelStyle}>Metode Pembayaran</label>
-                  <select value={form.metode_pembayaran} onChange={e => setForm({...form, metode_pembayaran: e.target.value})} style={inputStyle}>
+                <div className="form-group">
+                  <label className="form-label">Metode Pembayaran</label>
+                  <select value={form.metode_pembayaran} onChange={e => setForm({...form, metode_pembayaran: e.target.value})} className="form-input">
                     {metodeOptions.map(m => <option key={m} value={m}>{m === 'cash' ? 'Tunai' : m === 'transfer' ? 'Transfer' : 'E-Wallet'}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={labelStyle}>{form.jenis === 'masuk' ? 'Pemberi' : 'Penerima'}</label>
-                  <input value={form.penerima} onChange={e => setForm({...form, penerima: e.target.value})} style={inputStyle} placeholder="Nama pihak terkait" />
+                <div className="form-group">
+                  <label className="form-label">{form.jenis === 'masuk' ? 'Pemberi' : 'Penerima'}</label>
+                  <input value={form.penerima} onChange={e => setForm({...form, penerima: e.target.value})} className="form-input" placeholder="Nama pihak terkait" />
                 </div>
-                <div>
-                  <label style={labelStyle}>No. Referensi</label>
-                  <input value={form.no_ref} onChange={e => setForm({...form, no_ref: e.target.value})} style={inputStyle} placeholder="TRF-XXXX-XXX" />
+                <div className="form-group">
+                  <label className="form-label">No. Referensi</label>
+                  <input value={form.no_ref} onChange={e => setForm({...form, no_ref: e.target.value})} className="form-input" placeholder="TRF-XXXX-XXX" />
                 </div>
-                <div>
-                  <label style={labelStyle}>Status</label>
-                  <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} style={inputStyle}>
+                <div className="form-group">
+                  <label className="form-label">Status</label>
+                  <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="form-input">
                     {statusOptions.map(s => <option key={s} value={s}>{s === 'confirmed' ? 'Dikonfirmasi' : s === 'pending' ? 'Menunggu' : 'Dibatalkan'}</option>)}
                   </select>
                 </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={labelStyle}>Deskripsi</label>
-                  <input value={form.deskripsi} onChange={e => setForm({...form, deskripsi: e.target.value})} style={inputStyle} placeholder="Deskripsi singkat transaksi" />
+                <div className="form-group admin-form-full">
+                  <label className="form-label">Deskripsi</label>
+                  <input value={form.deskripsi} onChange={e => setForm({...form, deskripsi: e.target.value})} className="form-input" placeholder="Deskripsi singkat transaksi" />
                 </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={labelStyle}>Catatan Tambahan</label>
-                  <input value={form.catatan} onChange={e => setForm({...form, catatan: e.target.value})} style={inputStyle} placeholder="Catatan internal (opsional)" />
+                <div className="form-group admin-form-full">
+                  <label className="form-label">Catatan Tambahan</label>
+                  <input value={form.catatan} onChange={e => setForm({...form, catatan: e.target.value})} className="form-input" placeholder="Catatan internal (opsional)" />
                 </div>
               </div>
-              <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-                <button type="submit" style={{ padding: '10px 28px', background: '#d4913d', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', fontFamily: 'Outfit, sans-serif' }}>
-                  {editingId ? 'Update Transaksi' : 'Simpan Transaksi'}
-                </button>
-                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={{ padding: '10px 24px', background: '#f5f5f5', color: '#666', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '0.88rem', fontFamily: 'Outfit, sans-serif' }}>
-                  Batal
-                </button>
+              <div className="admin-form-actions">
+                <button type="submit" className="btn btn-amber">{editingId ? 'Update Transaksi' : 'Simpan Transaksi'}</button>
+                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
               </div>
             </form>
           )}
 
-          {/* Filters */}
-          <div style={{ background: 'white', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-              <div style={{ flex: '0 0 200px' }}>
-                <label style={labelStyle}>Cari</label>
-                <input value={filter.search} onChange={e => changeFilter('search', e.target.value)} style={inputStyle} placeholder="Deskripsi, kategori, catatan..." />
+          <div className="filter-bar">
+            <div className="filter-row">
+              <div className="form-group flex-grow">
+                <label className="form-label">Cari</label>
+                <input value={filter.search} onChange={e => changeFilter('search', e.target.value)} className="form-input" placeholder="Deskripsi, kategori, catatan..." />
               </div>
-              <div>
-                <label style={labelStyle}>Dari</label>
-                <input type="date" value={filter.start_date} onChange={e => changeFilter('start_date', e.target.value)} style={inputStyle} />
+              <div className="form-group">
+                <label className="form-label">Dari</label>
+                <input type="date" value={filter.start_date} onChange={e => changeFilter('start_date', e.target.value)} className="form-input" />
               </div>
-              <div>
-                <label style={labelStyle}>Sampai</label>
-                <input type="date" value={filter.end_date} onChange={e => changeFilter('end_date', e.target.value)} style={inputStyle} />
+              <div className="form-group">
+                <label className="form-label">Sampai</label>
+                <input type="date" value={filter.end_date} onChange={e => changeFilter('end_date', e.target.value)} className="form-input" />
               </div>
-              <div>
-                <label style={labelStyle}>Jenis</label>
-                <select value={filter.jenis} onChange={e => changeFilter('jenis', e.target.value)} style={inputStyle}>
+              <div className="form-group">
+                <label className="form-label">Jenis</label>
+                <select value={filter.jenis} onChange={e => changeFilter('jenis', e.target.value)} className="form-input">
                   <option value="">Semua</option><option value="masuk">Masuk</option><option value="keluar">Keluar</option>
                 </select>
               </div>
-              <div>
-                <label style={labelStyle}>Metode</label>
-                <select value={filter.metode} onChange={e => changeFilter('metode', e.target.value)} style={inputStyle}>
+              <div className="form-group">
+                <label className="form-label">Metode</label>
+                <select value={filter.metode} onChange={e => changeFilter('metode', e.target.value)} className="form-input">
                   <option value="">Semua</option><option value="cash">Tunai</option><option value="transfer">Transfer</option><option value="e-wallet">E-Wallet</option>
                 </select>
               </div>
-              <div>
-                <label style={labelStyle}>Status</label>
-                <select value={filter.status} onChange={e => changeFilter('status', e.target.value)} style={inputStyle}>
+              <div className="form-group">
+                <label className="form-label">Status</label>
+                <select value={filter.status} onChange={e => changeFilter('status', e.target.value)} className="form-input">
                   <option value="">Semua</option><option value="confirmed">Dikonfirmasi</option><option value="pending">Menunggu</option><option value="cancelled">Dibatalkan</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Table */}
-          <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
               <thead>
-                <tr style={{ background: '#f8f9fa' }}>
-                  {['Tanggal', 'Jenis', 'Kategori', 'Metode', 'Pihak Terkait', 'Deskripsi', 'Jumlah', 'Status', 'Aksi'].map(h => (
-                    <th key={h} style={{ padding: '12px 14px', textAlign: h === 'Jumlah' ? 'right' : h === 'Aksi' ? 'center' : 'left', fontSize: '0.78rem', fontWeight: 600, color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
-                  ))}
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Jenis</th>
+                  <th>Kategori</th>
+                  <th>Metode</th>
+                  <th>Pihak Terkait</th>
+                  <th>Deskripsi</th>
+                  <th className="text-right">Jumlah</th>
+                  <th>Status</th>
+                  <th className="text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {transaksi.map(item => (
-                  <tr key={item.id} style={{ borderTop: '1px solid #f5f5f5' }}>
-                    <td style={{ padding: '11px 14px', fontSize: '0.85rem' }}>{moment(item.tanggal).format('DD MMM YYYY')}</td>
-                    <td style={{ padding: '11px 14px' }}>
-                      <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: '0.72rem', fontWeight: 500, background: item.jenis === 'masuk' ? 'rgba(11,61,46,0.08)' : 'rgba(198,40,40,0.08)', color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
-                        {item.jenis === 'masuk' ? '↑ Masuk' : '↓ Keluar'}
+                  <tr key={item.id}>
+                    <td>{moment(item.tanggal).format('DD MMM YYYY')}</td>
+                    <td>
+                      <span className={`badge ${item.jenis === 'masuk' ? 'badge-green' : 'badge-red'}`}>
+                        {item.jenis === 'masuk' ? '\u2191 Masuk' : '\u2193 Keluar'}
                       </span>
                     </td>
-                    <td style={{ padding: '11px 14px', fontSize: '0.85rem', fontWeight: 500 }}>{item.kategori}</td>
-                    <td style={{ padding: '11px 14px', fontSize: '0.82rem', color: '#666', textTransform: 'capitalize' }}>{item.metode_pembayaran === 'cash' ? 'Tunai' : item.metode_pembayaran === 'transfer' ? 'Transfer' : 'E-Wallet'}</td>
-                    <td style={{ padding: '11px 14px', fontSize: '0.82rem', color: '#666' }}>{item.penerima || '-'}</td>
-                    <td style={{ padding: '11px 14px', fontSize: '0.82rem', color: '#666', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.deskripsi || '-'}</td>
-                    <td style={{ padding: '11px 14px', fontSize: '0.88rem', fontWeight: 600, textAlign: 'right', color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828', fontVariantNumeric: 'tabular-nums' }}>
+                    <td style={{ fontWeight: 500 }}>{item.kategori}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{item.metode_pembayaran === 'cash' ? 'Tunai' : item.metode_pembayaran === 'transfer' ? 'Transfer' : 'E-Wallet'}</td>
+                    <td>{item.penerima || '-'}</td>
+                    <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.deskripsi || '-'}</td>
+                    <td className="text-right" style={{ fontWeight: 600, color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
                       {item.jenis === 'masuk' ? '+' : '-'}{formatCurrency(item.jumlah)}
                     </td>
-                    <td style={{ padding: '11px 14px' }}>
-                      <span style={{
-                        padding: '3px 10px', borderRadius: 6, fontSize: '0.72rem', fontWeight: 500,
-                        background: item.status === 'confirmed' ? 'rgba(11,61,46,0.08)' : item.status === 'pending' ? 'rgba(212,145,61,0.1)' : 'rgba(198,40,40,0.08)',
-                        color: item.status === 'confirmed' ? '#0b3d2e' : item.status === 'pending' ? '#d4913d' : '#c62828'
-                      }}>
+                    <td>
+                      <span className={`badge ${item.status === 'confirmed' ? 'badge-green' : item.status === 'pending' ? 'badge-amber' : 'badge-red'}`}>
                         {item.status === 'confirmed' ? 'Dikonfirmasi' : item.status === 'pending' ? 'Menunggu' : 'Dibatalkan'}
                       </span>
                     </td>
-                    <td style={{ padding: '11px 14px', textAlign: 'center' }}>
-                      <button onClick={() => handleEdit(item)} style={{ padding: '5px 12px', background: '#2196f3', color: 'white', border: 'none', borderRadius: 5, cursor: 'pointer', marginRight: 6, fontSize: '0.78rem', fontFamily: 'Outfit, sans-serif' }}>Edit</button>
-                      <button onClick={() => handleDelete(item.id)} style={{ padding: '5px 12px', background: '#ef5350', color: 'white', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'Outfit, sans-serif' }}>Hapus</button>
+                    <td className="text-center">
+                      <button onClick={() => handleEdit(item)} className="btn btn-blue btn-sm" style={{ marginRight: 6 }}>Edit</button>
+                      <button onClick={() => handleDelete(item.id)} className="btn btn-danger btn-sm">Hapus</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {transaksi.length === 0 && <p style={{ padding: 24, textAlign: 'center', color: '#999', fontSize: '0.85rem' }}>Tidak ada transaksi ditemukan</p>}
+            {transaksi.length === 0 && <p className="empty-state">Tidak ada transaksi ditemukan</p>}
           </div>
         </>
       )}
@@ -441,65 +400,58 @@ const Keuangan = () => {
       {/* ═══════ LAPORAN VIEW ═══════ */}
       {view === 'laporan' && (
         <>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', marginBottom: 20 }}>
-            <div>
-              <label style={labelStyle}>Bulan</label>
-              <select value={reportMonth.month} onChange={e => setReportMonth({...reportMonth, month: e.target.value})} style={inputStyle}>
+          <div className="filter-row" style={{ marginBottom: 20 }}>
+            <div className="form-group">
+              <label className="form-label">Bulan</label>
+              <select value={reportMonth.month} onChange={e => setReportMonth({...reportMonth, month: e.target.value})} className="form-input">
                 {Array.from({length:12}, (_, i) => String(i+1).padStart(2,'0')).map(m => (
                   <option key={m} value={m}>{moment(m, 'MM').format('MMMM')}</option>
                 ))}
               </select>
             </div>
-            <div>
-              <label style={labelStyle}>Tahun</label>
-              <select value={reportMonth.year} onChange={e => setReportMonth({...reportMonth, year: e.target.value})} style={inputStyle}>
+            <div className="form-group">
+              <label className="form-label">Tahun</label>
+              <select value={reportMonth.year} onChange={e => setReportMonth({...reportMonth, year: e.target.value})} className="form-input">
                 {[2026, 2025].map(y => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
-            <button onClick={loadReport} style={{ padding: '10px 20px', background: '#0b3d2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem', fontFamily: 'Outfit, sans-serif' }}>
-              Lihat Laporan
-            </button>
-            <button onClick={handleDownloadPDF} style={{ padding: '10px 20px', background: '#c62828', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 500, fontSize: '0.85rem', fontFamily: 'Outfit, sans-serif' }}>
-              Download PDF
-            </button>
+            <button onClick={loadReport} className="btn btn-primary">Lihat Laporan</button>
+            <button onClick={handleDownloadPDF} className="btn btn-danger">Download PDF</button>
           </div>
 
           {reportData && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-                {/* Income Summary */}
-                <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                  <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0b3d2e', marginBottom: 14 }}>Pemasukan per Kategori</h3>
+              <div className="two-col-grid">
+                <div className="admin-card">
+                  <div className="admin-card-title" style={{ color: '#0b3d2e' }}>Pemasukan per Kategori</div>
                   {reportData.summary.filter(s => s.masuk > 0).map((s, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f5f5f5', fontSize: '0.85rem' }}>
-                      <span style={{ color: '#333' }}>{s.kategori}</span>
-                      <span style={{ color: '#0b3d2e', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(s.masuk)}</span>
+                    <div key={i} className="transaction-row">
+                      <span style={{ fontSize: '0.85rem' }}>{s.kategori}</span>
+                      <span style={{ color: '#0b3d2e', fontWeight: 600 }}>{formatCurrency(s.masuk)}</span>
                     </div>
                   ))}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontWeight: 700, fontSize: '0.9rem', borderTop: '2px solid #0b3d2e', marginTop: 8 }}>
+                  <div className="transaction-row" style={{ fontWeight: 700, borderTop: '2px solid #0b3d2e', marginTop: 8 }}>
                     <span>Total Masuk</span>
-                    <span style={{ color: '#0b3d2e', fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.masuk, 0))}</span>
+                    <span style={{ color: '#0b3d2e' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.masuk, 0))}</span>
                   </div>
                 </div>
 
-                {/* Expense Summary */}
-                <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                  <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#c62828', marginBottom: 14 }}>Pengeluaran per Kategori</h3>
+                <div className="admin-card">
+                  <div className="admin-card-title" style={{ color: '#c62828' }}>Pengeluaran per Kategori</div>
                   {reportData.summary.filter(s => s.keluar > 0).map((s, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f5f5f5', fontSize: '0.85rem' }}>
-                      <span style={{ color: '#333' }}>{s.kategori}</span>
-                      <span style={{ color: '#c62828', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(s.keluar)}</span>
+                    <div key={i} className="transaction-row">
+                      <span style={{ fontSize: '0.85rem' }}>{s.kategori}</span>
+                      <span style={{ color: '#c62828', fontWeight: 600 }}>{formatCurrency(s.keluar)}</span>
                     </div>
                   ))}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontWeight: 700, fontSize: '0.9rem', borderTop: '2px solid #c62828', marginTop: 8 }}>
+                  <div className="transaction-row" style={{ fontWeight: 700, borderTop: '2px solid #c62828', marginTop: 8 }}>
                     <span>Total Keluar</span>
-                    <span style={{ color: '#c62828', fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.keluar, 0))}</span>
+                    <span style={{ color: '#c62828' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.keluar, 0))}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Net Summary */}
-              <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: 24 }}>
+              <div className="admin-card" style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Total Masuk</div>
@@ -518,28 +470,29 @@ const Keuangan = () => {
                 </div>
               </div>
 
-              {/* Detail Table */}
-              <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="admin-table-wrap">
+                <table className="admin-table">
                   <thead>
-                    <tr style={{ background: '#f8f9fa' }}>
-                      {['Tanggal', 'Jenis', 'Kategori', 'Deskripsi', 'Jumlah'].map(h => (
-                        <th key={h} style={{ padding: '12px 14px', textAlign: h === 'Jumlah' ? 'right' : 'left', fontSize: '0.78rem', fontWeight: 600, color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
-                      ))}
+                    <tr>
+                      <th>Tanggal</th>
+                      <th>Jenis</th>
+                      <th>Kategori</th>
+                      <th>Deskripsi</th>
+                      <th className="text-right">Jumlah</th>
                     </tr>
                   </thead>
                   <tbody>
                     {reportData.detail.map(item => (
-                      <tr key={item.id} style={{ borderTop: '1px solid #f5f5f5' }}>
-                        <td style={{ padding: '11px 14px', fontSize: '0.85rem' }}>{moment(item.tanggal).format('DD MMM YYYY')}</td>
-                        <td style={{ padding: '11px 14px' }}>
-                          <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: '0.72rem', fontWeight: 500, background: item.jenis === 'masuk' ? 'rgba(11,61,46,0.08)' : 'rgba(198,40,40,0.08)', color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
-                            {item.jenis === 'masuk' ? '↑ Masuk' : '↓ Keluar'}
+                      <tr key={item.id}>
+                        <td>{moment(item.tanggal).format('DD MMM YYYY')}</td>
+                        <td>
+                          <span className={`badge ${item.jenis === 'masuk' ? 'badge-green' : 'badge-red'}`}>
+                            {item.jenis === 'masuk' ? '\u2191 Masuk' : '\u2193 Keluar'}
                           </span>
                         </td>
-                        <td style={{ padding: '11px 14px', fontSize: '0.85rem' }}>{item.kategori}</td>
-                        <td style={{ padding: '11px 14px', fontSize: '0.82rem', color: '#666' }}>{item.deskripsi || '-'}</td>
-                        <td style={{ padding: '11px 14px', fontSize: '0.88rem', fontWeight: 600, textAlign: 'right', color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
+                        <td>{item.kategori}</td>
+                        <td>{item.deskripsi || '-'}</td>
+                        <td className="text-right" style={{ fontWeight: 600, color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
                           {item.jenis === 'masuk' ? '+' : '-'}{formatCurrency(item.jumlah)}
                         </td>
                       </tr>

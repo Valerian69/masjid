@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import 'moment/locale/id';
+import { MosqueIcon } from './Icons';
 
 const hijriMonths = [
   'Muharram', 'Shafar', 'Rabiul Awal', 'Rabiul Akhir',
@@ -37,8 +38,13 @@ const Header = ({ settings }) => {
   };
 
   return (
-    <div className="header">
-      <div className="masjid-name">{settings?.masjid_name || 'Masjid Al-Hikmah'}</div>
+    <div className="header animate-in stagger-1">
+      <div className="header-left">
+        <div className="header-icon">
+          <MosqueIcon size={22} />
+        </div>
+        <div className="masjid-name">{settings?.masjid_name || 'Masjid Al-Hikmah'}</div>
+      </div>
       <div className="date-hijriah">{getHijriDate()}</div>
       <div className="date-time">
         <div className="time">{currentTime.format('HH:mm:ss')}</div>

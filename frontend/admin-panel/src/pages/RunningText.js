@@ -40,71 +40,78 @@ const RunningText = () => {
     }
   };
 
-  const inputStyle = { width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9rem', boxSizing: 'border-box' };
-  const labelStyle = { display: 'block', fontSize: '0.85rem', marginBottom: 6, fontWeight: 500 };
-
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a5c2a' }}>Running Text</h1>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ teks: '', jenis: 'pengumuman', is_active: 1, urutan: 0 }); }}
-          style={{ padding: '10px 20px', background: '#1a5c2a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 500 }}>
+    <div className="animate-in">
+      <div className="page-header">
+        <h1>Running Text</h1>
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ teks: '', jenis: 'pengumuman', is_active: 1, urutan: 0 }); }} className="btn btn-primary">
           + Tambah Teks
         </button>
       </div>
+
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ background: 'white', padding: 24, borderRadius: 12, marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 16, alignItems: 'end' }}>
-            <div><label style={labelStyle}>Teks</label><input value={form.teks} onChange={e => setForm({...form, teks: e.target.value})} style={inputStyle} required placeholder="Masukkan teks pengumuman..." /></div>
-            <div><label style={labelStyle}>Jenis</label>
-              <select value={form.jenis} onChange={e => setForm({...form, jenis: e.target.value})} style={inputStyle}>
-                <option value="pengumuman">Pengumuman</option><option value="infaq">Infaq</option><option value="info">Info</option>
+        <form onSubmit={handleSubmit} className="admin-form-card">
+          <div className="admin-form-grid-3">
+            <div className="form-group">
+              <label className="form-label">Teks</label>
+              <input value={form.teks} onChange={e => setForm({...form, teks: e.target.value})} className="form-input" required placeholder="Masukkan teks pengumuman..." />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Jenis</label>
+              <select value={form.jenis} onChange={e => setForm({...form, jenis: e.target.value})} className="form-input">
+                <option value="pengumuman">Pengumuman</option>
+                <option value="infaq">Infaq</option>
+                <option value="info">Info</option>
               </select>
             </div>
-            <div><label style={labelStyle}>Urutan</label><input type="number" value={form.urutan} onChange={e => setForm({...form, urutan: parseInt(e.target.value)})} style={inputStyle} min="0" /></div>
-            <div><label style={labelStyle}>Status</label>
-              <select value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} style={inputStyle}>
-                <option value={1}>Aktif</option><option value={0}>Nonaktif</option>
+            <div className="form-group">
+              <label className="form-label">Urutan</label>
+              <input type="number" value={form.urutan} onChange={e => setForm({...form, urutan: parseInt(e.target.value)})} className="form-input" min="0" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Status</label>
+              <select value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input">
+                <option value={1}>Aktif</option>
+                <option value={0}>Nonaktif</option>
               </select>
             </div>
           </div>
-          <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-            <button type="submit" style={{ padding: '10px 24px', background: '#c9a84c', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 500 }}>{editingId ? 'Update' : 'Simpan'}</button>
-            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={{ padding: '10px 24px', background: '#eee', color: '#333', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Batal</button>
+          <div className="admin-form-actions">
+            <button type="submit" className="btn btn-amber">{editingId ? 'Update' : 'Simpan'}</button>
+            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
           </div>
         </form>
       )}
-      <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+
+      <div className="admin-table-wrap">
+        <table className="admin-table">
           <thead>
-            <tr style={{ background: '#f8f9fa' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.85rem', fontWeight: 600 }}>Teks</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.85rem', fontWeight: 600 }}>Jenis</th>
-              <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '0.85rem', fontWeight: 600 }}>Urutan</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.85rem', fontWeight: 600 }}>Status</th>
-              <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '0.85rem', fontWeight: 600 }}>Aksi</th>
+            <tr>
+              <th>Teks</th>
+              <th>Jenis</th>
+              <th className="text-center">Urutan</th>
+              <th>Status</th>
+              <th className="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {texts.map(item => (
-              <tr key={item.id} style={{ borderTop: '1px solid #f0f0f0' }}>
-                <td style={{ padding: '12px 16px', fontSize: '0.9rem', maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.teks}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: '0.75rem',
-                    background: item.jenis === 'infaq' ? '#e8f5e9' : item.jenis === 'info' ? '#e3f2fd' : '#fff3e0',
-                    color: item.jenis === 'infaq' ? '#2e7d32' : item.jenis === 'info' ? '#1565c0' : '#e65100' }}>
+              <tr key={item.id}>
+                <td style={{ maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.teks}</td>
+                <td>
+                  <span className={`badge ${item.jenis === 'infaq' ? 'badge-green' : item.jenis === 'info' ? 'badge-blue' : 'badge-orange'}`}>
                     {item.jenis}
                   </span>
                 </td>
-                <td style={{ padding: '12px 16px', textAlign: 'center', fontSize: '0.9rem' }}>{item.urutan}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: '0.75rem', background: item.is_active ? '#e8f5e9' : '#ffebee', color: item.is_active ? '#2e7d32' : '#c62828' }}>
+                <td className="text-center">{item.urutan}</td>
+                <td>
+                  <span className={`badge ${item.is_active ? 'badge-green' : 'badge-red'}`}>
                     {item.is_active ? 'Aktif' : 'Nonaktif'}
                   </span>
                 </td>
-                <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                  <button onClick={() => handleEdit(item)} style={{ padding: '6px 12px', background: '#2196f3', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', marginRight: 8, fontSize: '0.8rem' }}>Edit</button>
-                  <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', background: '#f44336', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: '0.8rem' }}>Hapus</button>
+                <td className="text-center">
+                  <button onClick={() => handleEdit(item)} className="btn btn-blue btn-sm" style={{ marginRight: 8 }}>Edit</button>
+                  <button onClick={() => handleDelete(item.id)} className="btn btn-danger btn-sm">Hapus</button>
                 </td>
               </tr>
             ))}

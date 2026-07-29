@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import moment from 'moment';
+import { PrayerIcon } from './Icons';
 
 const PrayerSchedule = ({ jadwal }) => {
   const [currentTime, setCurrentTime] = useState(moment());
@@ -39,14 +40,18 @@ const PrayerSchedule = ({ jadwal }) => {
   };
 
   return (
-    <div className="card prayer-schedule">
+    <div className="card prayer-schedule animate-in stagger-2">
       <div className="card-title">
-        <span className="icon">🕌</span>
+        <PrayerIcon size={18} />
         Jadwal Sholat
       </div>
       <div className="prayer-list">
-        {jadwal?.map((item) => (
-          <div key={item.id} className={`prayer-item ${isActive(item.waktu) ? 'active' : ''}`}>
+        {jadwal?.map((item, index) => (
+          <div
+            key={item.id}
+            className={`prayer-item ${isActive(item.waktu) ? 'active' : ''}`}
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
             <span className="name">{item.nama_sholat}</span>
             <span className="time">{item.waktu}</span>
           </div>

@@ -1,19 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { monitoringAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import {
-  Refresh as RefreshIcon,
-  MonitorHeart as MonitorIcon,
-  Memory as MemoryIcon,
-  Speed as SpeedIcon,
-  Storage as StorageIcon,
-  BugReport as BugIcon,
-  AccessTime as ClockIcon,
-  Warning as WarningIcon,
-  CheckCircle as CheckIcon,
-  Error as ErrorIcon,
-  DeleteSweep as ResetIcon,
-} from '@mui/icons-material';
 
 const formatUptime = (seconds) => {
   if (!seconds) return '0s';
@@ -29,56 +16,14 @@ const formatUptime = (seconds) => {
   return parts.join(' ');
 };
 
-const StatBox = ({ title, value, subtitle, color, icon }) => (
-  <div style={{
-    background: 'white', borderRadius: 12, padding: 16,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)', borderLeft: `4px solid ${color}`,
-    display: 'flex', alignItems: 'center', gap: 12,
-  }}>
-    <div style={{
-      width: 40, height: 40, borderRadius: 8, background: `${color}15`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', color,
-    }}>
-      {icon}
-    </div>
-    <div>
-      <div style={{ fontSize: '0.75rem', color: '#888' }}>{title}</div>
-      <div style={{ fontSize: '1.3rem', fontWeight: 700, color }}>{value}</div>
-      {subtitle && <div style={{ fontSize: '0.7rem', color: '#aaa' }}>{subtitle}</div>}
-    </div>
-  </div>
-);
-
-const Card = ({ title, icon, children, action }) => (
-  <div style={{
-    background: 'white', borderRadius: 12, padding: 20,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-  }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ color: '#1a5c2a' }}>{icon}</span>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#333', margin: 0 }}>{title}</h3>
-      </div>
-      {action}
-    </div>
-    {children}
-  </div>
-);
-
-const ProgressBar = ({ value, max, color, label }) => (
-  <div style={{ marginBottom: 8 }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: 4 }}>
-      <span style={{ color: '#666' }}>{label}</span>
-      <span style={{ color, fontWeight: 600 }}>{value}%</span>
-    </div>
-    <div style={{ height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-      <div style={{
-        height: '100%', width: `${Math.min(value, 100)}%`,
-        background: color, borderRadius: 3, transition: 'width 0.5s ease',
-      }} />
-    </div>
-  </div>
-);
+const icons = {
+  refresh: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" /></svg>,
+  reset: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /></svg>,
+  speed: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>,
+  check: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M20 6L9 17l-5-5" /></svg>,
+  warning: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>,
+  error: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6" /></svg>,
+};
 
 const Monitoring = () => {
   const { user } = useAuth();
@@ -107,8 +52,6 @@ const Monitoring = () => {
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  // Auto-refresh every 10 seconds
   useEffect(() => {
     const interval = setInterval(fetchAll, 10000);
     return () => clearInterval(interval);
@@ -124,360 +67,237 @@ const Monitoring = () => {
     }
   };
 
-  if (loading) return <p style={{ padding: 24 }}>Memuat data monitoring...</p>;
-  if (!data) return <p style={{ padding: 24, color: '#c00' }}>Gagal memuat data monitoring</p>;
+  if (loading) return <div className="empty-state">Memuat data monitoring...</div>;
+  if (!data) return <div className="empty-state" style={{ color: '#c00' }}>Gagal memuat data monitoring</div>;
 
   const { system, http, database, business } = data;
   const memPercent = system.memory.heapUsedBytes / system.memory.heapTotalBytes * 100;
-
   const statusColor = Number(http.errorRate) < 1 ? '#4caf50' : Number(http.errorRate) < 5 ? '#ff9800' : '#f44336';
   const statusText = Number(http.errorRate) < 1 ? 'Healthy' : Number(http.errorRate) < 5 ? 'Degraded' : 'Unhealthy';
 
+  const methodColors = { GET: '#4caf50', POST: '#2196f3', PUT: '#ff9800', DELETE: '#f44336', PATCH: '#9c27b0' };
+
   return (
-    <div>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+    <div className="animate-in">
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a5c2a', margin: 0 }}>
-            <MonitorIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             Monitoring
           </h1>
-          <p style={{ fontSize: '0.8rem', color: '#888', margin: '4px 0 0' }}>
+          <p className="page-header-subtitle">
             {lastRefresh && `Terakhir diperbarui: ${lastRefresh.toLocaleTimeString('id-ID')}`}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={fetchAll}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
-              background: '#1a5c2a', color: 'white', border: 'none', borderRadius: 8,
-              cursor: 'pointer', fontSize: '0.85rem',
-            }}
-          >
-            <RefreshIcon fontSize="small" /> Refresh
-          </button>
+        <div className="page-header-actions">
+          <button onClick={fetchAll} className="btn btn-primary">{icons.refresh} Refresh</button>
           {user?.role === 'superadmin' && (
-            <button
-              onClick={handleReset}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
-                background: '#fff3e0', color: '#e65100', border: '1px solid #ffcc02',
-                borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem',
-              }}
-            >
-              <ResetIcon fontSize="small" /> Reset
-            </button>
+            <button onClick={handleReset} className="btn btn-orange">{icons.reset} Reset</button>
           )}
         </div>
       </div>
 
-      {/* Status Banner */}
-      <div style={{
-        background: `${statusColor}15`, border: `1px solid ${statusColor}40`,
-        borderRadius: 12, padding: '12px 20px', marginBottom: 20,
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        {Number(http.errorRate) < 1
-          ? <CheckIcon style={{ color: statusColor }} />
-          : Number(http.errorRate) < 5
-            ? <WarningIcon style={{ color: statusColor }} />
-            : <ErrorIcon style={{ color: statusColor }} />
-        }
-        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: statusColor }}>
-          Status: {statusText}
-        </span>
-        <span style={{ fontSize: '0.8rem', color: '#888', marginLeft: 8 }}>
-          Uptime: {formatUptime(system.uptime)} | Error Rate: {http.errorRate}%
-        </span>
+      <div className="status-banner" style={{ background: `${statusColor}15`, border: `1px solid ${statusColor}40` }}>
+        {Number(http.errorRate) < 1 ? icons.check : Number(http.errorRate) < 5 ? icons.warning : icons.error}
+        <span className="status-banner-text" style={{ color: statusColor }}>Status: {statusText}</span>
+        <span className="status-banner-sub">Uptime: {formatUptime(system.uptime)} | Error Rate: {http.errorRate}%</span>
       </div>
 
-      {/* Top Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginBottom: 20 }}>
-        <StatBox
-          title="Total Requests"
-          value={http.totalRequests.toLocaleString()}
-          color="#1a5c2a"
-          icon={<SpeedIcon />}
-        />
-        <StatBox
-          title="Error Rate"
-          value={`${http.errorRate}%`}
-          subtitle={`${http.totalErrors} errors`}
-          color={statusColor}
-          icon={<BugIcon />}
-        />
-        <StatBox
-          title="Avg Latency"
-          value={`${http.avgDuration}ms`}
-          subtitle={`p95: ${http.p95}ms`}
-          color="#2196f3"
-          icon={<ClockIcon />}
-        />
-        <StatBox
-          title="Memory Used"
-          value={system.memory.heapUsed}
-          subtitle={`${memPercent.toFixed(1)}% of ${system.memory.heapTotal}`}
-          color="#ff9800"
-          icon={<MemoryIcon />}
-        />
-        <StatBox
-          title="Total Records"
-          value={database.totalRecords.toLocaleString()}
-          subtitle={`${Object.keys(database.collections).length} collections`}
-          color="#9c27b0"
-          icon={<StorageIcon />}
-        />
-      </div>
-
-      {/* Main Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-
-        {/* System Health */}
-        <Card title="System Health" icon={<MemoryIcon />}>
-          <ProgressBar
-            label="Heap Memory"
-            value={memPercent.toFixed(1)}
-            color={memPercent > 80 ? '#f44336' : memPercent > 60 ? '#ff9800' : '#4caf50'}
-          />
-          <ProgressBar
-            label="RSS Memory"
-            value={((system.memory.rssBytes / (1024 * 1024 * 1024)) * 100).toFixed(1)}
-            color="#2196f3"
-          />
-          <div style={{ marginTop: 16 }}>
-            <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
-              <tbody>
-                {[
-                  ['Uptime', formatUptime(system.uptime)],
-                  ['CPU Cores', system.cpu.cores],
-                  ['CPU Usage', `${system.cpu.usagePercent}%`],
-                  ['Load Avg', system.cpu.loadAvg.join(' / ')],
-                  ['Node.js', system.nodeVersion],
-                  ['Platform', system.platform],
-                ].map(([k, v]) => (
-                  <tr key={k} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                    <td style={{ padding: '6px 0', color: '#888' }}>{k}</td>
-                    <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 500 }}>{v}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="monitoring-grid-5">
+        {[
+          { title: 'Total Requests', value: http.totalRequests.toLocaleString(), color: '#1a5c2a', icon: icons.speed },
+          { title: 'Error Rate', value: `${http.errorRate}%`, sub: `${http.totalErrors} errors`, color: statusColor, icon: icons.error },
+          { title: 'Avg Latency', value: `${http.avgDuration}ms`, sub: `p95: ${http.p95}ms`, color: '#2196f3', icon: icons.check },
+          { title: 'Memory Used', value: system.memory.heapUsed, sub: `${memPercent.toFixed(1)}% of ${system.memory.heapTotal}`, color: '#ff9800', icon: icons.warning },
+          { title: 'Total Records', value: database.totalRecords.toLocaleString(), sub: `${Object.keys(database.collections).length} collections`, color: '#9c27b0', icon: icons.speed },
+        ].map((stat, i) => (
+          <div key={i} className="monitoring-stat" style={{ borderLeftColor: stat.color }}>
+            <div className="monitoring-stat-icon" style={{ background: `${stat.color}15`, color: stat.color }}>
+              {stat.icon}
+            </div>
+            <div>
+              <div className="monitoring-stat-label">{stat.title}</div>
+              <div className="monitoring-stat-value" style={{ color: stat.color }}>{stat.value}</div>
+              {stat.sub && <div className="monitoring-stat-sub">{stat.sub}</div>}
+            </div>
           </div>
-        </Card>
+        ))}
+      </div>
 
-        {/* Database Collections */}
-        <Card title="Database Collections" icon={<StorageIcon />}>
+      <div className="two-col-grid">
+        <div className="admin-card">
+          <div className="admin-card-title">System Health</div>
+          <div className="progress-item">
+            <div className="progress-header">
+              <span className="progress-label">Heap Memory</span>
+              <span className="progress-value" style={{ color: memPercent > 80 ? '#f44336' : memPercent > 60 ? '#ff9800' : '#4caf50' }}>{memPercent.toFixed(1)}%</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${Math.min(memPercent, 100)}%`, background: memPercent > 80 ? '#f44336' : memPercent > 60 ? '#ff9800' : '#4caf50' }} />
+            </div>
+          </div>
+          <table className="info-table" style={{ marginTop: 16 }}>
+            <tbody>
+              {[
+                ['Uptime', formatUptime(system.uptime)],
+                ['CPU Cores', system.cpu.cores],
+                ['CPU Usage', `${system.cpu.usagePercent}%`],
+                ['Load Avg', system.cpu.loadAvg.join(' / ')],
+                ['Node.js', system.nodeVersion],
+                ['Platform', system.platform],
+              ].map(([k, v]) => (
+                <tr key={k}>
+                  <td>{k}</td>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="admin-card">
+          <div className="admin-card-title">Database Collections</div>
           {Object.entries(database.collections).map(([col, count]) => {
             const maxCount = Math.max(...Object.values(database.collections), 1);
-            const colors = {
-              users: '#1a5c2a', jadwal_sholat: '#4caf50', kajian: '#2196f3',
-              keuangan: '#ff9800', agenda: '#9c27b0', running_text: '#00bcd4',
-              settings: '#607d8b', audit_log: '#795548', laporan: '#e91e63',
-            };
-            const labels = {
-              users: 'Users', jadwal_sholat: 'Jadwal Sholat', kajian: 'Kajian',
-              keuangan: 'Keuangan', agenda: 'Agenda', running_text: 'Running Text',
-              settings: 'Settings', audit_log: 'Audit Log', laporan: 'Laporan',
-            };
+            const colors = { users: '#1a5c2a', jadwal_sholat: '#4caf50', kajian: '#2196f3', keuangan: '#ff9800', agenda: '#9c27b0', running_text: '#00bcd4', settings: '#607d8b', audit_log: '#795548', laporan: '#e91e63' };
+            const labels = { users: 'Users', jadwal_sholat: 'Jadwal Sholat', kajian: 'Kajian', keuangan: 'Keuangan', agenda: 'Agenda', running_text: 'Running Text', settings: 'Settings', audit_log: 'Audit Log', laporan: 'Laporan' };
             return (
-              <div key={col} style={{ marginBottom: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: 3 }}>
-                  <span style={{ color: '#555' }}>{labels[col] || col}</span>
-                  <span style={{ fontWeight: 600, color: colors[col] || '#333' }}>{count}</span>
+              <div key={col} className="category-bar-item">
+                <div className="category-bar-header">
+                  <span className="category-bar-name">{labels[col] || col}</span>
+                  <span className="category-bar-value" style={{ color: colors[col] || '#333' }}>{count}</span>
                 </div>
-                <div style={{ height: 5, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-                  <div style={{
-                    height: '100%', width: `${(count / maxCount) * 100}%`,
-                    background: colors[col] || '#999', borderRadius: 3,
-                  }} />
+                <div className="category-bar-track">
+                  <div className="category-bar-fill" style={{ width: `${(count / maxCount) * 100}%`, background: colors[col] || '#999' }} />
                 </div>
               </div>
             );
           })}
-          <div style={{
-            marginTop: 16, padding: '10px 12px', background: '#f8f9fa', borderRadius: 8,
-            fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between',
-          }}>
+          <div style={{ marginTop: 16, padding: '10px 12px', background: '#f8faf9', borderRadius: 8, fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#888' }}>Total Records</span>
             <span style={{ fontWeight: 700, color: '#1a5c2a' }}>{database.totalRecords.toLocaleString()}</span>
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* Requests by Method + Status */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <Card title="Requests by Method" icon={<SpeedIcon />}>
+      <div className="two-col-grid">
+        <div className="admin-card">
+          <div className="admin-card-title">Requests by Method</div>
           {Object.entries(http.byMethod).length === 0
-            ? <p style={{ color: '#aaa', fontSize: '0.85rem' }}>Belum ada data</p>
-            : Object.entries(http.byMethod).sort((a, b) => b[1] - a[1]).map(([method, count]) => {
-              const colors = { GET: '#4caf50', POST: '#2196f3', PUT: '#ff9800', DELETE: '#f44336', PATCH: '#9c27b0' };
-              return (
-                <div key={method} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{
-                    display: 'inline-block', width: 56, padding: '2px 8px', borderRadius: 4,
-                    background: `${colors[method] || '#666'}15`, color: colors[method] || '#666',
-                    fontSize: '0.75rem', fontWeight: 600, textAlign: 'center',
-                  }}>
-                    {method}
-                  </span>
-                  <div style={{ flex: 1, height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${(count / http.totalRequests) * 100}%`,
-                      background: colors[method] || '#666', borderRadius: 3,
-                    }} />
-                  </div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 500, minWidth: 40, textAlign: 'right' }}>{count}</span>
+            ? <p className="empty-state">Belum ada data</p>
+            : Object.entries(http.byMethod).sort((a, b) => b[1] - a[1]).map(([method, count]) => (
+              <div key={method} className="method-bar">
+                <span className="method-bar-label" style={{ background: `${methodColors[method] || '#666'}15`, color: methodColors[method] || '#666' }}>{method}</span>
+                <div className="method-bar-track">
+                  <div className="method-bar-fill" style={{ width: `${(count / http.totalRequests) * 100}%`, background: methodColors[method] || '#666' }} />
                 </div>
-              );
-            })}
-        </Card>
+                <span className="method-bar-count">{count}</span>
+              </div>
+            ))}
+        </div>
 
-        <Card title="Requests by Status" icon={<CheckIcon />}>
+        <div className="admin-card">
+          <div className="admin-card-title">Requests by Status</div>
           {Object.entries(http.byStatus).length === 0
-            ? <p style={{ color: '#aaa', fontSize: '0.85rem' }}>Belum ada data</p>
+            ? <p className="empty-state">Belum ada data</p>
             : Object.entries(http.byStatus).sort((a, b) => b[1] - a[1]).map(([status, count]) => {
               const s = Number(status);
               const color = s < 300 ? '#4caf50' : s < 400 ? '#2196f3' : s < 500 ? '#ff9800' : '#f44336';
               return (
-                <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{
-                    display: 'inline-block', width: 40, padding: '2px 8px', borderRadius: 4,
-                    background: `${color}15`, color,
-                    fontSize: '0.75rem', fontWeight: 600, textAlign: 'center',
-                  }}>
-                    {status}
-                  </span>
-                  <div style={{ flex: 1, height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${(count / http.totalRequests) * 100}%`,
-                      background: color, borderRadius: 3,
-                    }} />
+                <div key={status} className="method-bar">
+                  <span className="method-bar-label" style={{ background: `${color}15`, color, width: 40 }}>{status}</span>
+                  <div className="method-bar-track">
+                    <div className="method-bar-fill" style={{ width: `${(count / http.totalRequests) * 100}%`, background: color }} />
                   </div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 500, minWidth: 40, textAlign: 'right' }}>{count}</span>
+                  <span className="method-bar-count">{count}</span>
                 </div>
               );
             })}
-        </Card>
+        </div>
       </div>
 
-      {/* Latency Distribution */}
-      <Card title="Latency Distribution" icon={<ClockIcon />} action={
-        <span style={{ fontSize: '0.75rem', color: '#888' }}>
-          p50: {http.p50}ms | p95: {http.p95}ms | p99: {http.p99}ms
-        </span>
-      }>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120, padding: '0 4px' }}>
+      <div className="admin-card" style={{ marginBottom: 16 }}>
+        <div className="admin-card-header">
+          <div className="admin-card-title">Latency Distribution</div>
+          <span style={{ fontSize: '0.75rem', color: '#888' }}>
+            p50: {http.p50}ms | p95: {http.p95}ms | p99: {http.p99}ms
+          </span>
+        </div>
+        <div className="latency-chart">
           {http.durationBuckets && Object.entries(http.durationBuckets).map(([bucket, count]) => {
             const maxCount = Math.max(...Object.values(http.durationBuckets), 1);
             const height = (count / maxCount) * 100;
             return (
-              <div key={bucket} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: '0.65rem', color: '#888' }}>{count}</span>
-                <div style={{
-                  width: '100%', height: `${height}%`, background: '#1a5c2a',
-                  borderRadius: '4px 4px 0 0', minHeight: 2,
-                }} />
-                <span style={{ fontSize: '0.6rem', color: '#aaa' }}>{bucket}ms</span>
+              <div key={bucket} className="latency-bar">
+                <span className="latency-bar-value">{count}</span>
+                <div className="latency-bar-fill" style={{ height: `${height}%`, background: '#1a5c2a' }} />
+                <span className="latency-bar-label">{bucket}ms</span>
               </div>
             );
           })}
         </div>
-      </Card>
+      </div>
 
-      {/* Recent Requests + Errors */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginTop: 16 }}>
-        {/* Recent Requests */}
-        <Card title="Recent Requests" icon={<SpeedIcon />}>
-          <div style={{ maxHeight: 360, overflow: 'auto' }}>
-            <table style={{ width: '100%', fontSize: '0.78rem', borderCollapse: 'collapse' }}>
+      <div className="two-col-grid" style={{ gridTemplateColumns: '2fr 1fr' }}>
+        <div className="admin-card">
+          <div className="admin-card-title">Recent Requests</div>
+          <div className="mini-table-scroll">
+            <table className="mini-table">
               <thead>
-                <tr style={{ borderBottom: '2px solid #eee' }}>
-                  <th style={{ padding: '8px 6px', textAlign: 'left', color: '#888', fontWeight: 600 }}>Waktu</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'left', color: '#888', fontWeight: 600 }}>Method</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'left', color: '#888', fontWeight: 600 }}>Route</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'center', color: '#888', fontWeight: 600 }}>Status</th>
-                  <th style={{ padding: '8px 6px', textAlign: 'right', color: '#888', fontWeight: 600 }}>Durasi</th>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Method</th>
+                  <th>Route</th>
+                  <th className="text-center">Status</th>
+                  <th className="text-right">Durasi</th>
                 </tr>
               </thead>
               <tbody>
                 {requests.length === 0 ? (
-                  <tr><td colSpan={5} style={{ padding: 16, textAlign: 'center', color: '#aaa' }}>Belum ada request</td></tr>
+                  <tr><td colSpan={5} className="empty-state">Belum ada request</td></tr>
                 ) : requests.map((r, i) => {
                   const s = r.status;
-                  const statusColor = s < 300 ? '#4caf50' : s < 400 ? '#2196f3' : s < 500 ? '#ff9800' : '#f44336';
+                  const sc = s < 300 ? '#4caf50' : s < 400 ? '#2196f3' : s < 500 ? '#ff9800' : '#f44336';
                   return (
-                    <tr key={i} style={{ borderBottom: '1px solid #f8f8f8' }}>
-                      <td style={{ padding: '6px', color: '#999', whiteSpace: 'nowrap' }}>
-                        {new Date(r.timestamp).toLocaleTimeString('id-ID')}
-                      </td>
-                      <td style={{ padding: '6px' }}>
-                        <span style={{
-                          padding: '1px 6px', borderRadius: 3, fontSize: '0.7rem', fontWeight: 600,
-                          background: r.method === 'GET' ? '#e8f5e9' : r.method === 'POST' ? '#e3f2fd' : r.method === 'PUT' ? '#fff3e0' : '#fce4ec',
-                          color: r.method === 'GET' ? '#2e7d32' : r.method === 'POST' ? '#1565c0' : r.method === 'PUT' ? '#e65100' : '#c62828',
-                        }}>
+                    <tr key={i}>
+                      <td style={{ color: '#999', whiteSpace: 'nowrap' }}>{new Date(r.timestamp).toLocaleTimeString('id-ID')}</td>
+                      <td>
+                        <span className={`badge ${r.method === 'GET' ? 'badge-green' : r.method === 'POST' ? 'badge-blue' : r.method === 'PUT' ? 'badge-orange' : 'badge-red'}`}>
                           {r.method}
                         </span>
                       </td>
-                      <td style={{ padding: '6px', color: '#555', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {r.route}
+                      <td style={{ color: '#555', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.route}</td>
+                      <td className="text-center">
+                        <span className="badge" style={{ background: `${sc}15`, color: sc }}>{r.status}</span>
                       </td>
-                      <td style={{ padding: '6px', textAlign: 'center' }}>
-                        <span style={{
-                          padding: '1px 8px', borderRadius: 10, fontSize: '0.7rem', fontWeight: 600,
-                          background: `${statusColor}15`, color: statusColor,
-                        }}>
-                          {r.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '6px', textAlign: 'right', color: r.durationMs > 500 ? '#f44336' : '#666' }}>
-                        {r.durationMs}ms
-                      </td>
+                      <td className="text-right" style={{ color: r.durationMs > 500 ? '#f44336' : '#666' }}>{r.durationMs}ms</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
 
-        {/* Recent Errors */}
-        <Card title="Recent Errors" icon={<BugIcon />}>
-          <div style={{ maxHeight: 360, overflow: 'auto' }}>
+        <div className="admin-card">
+          <div className="admin-card-title">Recent Errors</div>
+          <div className="mini-table-scroll">
             {errors.length === 0 ? (
-              <div style={{ padding: 20, textAlign: 'center' }}>
-                <CheckIcon style={{ color: '#4caf50', fontSize: 32, marginBottom: 8 }} />
+              <div className="empty-state">
+                <div className="empty-state-icon" style={{ color: '#4caf50', fontSize: 32 }}>{icons.check}</div>
                 <p style={{ color: '#4caf50', fontSize: '0.85rem', margin: 0 }}>Tidak ada error</p>
               </div>
             ) : errors.map((e, i) => (
-              <div key={i} style={{
-                padding: '10px 12px', marginBottom: 8, background: '#fff5f5',
-                borderRadius: 8, borderLeft: '3px solid #f44336',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{
-                    padding: '1px 6px', borderRadius: 3, fontSize: '0.7rem', fontWeight: 600,
-                    background: '#fce4ec', color: '#c62828',
-                  }}>
-                    {e.status}
-                  </span>
-                  <span style={{ fontSize: '0.7rem', color: '#999' }}>
-                    {new Date(e.timestamp).toLocaleTimeString('id-ID')}
-                  </span>
+              <div key={i} className="error-item">
+                <div className="error-item-header">
+                  <span className="badge badge-red">{e.status}</span>
+                  <span style={{ fontSize: '0.7rem', color: '#999' }}>{new Date(e.timestamp).toLocaleTimeString('id-ID')}</span>
                 </div>
-                <div style={{ fontSize: '0.78rem', color: '#333' }}>
-                  {e.method} {e.route}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#999', marginTop: 2 }}>
-                  {e.durationMs}ms | {e.ip}
-                </div>
+                <div className="error-item-route">{e.method} {e.route}</div>
+                <div className="error-item-meta">{e.durationMs}ms | {e.ip}</div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

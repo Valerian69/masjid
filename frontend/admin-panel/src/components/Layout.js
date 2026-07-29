@@ -1,109 +1,44 @@
 import React from 'react';
 import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import {
-  Dashboard as DashboardIcon,
-  AccessTime,
-  MenuBook,
-  AccountBalance,
-  Event,
-  Textsms,
-  Description,
-  People,
-  Settings as SettingsIcon,
-  MonitorHeart as MonitorIcon,
-  Logout
-} from '@mui/icons-material';
+
+const MosqueIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3c-1.1 0-2 .9-2 2v1H8V5c0-1.1-.9-2-2-2s-2 .9-2 2v1H3c-.6 0-1 .4-1 1v5c0 2.8 2.2 5 5 5 1.4 0 2.7-.6 3.6-1.5.9.9 2.2 1.5 3.6 1.5 2.8 0 5-2.2 5-5V6c0-.6-.4-1-1-1h-1V5c0-1.1-.9-2-2-2s-2 .9-2 2v1h-2V5c0-1.1-.9-2-2-2z" />
+    <path d="M5 14v2M19 14v2" />
+    <path d="M9 16h6" />
+  </svg>
+);
+
+const icons = {
+  dashboard: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>,
+  clock: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><polyline points="12 6 12 12 16 14" /></svg>,
+  book: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19V5a2 2 0 012-2h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2z" /><path d="M14 3v6h6" /><path d="M8 13h8M8 17h5" /></svg>,
+  wallet: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="14" rx="2" /><path d="M2 10h20" /><circle cx="17" cy="14" r="1" fill="currentColor" stroke="none" /></svg>,
+  calendar: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><rect x="7" y="14" width="2" height="2" rx="0.5" fill="currentColor" stroke="none" /><rect x="11" y="14" width="2" height="2" rx="0.5" fill="currentColor" stroke="none" /><rect x="15" y="14" width="2" height="2" rx="0.5" fill="currentColor" stroke="none" /></svg>,
+  text: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>,
+  document: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" /><path d="M14 2v6h6M8 13h8M8 17h8" /></svg>,
+  monitor: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>,
+  settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>,
+  users: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" /><circle cx="17" cy="7" r="3" /><path d="M21 21v-2a3 3 0 00-2-2.83" /></svg>,
+  logout: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>,
+};
 
 const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Jadwal Sholat', icon: <AccessTime />, path: '/jadwal-sholat' },
-  { text: 'Kajian', icon: <MenuBook />, path: '/kajian' },
-  { text: 'Keuangan', icon: <AccountBalance />, path: '/keuangan' },
-  { text: 'Agenda', icon: <Event />, path: '/agenda' },
-  { text: 'Running Text', icon: <Textsms />, path: '/running-text' },
-  { text: 'Laporan', icon: <Description />, path: '/laporan' },
-  { text: 'Monitoring', icon: <MonitorIcon />, path: '/monitoring' },
-  { text: 'Pengaturan', icon: <SettingsIcon />, path: '/settings' },
+  { text: 'Dashboard', icon: icons.dashboard, path: '/' },
+  { text: 'Jadwal Sholat', icon: icons.clock, path: '/jadwal-sholat' },
+  { text: 'Kajian', icon: icons.book, path: '/kajian' },
+  { text: 'Keuangan', icon: icons.wallet, path: '/keuangan' },
+  { text: 'Agenda', icon: icons.calendar, path: '/agenda' },
+  { text: 'Running Text', icon: icons.text, path: '/running-text' },
+  { text: 'Laporan', icon: icons.document, path: '/laporan' },
+  { text: 'Monitoring', icon: icons.monitor, path: '/monitoring' },
+  { text: 'Pengaturan', icon: icons.settings, path: '/settings' },
 ];
 
 const adminMenu = [
-  { text: 'Users', icon: <People />, path: '/users', roles: ['superadmin'] },
+  { text: 'Users', icon: icons.users, path: '/users', roles: ['superadmin'] },
 ];
-
-const sidebarStyle = {
-  width: 260,
-  background: 'linear-gradient(180deg, #0b3d2e 0%, #081f18 100%)',
-  color: 'white',
-  display: 'flex',
-  flexDirection: 'column',
-  padding: 0,
-  position: 'relative',
-  overflow: 'hidden',
-};
-
-const sidebarPatternStyle = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0.04,
-  backgroundImage: `repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 20px,
-    rgba(255,255,255,0.5) 20px,
-    rgba(255,255,255,0.5) 21px
-  )`,
-  pointerEvents: 'none',
-};
-
-const sidebarHeaderStyle = {
-  padding: '24px 20px 28px',
-  textAlign: 'center',
-  borderBottom: '1px solid rgba(255,255,255,0.08)',
-  position: 'relative',
-  zIndex: 1,
-};
-
-const navLinkStyle = (isActive) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '11px 20px',
-  textDecoration: 'none',
-  color: isActive ? '#f0c66e' : 'rgba(255,255,255,0.7)',
-  background: isActive ? 'rgba(212, 145, 61, 0.12)' : 'transparent',
-  borderLeft: isActive ? '3px solid #d4913d' : '3px solid transparent',
-  fontSize: '0.88rem',
-  fontWeight: isActive ? 500 : 400,
-  transition: 'all 0.2s ease',
-  letterSpacing: '0.01em',
-});
-
-const footerStyle = {
-  padding: '16px 20px',
-  borderTop: '1px solid rgba(255,255,255,0.08)',
-  position: 'relative',
-  zIndex: 1,
-};
-
-const logoutBtnStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  width: '100%',
-  padding: '9px 14px',
-  background: 'rgba(220, 80, 60, 0.12)',
-  border: '1px solid rgba(220, 80, 60, 0.2)',
-  color: '#e8837c',
-  borderRadius: 8,
-  cursor: 'pointer',
-  fontSize: '0.85rem',
-  fontFamily: 'Outfit, sans-serif',
-  transition: 'all 0.2s ease',
-};
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -117,36 +52,39 @@ const Layout = () => {
   const allMenu = [...menuItems, ...adminMenu.filter(m => m.roles.includes(user?.role))];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f2f1', fontFamily: 'Outfit, sans-serif' }}>
-      <aside style={sidebarStyle}>
-        <div style={sidebarPatternStyle} />
-        <div style={sidebarHeaderStyle}>
-          <div style={{ fontSize: '1.6rem', marginBottom: 6 }}>🕌</div>
-          <h2 style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '0.02em' }}>Dashboard Masjid</h2>
-          <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: 4, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Panel Administrator</p>
+    <div className="admin-layout">
+      <aside className="sidebar">
+        <div className="sidebar-pattern" />
+        <div className="sidebar-header">
+          <div className="sidebar-header-icon">
+            <MosqueIcon size={24} />
+          </div>
+          <h2>Dashboard Masjid</h2>
+          <p>Panel Administrator</p>
         </div>
-        <nav style={{ flex: 1, padding: '10px 0', position: 'relative', zIndex: 1 }}>
+        <nav className="sidebar-nav">
           {allMenu.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               end={item.path === '/'}
-              style={({ isActive }) => navLinkStyle(isActive)}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
             >
               {item.icon}
               {item.text}
             </NavLink>
           ))}
         </nav>
-        <div style={footerStyle}>
-          <div style={{ fontSize: '0.82rem', marginBottom: 4, fontWeight: 500 }}>{user?.full_name}</div>
-          <div style={{ fontSize: '0.68rem', opacity: 0.45, marginBottom: 12, textTransform: 'capitalize', letterSpacing: '0.06em' }}>{user?.role}</div>
-          <button onClick={handleLogout} style={logoutBtnStyle}>
-            <Logout fontSize="small" /> Logout
+        <div className="sidebar-footer">
+          <div className="sidebar-user-name">{user?.full_name}</div>
+          <div className="sidebar-user-role">{user?.role}</div>
+          <button onClick={handleLogout} className="sidebar-logout">
+            {icons.logout}
+            Logout
           </button>
         </div>
       </aside>
-      <main style={{ flex: 1, padding: 28, overflow: 'auto', fontFamily: 'Outfit, sans-serif' }}>
+      <main className="admin-main">
         <Outlet />
       </main>
     </div>

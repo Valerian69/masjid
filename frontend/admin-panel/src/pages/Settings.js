@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { settingsAPI, jadwalSholatAPI } from '../services/api';
-import { CloudSync as SyncIcon } from '@mui/icons-material';
+
+const SyncIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+    <path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" />
+  </svg>
+);
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -91,9 +96,7 @@ const Settings = () => {
     setSyncing(true);
     setMessage('');
     try {
-      // Save settings first
       await settingsAPI.update(settings);
-      // Then sync
       const res = await jadwalSholatAPI.sync({
         provinsi: settings.provinsi,
         kabkota: settings.kabkota,
@@ -106,75 +109,42 @@ const Settings = () => {
     }
   };
 
-  const inputStyle = { width: '100%', padding: '12px 16px', border: '1px solid #ddd', borderRadius: 8, fontSize: '0.95rem', boxSizing: 'border-box' };
-  const labelStyle = { display: 'block', fontSize: '0.9rem', marginBottom: 8, fontWeight: 500, color: '#333' };
-
-  if (loading) return <p>Memuat...</p>;
+  if (loading) return <div className="empty-state">Memuat...</div>;
 
   return (
-    <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a5c2a', marginBottom: 24 }}>Pengaturan Masjid</h1>
+    <div className="animate-in">
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0b3d2e', marginBottom: 24 }}>Pengaturan Masjid</h1>
 
       {message && (
-        <div style={{
-          padding: '12px 16px', borderRadius: 8, marginBottom: 20, fontSize: '0.9rem',
-          background: message.includes('Berhasil') || message.includes('berhasil') ? '#e8f5e9' : '#ffebee',
-          color: message.includes('Berhasil') || message.includes('berhasil') ? '#2e7d32' : '#c62828'
-        }}>
+        <div className={`alert ${message.includes('Berhasil') || message.includes('berhasil') ? 'alert-success' : 'alert-error'}`}>
           {message}
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
-        {/* Masjid Info */}
-        <div style={{ background: 'white', padding: 32, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: 16 }}>
+        <div className="admin-form-card">
           <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 20, color: '#333' }}>Informasi Masjid</h3>
-          <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle}>Nama Masjid</label>
-            <input
-              value={settings.masjid_name || ''}
-              onChange={e => setSettings({...settings, masjid_name: e.target.value})}
-              style={inputStyle}
-              placeholder="Masukkan nama masjid"
-              required
-            />
+          <div className="form-group" style={{ marginBottom: 20 }}>
+            <label className="form-label">Nama Masjid</label>
+            <input value={settings.masjid_name || ''} onChange={e => setSettings({...settings, masjid_name: e.target.value})} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }} placeholder="Masukkan nama masjid" required />
           </div>
-          <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle}>Alamat Masjid</label>
-            <input
-              value={settings.masjid_address || ''}
-              onChange={e => setSettings({...settings, masjid_address: e.target.value})}
-              style={inputStyle}
-              placeholder="Masukkan alamat masjid"
-            />
+          <div className="form-group" style={{ marginBottom: 20 }}>
+            <label className="form-label">Alamat Masjid</label>
+            <input value={settings.masjid_address || ''} onChange={e => setSettings({...settings, masjid_address: e.target.value})} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }} placeholder="Masukkan alamat masjid" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-            <div>
-              <label style={labelStyle}>Latitude</label>
-              <input
-                value={settings.latitude || ''}
-                onChange={e => setSettings({...settings, latitude: e.target.value})}
-                style={inputStyle}
-                placeholder="-6.2088"
-              />
+          <div className="admin-form-grid" style={{ marginBottom: 20 }}>
+            <div className="form-group">
+              <label className="form-label">Latitude</label>
+              <input value={settings.latitude || ''} onChange={e => setSettings({...settings, latitude: e.target.value})} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }} placeholder="-6.2088" />
             </div>
-            <div>
-              <label style={labelStyle}>Longitude</label>
-              <input
-                value={settings.longitude || ''}
-                onChange={e => setSettings({...settings, longitude: e.target.value})}
-                style={inputStyle}
-                placeholder="106.8456"
-              />
+            <div className="form-group">
+              <label className="form-label">Longitude</label>
+              <input value={settings.longitude || ''} onChange={e => setSettings({...settings, longitude: e.target.value})} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }} placeholder="106.8456" />
             </div>
           </div>
-          <div style={{ marginBottom: 0 }}>
-            <label style={labelStyle}>Timezone</label>
-            <select
-              value={settings.timezone || 'Asia/Jakarta'}
-              onChange={e => setSettings({...settings, timezone: e.target.value})}
-              style={inputStyle}
-            >
+          <div className="form-group">
+            <label className="form-label">Timezone</label>
+            <select value={settings.timezone || 'Asia/Jakarta'} onChange={e => setSettings({...settings, timezone: e.target.value})} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }}>
               <option value="Asia/Jakarta">WIB (Asia/Jakarta)</option>
               <option value="Asia/Makassar">WITA (Asia/Makassar)</option>
               <option value="Asia/Jayapura">WIT (Asia/Jayapura)</option>
@@ -182,50 +152,30 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Location for Prayer Times */}
-        <div style={{ background: 'white', padding: 32, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: 16 }}>
+        <div className="admin-form-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', margin: 0 }}>Lokasi Jadwal Sholat</h3>
-            <button
-              type="button"
-              onClick={handleSync}
-              disabled={syncing || !settings.provinsi || !settings.kabkota}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
-                background: '#2196f3', color: 'white', border: 'none', borderRadius: 8,
-                cursor: syncing ? 'not-allowed' : 'pointer', fontSize: '0.85rem',
-                opacity: syncing || !settings.provinsi || !settings.kabkota ? 0.6 : 1,
-              }}
-            >
-              <SyncIcon fontSize="small" />
+            <button type="button" onClick={handleSync} disabled={syncing || !settings.provinsi || !settings.kabkota} className="btn btn-blue" style={{ opacity: syncing || !settings.provinsi || !settings.kabkota ? 0.6 : 1 }}>
+              <SyncIcon />
               {syncing ? 'Sinkronisasi...' : 'Sinkron Sekarang'}
             </button>
           </div>
           <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 16 }}>
             Pilih lokasi masjid untuk mengambil jadwal sholat otomatis dari EQuran.id
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div>
-              <label style={labelStyle}>Provinsi</label>
-              <select
-                value={settings.provinsi || ''}
-                onChange={handleProvinsiChange}
-                style={inputStyle}
-              >
+          <div className="admin-form-grid">
+            <div className="form-group">
+              <label className="form-label">Provinsi</label>
+              <select value={settings.provinsi || ''} onChange={handleProvinsiChange} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }}>
                 <option value="">-- Pilih Provinsi --</option>
                 {provinsiList.map(p => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
             </div>
-            <div>
-              <label style={labelStyle}>Kabupaten / Kota</label>
-              <select
-                value={settings.kabkota || ''}
-                onChange={e => setSettings({...settings, kabkota: e.target.value})}
-                style={inputStyle}
-                disabled={!settings.provinsi}
-              >
+            <div className="form-group">
+              <label className="form-label">Kabupaten / Kota</label>
+              <select value={settings.kabkota || ''} onChange={e => setSettings({...settings, kabkota: e.target.value})} className="form-input" style={{ padding: '12px 16px', fontSize: '0.95rem' }} disabled={!settings.provinsi}>
                 <option value="">-- Pilih Kab/Kota --</option>
                 {kabkotaList.map(k => (
                   <option key={k} value={k}>{k}</option>
@@ -235,15 +185,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={saving}
-          style={{
-            padding: '12px 32px', background: '#1a5c2a', color: 'white', border: 'none',
-            borderRadius: 8, fontSize: '1rem', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer',
-            opacity: saving ? 0.7 : 1
-          }}
-        >
+        <button type="submit" disabled={saving} className="btn btn-primary" style={{ padding: '12px 32px', fontSize: '1rem', opacity: saving ? 0.7 : 1 }}>
           {saving ? 'Menyimpan...' : 'Simpan Pengaturan'}
         </button>
       </form>

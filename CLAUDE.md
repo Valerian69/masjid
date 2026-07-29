@@ -19,6 +19,9 @@ Open source, deploy gratis ke Vercel + Supabase. Lihat [README.md](README.md) un
 - **Background Admin:** Warm off-white `#f0f2f1` with emerald sidebar
 - **Typography:** Outfit (body/UI) + Amiri (mosque name/hijriah date only)
 - **Animations:** Crossfade page transitions (0.8s), breathing countdown, radial ambient glow
+- **Icons:** Phosphor-style stroke-based SVG components (`Icons.js` in each frontend)
+  - Consistent: `strokeWidth="1.5"`, `strokeLinecap="round"`, `strokeLinejoin="round"`
+  - No emoji — all visual indicators use SVG icons
 
 ## Project Structure
 ```
@@ -56,6 +59,7 @@ masjid/
 │   └── src/
 │       ├── App.js             # Main TV layout + crossfade page rotation (API_URL = /api)
 │       ├── components/
+│       │   ├── Icons.js       # Shared Phosphor-style SVG icon components
 │       │   ├── Header.js      # Mosque name + Hijri date + live clock
 │       │   ├── PrayerSchedule.js  # Prayer times + breathing countdown
 │       │   ├── KajianFinance.js   # Combined Kajian + Finance card
@@ -95,6 +99,7 @@ masjid/
 ```
 
 ## Port Configuration
+- **GitHub:** `https://github.com/Valerian69/masjid.git` (account: Valerian69 / itBiensi)
 - **Vercel Production:** `https://masjid-umber.vercel.app`
   - TV Display: `/tv/`
   - Admin Panel: `/admin/`
@@ -309,9 +314,10 @@ rm -rf admin && cp -r frontend/admin-panel/build admin
 - `PUBLIC_URL=/admin` ensures HTML references `/admin/static/js/...` instead of `/static/js/...`
 
 ## Key Features
-- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content
-- **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern
+- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states
+- **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (800+ lines CSS)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)
 - **Finance Reports:** Monthly report with category breakdown, PDF download (professional layout), CSV export
 - **Monitoring:** System health, HTTP metrics (RED method), request/error logs, DB collection stats, auto-refresh 10s
 - **Hijriah Date:** Uses browser's built-in `Intl.DateTimeFormat` (Umm al-Qura calendar)
+- **Premium Design:** Grain texture overlay, inner-border glassmorphism, custom scrollbar, smooth page transitions

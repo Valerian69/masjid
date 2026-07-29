@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const MosqueIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C11.172 2 10.5 2.672 10.5 3.5V5H9V3.5C9 2.672 8.328 2 7.5 2S6 2.672 6 3.5V5H5C3.897 5 3 5.897 3 7V11C3 11.414 3.313 11.771 3.707 11.914C3.891 12.625 4.293 13.253 4.844 13.707C4.308 14.266 4 15 4 15.828V17H3V19H4V22H6V19H8V22H10V19H14V22H16V19H17V17H16V15.828C16 15 15.692 14.266 15.156 13.707C15.707 13.253 16.109 12.625 16.293 11.914C16.687 11.771 17 11.414 17 11V7C17 5.897 16.103 5 15 5H14V3.5C14 2.672 13.328 2 12.5 2H12ZM7 7H10V11H7V7ZM14 7H17V11H14V7ZM5 13H7V15H5V13ZM17 13H19V15H17V13ZM8 14H10V16H8V14ZM14 14H16V16H14V14ZM9 17H15V19H9V17Z" />
+  </svg>
+);
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,154 +31,54 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #061a14 0%, #0b3d2e 50%, #081f18 100%)',
-      fontFamily: 'Outfit, sans-serif',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Ambient glow */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        width: '80vmax',
-        height: '80vmax',
-        transform: 'translate(-50%, -50%)',
-        background: 'radial-gradient(ellipse at center, rgba(20, 107, 74, 0.15) 0%, transparent 60%)',
-        pointerEvents: 'none',
-      }} />
-
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: 20,
-        padding: '44px 40px',
-        width: 400,
-        boxShadow: '0 24px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.1)',
-        position: 'relative',
-        zIndex: 1,
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{ fontSize: '2.2rem', marginBottom: 8 }}>🕌</div>
-          <h1 style={{
-            fontSize: '1.4rem',
-            color: '#0b3d2e',
-            fontWeight: 700,
-            fontFamily: 'Amiri, serif',
-            letterSpacing: '0.02em',
-          }}>Dashboard Masjid</h1>
-          <p style={{
-            color: '#7a9a8e',
-            fontSize: '0.82rem',
-            marginTop: 6,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            fontWeight: 400,
-          }}>Panel Administrator</p>
+    <div className="login-page">
+      <div className="login-glow" />
+      <div className="login-card animate-in">
+        <div className="login-header">
+          <div className="login-icon">
+            <MosqueIcon />
+          </div>
+          <h1>Dashboard Masjid</h1>
+          <p>Panel Administrator</p>
         </div>
 
         {error && (
-          <div style={{
-            padding: '12px 16px',
-            background: '#fef2f2',
-            color: '#b91c1c',
-            borderRadius: 10,
-            marginBottom: 20,
-            fontSize: '0.85rem',
-            border: '1px solid rgba(185, 28, 28, 0.1)',
-          }}>
+          <div className="alert alert-error">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 18 }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              color: '#4a6a5e',
-              marginBottom: 7,
-              fontWeight: 500,
-              letterSpacing: '0.02em',
-            }}>Username</label>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label className="form-label">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1.5px solid #d4ddd8',
-                borderRadius: 10,
-                fontSize: '0.92rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-                fontFamily: 'Outfit, sans-serif',
-                transition: 'border-color 0.2s ease',
-              }}
+              className="form-input"
               required
             />
           </div>
-          <div style={{ marginBottom: 28 }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              color: '#4a6a5e',
-              marginBottom: 7,
-              fontWeight: 500,
-              letterSpacing: '0.02em',
-            }}>Password</label>
+          <div className="form-group">
+            <label className="form-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1.5px solid #d4ddd8',
-                borderRadius: 10,
-                fontSize: '0.92rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-                fontFamily: 'Outfit, sans-serif',
-                transition: 'border-color 0.2s ease',
-              }}
+              className="form-input"
               required
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '13px',
-              background: loading ? '#7a9a8e' : '#0b3d2e',
-              color: 'white',
-              border: 'none',
-              borderRadius: 10,
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontFamily: 'Outfit, sans-serif',
-              letterSpacing: '0.02em',
-              transition: 'background 0.2s ease',
-            }}
+            className="login-submit"
           >
             {loading ? 'Masuk...' : 'Masuk'}
           </button>
         </form>
 
-        <p style={{
-          textAlign: 'center',
-          marginTop: 22,
-          fontSize: '0.72rem',
-          color: '#a0b0a8',
-          letterSpacing: '0.02em',
-        }}>
+        <p className="login-footer">
           Default: admin / admin123
         </p>
       </div>
