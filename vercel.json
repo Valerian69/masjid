@@ -10,7 +10,7 @@
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/tv/(.*)", "destination": "/tv/index.html" },
     { "source": "/tv", "destination": "/tv/index.html" },
-    { "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map))", "dest": "/tv/$1" },
+    { "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map))", "destination": "/tv/$1" },
     { "source": "/(.*)", "destination": "/tv/$1" }
   ]
 }
