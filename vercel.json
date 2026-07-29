@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "installCommand": "npm install && cd frontend/tv-display && npm install && cd ../admin-panel && npm install",
-  "buildCommand": "cd frontend/tv-display && npm run build && cd ../admin-panel && npm run build",
+  "installCommand": "npm run install:all",
+  "buildCommand": "npm run build",
   "outputDirectory": "frontend/tv-display/build",
   "framework": null,
   "rewrites": [

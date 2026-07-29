@@ -1,0 +1,11 @@
+{
+  "name": "masjid-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend/tv-display && npm install --prefix frontend/admin-panel",
+    "build:tv": "cd frontend/tv-display && npm run build",
+    "build:admin": "cd frontend/admin-panel && npm run build",
+    "build": "npm run build:tv && npm run build:admin"
+  }
+}
