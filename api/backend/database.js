@@ -109,10 +109,7 @@ const dbHelpers = {
 
   async update(collection, id, data) {
     const table = COLLECTION_MAP[collection] || collection;
-    const updateData = {
-      ...data,
-      updated_at: new Date().toISOString()
-    };
+    const updateData = { ...data };
 
     // Remove id from update data
     delete updateData.id;
