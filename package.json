@@ -1,11 +1,31 @@
 {
   "name": "masjid-dashboard",
   "version": "1.0.0",
+  "description": "Dashboard Informasi Masjid — Jadwal sholat, kajian, keuangan, agenda untuk TV display dan panel admin",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Valerian69/masjid.git"
+  },
+  "keywords": [
+    "masjid",
+    "mosque",
+    "dashboard",
+    "jadwal-sholat",
+    "prayer-schedule",
+    "supabase",
+    "vercel",
+    "react",
+    "express"
+  ],
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend/tv-display && npm install --prefix frontend/admin-panel",
     "build:tv": "cd frontend/tv-display && npm run build",
     "build:admin": "cd frontend/admin-panel && npm run build",
-    "build": "npm run build:tv && npm run build:admin"
+    "build": "npm run build:tv && npm run build:admin",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:tv": "cd frontend/tv-display && npm start",
+    "dev:admin": "cd frontend/admin-panel && PORT=3001 npm start"
   }
 }

@@ -1,118 +1,181 @@
-# Dashboard Informasi Masjid
+<div align="center">
 
-Aplikasi Dashboard Informasi Masjid yang terdiri dari:
-1. **TV Display** — Tampilan publik untuk layar TV masjid
-2. **Admin Panel** — Panel administrasi untuk pengurus masjid
+# 🕌 Dashboard Informasi Masjid
 
-## Tech Stack
-- **Backend:** Node.js + Express + LowDB (JSON file database)
-- **Frontend TV:** React.js
-- **Frontend Admin:** React.js + Material UI
+**Solusi lengkap dashboard masjid — tampilan TV untuk jamaah + panel admin untuk pengurus.**
 
-## Cara Install & Jalankan
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/clone?repository-url=https%3A%2F%2Fgithub.com%2FValerian69%2Fmasjid&env=SUPABASE_URL,SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,JWT_SECRET&envDescription=Get%20these%20from%20Supabase%20%2B%20generate%20JWT%20secret&envLink=https%3A%2F%2Fgithub.com%2FValerian69%2Fmasjid%2Fblob%2Fmain%2FSETUP.md)
 
-### 1. Backend
-```bash
-cd backend
-npm install
-npm run dev       # Jalankan server di port 5000
-```
+[Live Demo](https://masjid-umber.vercel.app/tv/) · [Admin Panel](https://masjid-umber.vercel.app/admin/) · [Setup Guide](SETUP.md)
 
-### 2. TV Display
-```bash
-cd frontend/tv-display
-npm install
-npm start         # Jalankan di port 3000
-```
+</div>
 
-### 3. Admin Panel
-```bash
-cd frontend/admin-panel
-npm install
-npm start         # Jalankan di port 3000 (atau port lain)
-```
-
-## Default Login
-- **Username:** admin
-- **Password:** admin123
+---
 
 ## Fitur
 
 ### TV Display (Publik)
-- Jadwal Sholat dengan countdown ke sholat berikutnya
-- Jadwal Kajian terdekat
-- Running Text pengumuman
+- Jadwal sholat dengan **countdown animasi** ke sholat berikutnya
+- Jadwal kajian terdekat
+- Running text pengumuman (auto-scroll)
 - Info keuangan ringkas (saldo & infaq bulanan)
 - Agenda kegiatan mendatang
-- Tanggal Hijriah
+- Laporan kegiatan
+- Tanggal Hijriah (otomatis)
+- Desain glassmorphism dengan ambient glow
 
 ### Admin Panel
 - Dashboard ringkasan (total transaksi, kajian, agenda, saldo)
 - Manajemen Jadwal Sholat (CRUD + status aktif/nonaktif)
-- Manajemen Kajian (CRUD + jadwal)
-- Manajemen Keuangan (CRUD + filter + laporan)
+- Manajemen Kajian (CRUD + jadwal berulang)
+- Manajemen Keuangan (CRUD + filter + laporan bulanan + export PDF/CSV)
 - Manajemen Agenda (CRUD + publish/draft)
 - Manajemen Running Text (CRUD + urutan)
-- Manajemen Users (role-based: Superadmin, Takmir, Bendahara, Marbot)
+- Manajemen Laporan Kegiatan
+- Manajemen Users (role-based access control)
+- Monitoring sistem (uptime, memory, CPU)
 - Audit trail perubahan data keuangan
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Node.js + Express |
+| Database | Supabase (PostgreSQL) |
+| TV Display | React.js 18 + Moment.js |
+| Admin Panel | React.js 18 + Material UI v5 |
+| Hosting | Vercel (serverless) |
+
+## Quick Start (Deploy Sendiri)
+
+### Step 1: Buat Supabase Project (Gratis)
+
+1. Buka [supabase.com](https://supabase.com) → Sign up / Login
+2. Klik **"New project"**
+3. Isi nama project, database password, pilih region
+4. Tunggu hingga project selesai dibuat
+
+### Step 2: Setup Database
+
+1. Di Supabase Dashboard, buka tab **"SQL Editor"**
+2. Klik **"New query"**
+3. Copy-paste isi file [`supabase/schema.sql`](supabase/schema.sql) → klik **"Run"**
+4. Buka query baru → copy-paste isi [`supabase/seed.sql`](supabase/seed.sql) → klik **"Run"**
+
+### Step 3: Ambil API Keys
+
+1. Di Supabase Dashboard, buka tab **"Settings" → "API"**
+2. Copy 3 nilai ini:
+   - **Project URL** → `SUPABASE_URL`
+   - **anon public** key → `SUPABASE_ANON_KEY`
+   - **service_role** key → `SUPABASE_SERVICE_ROLE_KEY`
+
+### Step 4: Deploy ke Vercel
+
+Klik tombol **"Deploy to Vercel"** di atas → isi env vars → klik Deploy.
+
+Atau manual:
+```bash
+# Clone repo
+git clone https://github.com/Valerian69/masjid.git
+cd masjid
+
+# Install dependencies
+npm run install:all
+
+# Jalankan lokal
+cd backend && npm run dev
+```
+
+### Step 5: Buka Dashboard
+
+| URL | Keterangan |
+|-----|-----------|
+| `https://your-app.vercel.app/tv/` | TV Display (tampilan publik) |
+| `https://your-app.vercel.app/admin/` | Admin Panel |
+
+**Login:** `admin` / `admin123`
+
+> **Penting:** Setelah deploy, ganti password default untuk keamanan!
 
 ## Role & Permissions
 
 | Role | Akses |
 |------|-------|
-| Superadmin | Full akses semua fitur |
-| Takmir | Kelola jadwal, kajian, agenda, running text |
-| Bendahara | Kelola keuangan (masuk/keluar) |
-| Marbot | Kelola konten TV display |
+| `superadmin` | Full akses semua fitur + kelola user |
+| `takmir` | Kelola jadwal, kajian, agenda, running text, laporan, settings |
+| `bendahara` | Kelola keuangan (masuk/keluar) |
+| `marbot` | Kelola jadwal, kajian, agenda, running text, laporan |
 
-## Struktur Database
-- `users` — Data user admin
-- `jadwal_sholat` — Jadwal sholat 5 waktu
-- `kajian` — Jadwal kajian/pengajian
-- `keuangan` — Transaksi keuangan (masuk/keluar)
-- `agenda` — Agenda kegiatan masjid
-- `running_text` — Teks pengumuman/pemberitahuan
-- `settings` — Pengaturan masjid
-- `audit_log` — Log perubahan data
+## Struktur Project
 
-## Endpoint API
+```
+masjid/
+├── api/                    # Vercel serverless entry point
+│   ├── index.js            # Express handler
+│   ├── package.json        # API dependencies
+│   └── backend/            # Backend copy untuk Vercel
+├── backend/                # Express backend (local dev)
+│   ├── server.js
+│   ├── database.js         # Supabase client
+│   ├── routes/             # 10 API route files
+│   ├── middleware/          # Auth + monitoring
+│   └── scripts/            # Seed script
+├── frontend/
+│   ├── tv-display/         # React TV display
+│   └── admin-panel/        # React admin panel
+├── supabase/
+│   ├── schema.sql          # Database schema
+│   └── seed.sql            # Sample data
+├── tv/                     # Built TV files (Vercel)
+├── admin/                  # Built admin files (Vercel)
+└── vercel.json             # Vercel config
+```
 
-### Auth
-- `POST /api/auth/login` — Login
-- `GET /api/auth/me` — Profil user
-- `GET /api/auth/users` — List users
+## Environment Variables
 
-### Jadwal Sholat
-- `GET /api/jadwal-sholat` — Semua jadwal
-- `POST /api/jadwal-sholat` — Tambah jadwal
-- `PUT /api/jadwal-sholat/:id` — Update jadwal
-- `DELETE /api/jadwal-sholat/:id` — Hapus jadwal
+| Variable | Description | Where to get |
+|----------|-------------|-------------- |
+| `SUPABASE_URL` | Supabase project URL | Supabase Dashboard → Settings → API |
+| `SUPABASE_ANON_KEY` | Supabase anonymous key | Supabase Dashboard → Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Supabase Dashboard → Settings → API |
+| `JWT_SECRET` | Secret for JWT tokens | Generate random string |
+| `REACT_APP_API_URL` | API URL (local dev only) | `http://localhost:5001/api` |
 
-### Kajian
-- `GET /api/kajian` — Semua kajian
-- `POST /api/kajian` — Tambah kajian
-- `PUT /api/kajian/:id` — Update kajian
-- `DELETE /api/kajian/:id` — Hapus kajian
+## Local Development
 
-### Keuangan
-- `GET /api/keuangan` — Semua transaksi
-- `GET /api/keuangan/summary` — Ringkasan keuangan
-- `POST /api/keuangan` — Tambah transaksi
-- `PUT /api/keuangan/:id` — Update transaksi
-- `DELETE /api/keuangan/:id` — Hapus transaksi
+```bash
+# 1. Clone & install
+git clone https://github.com/Valerian69/masjid.git
+cd masjid
+npm run install:all
 
-### Agenda
-- `GET /api/agenda` — Semua agenda
-- `POST /api/agenda` — Tambah agenda
-- `PUT /api/agenda/:id` — Update agenda
-- `DELETE /api/agenda/:id` — Hapus agenda
+# 2. Setup .env
+cp .env.example backend/.env
+# Edit backend/.env dengan values Supabase kamu
 
-### Running Text
-- `GET /api/running-text` — Teks aktif
-- `POST /api/running-text` — Tambah teks
-- `PUT /api/running-text/:id` — Update teks
-- `DELETE /api/running-text/:id` — Hapus teks
+# 3. Jalankan dalam 3 terminal terpisah:
+cd backend && npm run dev          # Port 5001
+cd frontend/tv-display && npm start # Port 3000
+cd frontend/admin-panel && PORT=3001 npm start # Port 3001
+```
 
-### Dashboard
-- `GET /api/dashboard` — Data TV display
-- `GET /api/dashboard/admin` — Data admin dashboard
+## API Endpoints
+
+Lihat lengkapnya di [CLAUDE.md](CLAUDE.md) atau [SETUP.md](SETUP.md).
+
+## Contributing
+
+1. Fork repo ini
+2. Buat branch baru (`git checkout -b feature/fitur-baru`)
+3. Commit perubahan (`git commit -m 'Add fitur baru'`)
+4. Push ke branch (`git push origin feature/fitur-baru`)
+5. Buka Pull Request
+
+## License
+
+[MIT](LICENSE)
+
+## Credits
+
+Dibuat untuk membantu masjid mengelola informasi secara digital.

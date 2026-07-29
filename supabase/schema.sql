@@ -1,6 +1,6 @@
 -- ============================================
 -- Masjid Dashboard - Supabase Schema
--- Run this in Supabase SQL Editor
+-- Run this entire script in Supabase SQL Editor
 -- ============================================
 
 -- 1. Users table
@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL,
   full_name TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'marbot' CHECK (role IN ('superadmin', 'takmir', 'bendahara', 'marbot')),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 2. Jadwal Sholat table
@@ -19,7 +20,8 @@ CREATE TABLE IF NOT EXISTS jadwal_sholat (
   nama_sholat TEXT NOT NULL,
   waktu TEXT NOT NULL,
   is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 3. Kajian table
@@ -33,7 +35,8 @@ CREATE TABLE IF NOT EXISTS kajian (
   deskripsi TEXT,
   is_recurring BOOLEAN DEFAULT false,
   recurring_day TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 4. Keuangan table
@@ -50,7 +53,8 @@ CREATE TABLE IF NOT EXISTS keuangan (
   catatan TEXT,
   status TEXT DEFAULT 'confirmed' CHECK (status IN ('confirmed', 'pending', 'cancelled')),
   created_by UUID REFERENCES users(id),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 5. Agenda table
@@ -63,7 +67,8 @@ CREATE TABLE IF NOT EXISTS agenda (
   deskripsi TEXT,
   lokasi TEXT,
   is_published BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 6. Running Text table
@@ -72,7 +77,8 @@ CREATE TABLE IF NOT EXISTS running_text (
   teks TEXT NOT NULL,
   is_active BOOLEAN DEFAULT true,
   urutan INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 7. Settings table
@@ -80,7 +86,8 @@ CREATE TABLE IF NOT EXISTS settings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   key TEXT UNIQUE NOT NULL,
   value TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 8. Audit Log table
@@ -92,7 +99,8 @@ CREATE TABLE IF NOT EXISTS audit_log (
   record_id UUID,
   old_value JSONB,
   new_value JSONB,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 9. Laporan table
@@ -103,7 +111,8 @@ CREATE TABLE IF NOT EXISTS laporan (
   isi TEXT NOT NULL,
   kategori TEXT NOT NULL CHECK (kategori IN ('renovasi', 'sosial', 'edukasi', 'umum')),
   is_published BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================
@@ -120,8 +129,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_user_id ON audit_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_settings_key ON settings(key);
 
 -- ============================================
--- Row Level Security (RLS) - Optional
--- Recommended for production
+-- Row Level Security (RLS)
 -- ============================================
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE jadwal_sholat ENABLE ROW LEVEL SECURITY;
