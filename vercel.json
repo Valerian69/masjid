@@ -1,16 +1,25 @@
 {
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "backend/**",
-      "maxDuration": 30
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "tv/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "admin/**",
+      "use": "@vercel/static"
     }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/tv/(.*)", "destination": "/tv/index.html" },
-    { "source": "/tv", "destination": "/tv/index.html" },
-    { "source": "/(.*)", "destination": "/tv/$1" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "handle": "filesystem" },
+    { "src": "/admin/(.*)", "dest": "/admin/index.html" },
+    { "src": "/admin", "dest": "/admin/index.html" },
+    { "src": "/tv/(.*)", "dest": "/tv/index.html" },
+    { "src": "/tv", "dest": "/tv/index.html" },
+    { "src": "/(.*)", "dest": "/tv/$1" }
   ]
 }
