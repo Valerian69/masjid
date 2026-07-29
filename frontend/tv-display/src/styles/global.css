@@ -1,0 +1,616 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --emerald-deep: #0b3d2e;
+  --emerald-mid: #146b4a;
+  --emerald-light: #1a9e68;
+  --amber: #d4913d;
+  --amber-glow: #f0c66e;
+  --bg-deep: #061a14;
+  --bg-card: rgba(11, 61, 46, 0.18);
+  --bg-card-hover: rgba(11, 61, 46, 0.28);
+  --text-primary: #f0f4f2;
+  --text-secondary: #b8ccc4;
+  --text-muted: #7a9a8e;
+  --border: rgba(212, 145, 61, 0.2);
+  --border-subtle: rgba(26, 158, 104, 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.tv-display {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+  padding: 14px 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tv-display::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 120vmax;
+  height: 120vmax;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(20, 107, 74, 0.12) 0%,
+    rgba(11, 61, 46, 0.06) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tv-display > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Page transitions ── */
+
+.page-container {
+  min-height: 0;
+  position: relative;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+}
+
+.page.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.page-main {
+  display: grid;
+  grid-template-columns: 5fr 3fr;
+  gap: 10px;
+  height: 100%;
+}
+
+.page-laporan {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page-laporan .laporan-section {
+  flex: 1;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+/* ── Header ── */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 28px;
+  background: linear-gradient(
+    90deg,
+    rgba(11, 61, 46, 0.6) 0%,
+    rgba(20, 107, 74, 0.4) 50%,
+    rgba(11, 61, 46, 0.6) 100%
+  );
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+}
+
+.header .masjid-name {
+  font-family: 'Amiri', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 2px 12px rgba(212, 145, 61, 0.2);
+  letter-spacing: 0.02em;
+}
+
+.header .date-time {
+  text-align: right;
+}
+
+.header .date-time .time {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.header .date-time .date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.header .date-hijriah {
+  text-align: center;
+  font-family: 'Amiri', serif;
+  font-size: 1.05rem;
+  color: var(--amber-glow);
+  opacity: 0.85;
+}
+
+/* ── Cards ── */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(212, 145, 61, 0.3);
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.03em;
+}
+
+.card-title .icon {
+  font-size: 1.2rem;
+}
+
+/* ── Prayer Schedule ── */
+
+.prayer-schedule {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.prayer-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.prayer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  transition: all 0.35s ease;
+}
+
+.prayer-item.active {
+  background: linear-gradient(
+    90deg,
+    rgba(212, 145, 61, 0.15),
+    rgba(20, 107, 74, 0.15)
+  );
+  border-color: var(--amber);
+  transform: scale(1.02);
+}
+
+.prayer-item .name {
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.prayer-item .time {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Countdown ── */
+
+.countdown-section {
+  margin-top: 12px;
+  padding: 18px 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(11, 61, 46, 0.5),
+    rgba(20, 107, 74, 0.3)
+  );
+  border-radius: 14px;
+  text-align: center;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  animation: countdownBreath 4s ease-in-out infinite;
+}
+
+@keyframes countdownBreath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.008); }
+}
+
+.countdown-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.countdown-time {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: var(--amber-glow);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  text-shadow: 0 0 24px rgba(240, 198, 110, 0.3);
+  animation: countdownGlow 4s ease-in-out infinite;
+}
+
+@keyframes countdownGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(240, 198, 110, 0.2); }
+  50% { text-shadow: 0 0 32px rgba(240, 198, 110, 0.4); }
+}
+
+.countdown-prayer-name {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ── Kajian + Finance ── */
+
+.kajian-finance-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.kajian-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.kajian-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--amber);
+  transition: background 0.25s ease;
+}
+
+.kajian-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.kajian-item .title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.kajian-item .ustadz {
+  font-size: 0.8rem;
+  color: var(--amber-glow);
+  opacity: 0.85;
+}
+
+.kajian-item .datetime {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.finance-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 10px 0;
+}
+
+.finance-section-inline {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.finance-box {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  transition: transform 0.25s ease;
+}
+
+.finance-box:hover {
+  transform: translateY(-1px);
+}
+
+.finance-box.saldo {
+  background: linear-gradient(
+    135deg,
+    rgba(212, 145, 61, 0.12),
+    rgba(212, 145, 61, 0.06)
+  );
+  border: 1px solid rgba(212, 145, 61, 0.25);
+}
+
+.finance-box.infaq {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 158, 104, 0.12),
+    rgba(26, 158, 104, 0.06)
+  );
+  border: 1px solid rgba(26, 158, 104, 0.25);
+}
+
+.finance-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.finance-amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-box.infaq .finance-amount {
+  color: var(--emerald-light);
+}
+
+/* ── Agenda ── */
+
+.agenda-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.agenda-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.agenda-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--emerald-mid);
+  transition: background 0.25s ease;
+}
+
+.agenda-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.agenda-item .title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.agenda-item .date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ── Running Text ── */
+
+.running-text-bar {
+  background: linear-gradient(
+    90deg,
+    rgba(11, 61, 46, 0.5) 0%,
+    rgba(20, 107, 74, 0.35) 50%,
+    rgba(11, 61, 46, 0.5) 100%
+  );
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 10px 24px;
+  overflow: hidden;
+  position: relative;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+
+.running-text-content {
+  white-space: nowrap;
+  animation: scrollText 55s linear infinite;
+  font-size: 1rem;
+  color: var(--amber-glow);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+@keyframes scrollText {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ── Empty State ── */
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* ── Laporan ── */
+
+.laporan-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.laporan-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.laporan-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 14px;
+  border-left: 3px solid var(--amber);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.laporan-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.laporan-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.laporan-badge {
+  font-size: 0.65rem;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--emerald-deep), var(--emerald-mid));
+  color: var(--text-primary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.laporan-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.laporan-card-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.laporan-card-text {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Loading ── */
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 16px;
+}
+
+.loading-screen .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-screen .text {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
