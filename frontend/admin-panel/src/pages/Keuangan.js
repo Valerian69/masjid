@@ -452,7 +452,7 @@ const Keuangan = () => {
               </div>
 
               <div className="admin-card" style={{ marginBottom: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+                <div className="keuangan-summary-inline" style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', gap: 16, flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Total Masuk</div>
                     <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#0b3d2e' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.masuk, 0))}</div>

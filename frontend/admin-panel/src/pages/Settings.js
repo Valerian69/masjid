@@ -113,7 +113,12 @@ const Settings = () => {
 
   return (
     <div className="animate-in">
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0b3d2e', marginBottom: 24 }}>Pengaturan Masjid</h1>
+      <div className="page-header">
+        <div>
+          <h1>Pengaturan Masjid</h1>
+          <p className="page-header-subtitle">Konfigurasi informasi dan lokasi masjid</p>
+        </div>
+      </div>
 
       {message && (
         <div className={`alert ${message.includes('Berhasil') || message.includes('berhasil') ? 'alert-success' : 'alert-error'}`}>
@@ -153,11 +158,13 @@ const Settings = () => {
         </div>
 
         <div className="admin-form-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', margin: 0 }}>Lokasi Jadwal Sholat</h3>
-            <button type="button" onClick={handleSync} disabled={syncing || !settings.provinsi || !settings.kabkota} className="btn btn-blue" style={{ opacity: syncing || !settings.provinsi || !settings.kabkota ? 0.6 : 1 }}>
+          <div className="page-header" style={{ marginBottom: 0 }}>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', margin: 0 }}>Lokasi Jadwal Sholat</h3>
+            </div>
+            <button type="button" onClick={handleSync} disabled={syncing || !settings.provinsi || !settings.kabkota} className="btn btn-blue btn-sm" style={{ opacity: syncing || !settings.provinsi || !settings.kabkota ? 0.6 : 1 }}>
               <SyncIcon />
-              {syncing ? 'Sinkronisasi...' : 'Sinkron Sekarang'}
+              {syncing ? 'Sinkron...' : 'Sinkron Sekarang'}
             </button>
           </div>
           <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 16 }}>

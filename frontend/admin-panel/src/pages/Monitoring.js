@@ -81,9 +81,7 @@ const Monitoring = () => {
     <div className="animate-in">
       <div className="page-header">
         <div>
-          <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            Monitoring
-          </h1>
+          <h1>Monitoring</h1>
           <p className="page-header-subtitle">
             {lastRefresh && `Terakhir diperbarui: ${lastRefresh.toLocaleTimeString('id-ID')}`}
           </p>
