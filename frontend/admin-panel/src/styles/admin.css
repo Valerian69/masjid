@@ -168,6 +168,8 @@
   transition: all 0.2s var(--ease-out);
   letter-spacing: 0.01em;
   font-family: 'Outfit', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .sidebar-link:hover {
@@ -1405,6 +1407,8 @@ select.form-input {
   cursor: pointer;
   color: var(--text-primary);
   transition: background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .mobile-hamburger:active {
@@ -1441,6 +1445,10 @@ select.form-input {
 
 .mobile-overlay {
   display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
 }
 
 /* ── Responsive ── */
@@ -1467,11 +1475,6 @@ select.form-input {
 
   .mobile-overlay {
     display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    animation: fadeInUp 0.2s ease;
   }
 
   .admin-layout {
@@ -1482,16 +1485,47 @@ select.form-input {
     position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
+    height: 100dvh;
     width: 280px;
     z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
+    flex-direction: column;
+    overflow: visible;
   }
 
   .sidebar.sidebar-mobile-open {
     transform: translateX(0);
+  }
+
+  .sidebar-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .sidebar-header {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-link {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-nav {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-footer {
+    position: relative;
+    z-index: 1;
   }
 
   .admin-main {
