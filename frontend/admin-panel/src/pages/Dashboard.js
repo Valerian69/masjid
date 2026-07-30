@@ -28,7 +28,7 @@ const Dashboard = () => {
       <div className="page-header">
         <div>
           <h1>Dashboard</h1>
-          <p className="page-header-subtitle">Ringkasan aktivitas masjid</p>
+          <p className="page-header-subtitle">Ringkasan aktivitas & keuangan masjid</p>
         </div>
       </div>
 
