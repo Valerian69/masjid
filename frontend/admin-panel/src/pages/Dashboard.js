@@ -37,7 +37,7 @@ const Dashboard = () => {
           { title: 'Total Transaksi', value: data?.total_transaksi || 0, color: '#0b3d2e', bg: 'rgba(11,61,46,0.04)' },
           { title: 'Total Kajian', value: data?.total_kajian || 0, color: '#1565c0', bg: 'rgba(21,101,192,0.04)' },
           { title: 'Total Agenda', value: data?.total_agenda || 0, color: '#e65100', bg: 'rgba(230,81,0,0.04)' },
-          { title: 'Saldo Kas', value: formatCurrency(finance?.saldo || data?.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.04)' },
+          { title: 'Saldo Kas Masjid', value: formatCurrency(finance?.saldo || data?.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.04)' },
         ].map((card, i) => (
           <div key={i} className="stat-card" style={{ borderLeftColor: card.color, background: card.bg, animationDelay: `${i * 60}ms` }}>
             <div className="stat-card-label">{card.title}</div>
