@@ -315,7 +315,7 @@ rm -rf admin && cp -r frontend/admin-panel/build admin
 
 ## Key Features
 - **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states
-- **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (800+ lines CSS)
+- **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (800+ lines CSS), mobile-responsive forms (sticky submit button)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)
 - **Finance Reports:** Monthly report with category breakdown, PDF download (professional layout), CSV export
 - **Monitoring:** System health, HTTP metrics (RED method), request/error logs, DB collection stats, auto-refresh 10s
