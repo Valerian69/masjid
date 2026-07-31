@@ -252,6 +252,7 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 - Prayer times synced from EQuran.id API (free, no API key needed) — settings `provinsi` and `kabkota` control location
 - PDF reports generated server-side with PDFKit (professional layout with header, summary, tables)
 - TV pages crossfade (0.8s transition) instead of hard-cutting
+- On Fridays, "Dzuhur" is displayed as "Jum'at" in TV display and admin panel (frontend-only logic, DB keeps "Dzuhur")
 
 ## Running the App (Local Development)
 
@@ -314,7 +315,7 @@ rm -rf admin && cp -r frontend/admin-panel/build admin
 - `PUBLIC_URL=/admin` ensures HTML references `/admin/static/js/...` instead of `/static/js/...`
 
 ## Key Features
-- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states
+- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at")
 - **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (800+ lines CSS), mobile-responsive forms (sticky submit button)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)
 - **Finance Reports:** Monthly report with category breakdown, PDF download (professional layout), CSV export
