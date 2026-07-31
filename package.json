@@ -21,9 +21,10 @@
   ],
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend/tv-display && npm install --prefix frontend/admin-panel",
-    "build:tv": "cd frontend/tv-display && npm run build",
-    "build:admin": "cd frontend/admin-panel && npm run build",
+    "build:tv": "cd frontend/tv-display && REACT_APP_API_URL=/api npm run build",
+    "build:admin": "cd frontend/admin-panel && PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build",
     "build": "npm run build:tv && npm run build:admin",
+    "build:vercel": "./build-vercel.sh",
     "dev:backend": "cd backend && npm run dev",
     "dev:tv": "cd frontend/tv-display && npm start",
     "dev:admin": "cd frontend/admin-panel && PORT=3001 npm start"

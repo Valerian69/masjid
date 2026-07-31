@@ -277,6 +277,39 @@ cd frontend/admin-panel && PORT=3001 npm start # Terminal 3: Admin on port 3001
 
 ## Vercel Deployment
 
+### Structure
+Vercel serves these directories directly (not `frontend/*/build/`):
+- `tv/` → TV Display (static)
+- `admin/` → Admin Panel (static, with `PUBLIC_URL=/admin`)
+- `api/` → Backend (serverless Node.js)
+
+**Always run `npm run build:vercel` after editing frontend or backend source.** This rebuilds and copies to the correct directories.
+
+### Quick Build (Recommended)
+```bash
+npm run build:vercel
+```
+This runs `build-vercel.sh` which:
+1. Rebuilds TV Display → copies to `tv/`
+2. Rebuilds Admin Panel (with `PUBLIC_URL=/admin`) → copies to `admin/`
+3. Syncs `backend/` → `api/backend/`
+
+Then commit and push. Vercel auto-deploys from `main`.
+
+### Manual Build
+```bash
+# TV Display
+cd frontend/tv-display && REACT_APP_API_URL=/api npm run build
+rm -rf tv && cp -r frontend/tv-display/build tv
+
+# Admin Panel (MUST use PUBLIC_URL=/admin)
+cd frontend/admin-panel && PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build
+rm -rf admin && cp -r frontend/admin-panel/build admin
+
+# Backend sync
+rsync -av --delete --exclude='node_modules/' --exclude='.env' backend/ api/backend/
+```
+
 ### vercel.json Config
 ```json
 {
@@ -295,24 +328,12 @@ cd frontend/admin-panel && PORT=3001 npm start # Terminal 3: Admin on port 3001
 }
 ```
 
-### Build Commands
-```bash
-# TV Display (with PUBLIC_URL=/tv for correct asset paths)
-cd frontend/tv-display && REACT_APP_API_URL=/api npm run build
-
-# Admin Panel (with PUBLIC_URL=/admin and basename="/admin")
-cd frontend/admin-panel && PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build
-
-# Copy build output to root
-rm -rf tv && cp -r frontend/tv-display/build tv
-rm -rf admin && cp -r frontend/admin-panel/build admin
-```
-
 ### Key Notes
 - `api/` directory is self-contained with its own `package.json` for Vercel's `@vercel/node` builder
 - Frontends use relative `/api` URL (not absolute) — no hardcoded domain
 - Admin Panel uses `basename="/admin"` in React Router
 - `PUBLIC_URL=/admin` ensures HTML references `/admin/static/js/...` instead of `/static/js/...`
+- Do NOT run `npm run build` alone — it lacks `PUBLIC_URL` and env vars needed for Vercel
 
 ## Key Features
 - **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at")
