@@ -142,6 +142,20 @@ const dbHelpers = {
     return true;
   },
 
+  async removeAll(collection) {
+    const table = COLLECTION_MAP[collection] || collection;
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    if (error) {
+      console.error(`Error deleting all from ${collection}:`, error.message);
+      throw error;
+    }
+    return true;
+  },
+
   async count(collection) {
     const table = COLLECTION_MAP[collection] || collection;
     const { count, error } = await supabase

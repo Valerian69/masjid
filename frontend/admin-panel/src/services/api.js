@@ -92,6 +92,7 @@ export const monitoringAPI = {
   getRequests: (limit) => api.get('/monitoring/requests', { params: { limit } }),
   getErrors: (limit) => api.get('/monitoring/errors', { params: { limit } }),
   reset: () => api.post('/monitoring/reset'),
+  cleanData: () => api.post('/monitoring/clean-data'),
 };
 
 export default api;

@@ -79,4 +79,25 @@ router.post('/reset', auth, authorize('superadmin'), (req, res) => {
   res.json({ message: 'Metrics reset successfully' });
 });
 
+router.post('/clean-data', auth, authorize('superadmin'), async (req, res) => {
+  try {
+    const tables = ['jadwal_sholat', 'kajian', 'keuangan', 'agenda', 'running_text', 'laporan', 'audit_log'];
+    const deleted = {};
+
+    for (const table of tables) {
+      await dbHelpers.removeAll(table);
+      deleted[table] = true;
+    }
+
+    resetMetrics();
+
+    res.json({
+      message: 'All data cleaned successfully. Users and settings preserved.',
+      deleted,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to clean data', detail: err.message });
+  }
+});
+
 module.exports = router;

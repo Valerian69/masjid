@@ -67,6 +67,34 @@ const Monitoring = () => {
     }
   };
 
+  const handleCleanData = async () => {
+    const confirm1 = window.confirm(
+      'HAPUS SEMUA DATA?\n\n' +
+      'Ini akan menghapus:\n' +
+      '- Jadwal Sholat\n' +
+      '- Kajian\n' +
+      '- Keuangan\n' +
+      '- Agenda\n' +
+      '- Running Text\n' +
+      '- Laporan\n' +
+      '- Audit Log\n\n' +
+      'Users dan Settings TIDAK akan dihapus.\n\n' +
+      'Ketik OK untuk melanjutkan.'
+    );
+    if (!confirm1) return;
+
+    const confirm2 = window.confirm('PERINGATAN: Tindakan ini tidak dapat dibatalkan. Yakin ingin melanjutkan?');
+    if (!confirm2) return;
+
+    try {
+      await monitoringAPI.cleanData();
+      alert('Semua data berhasil dihapus. Mulai dari awal!');
+      fetchAll();
+    } catch (err) {
+      alert('Gagal menghapus data: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
   if (loading) return <div className="empty-state">Memuat data monitoring...</div>;
   if (!data) return <div className="empty-state" style={{ color: '#c00' }}>Gagal memuat data monitoring</div>;
 
@@ -89,7 +117,10 @@ const Monitoring = () => {
         <div className="page-header-actions">
           <button onClick={fetchAll} className="btn btn-primary">{icons.refresh} Refresh</button>
           {user?.role === 'superadmin' && (
-            <button onClick={handleReset} className="btn btn-orange">{icons.reset} Reset</button>
+            <>
+              <button onClick={handleReset} className="btn btn-orange">{icons.reset} Reset</button>
+              <button onClick={handleCleanData} className="btn btn-danger">{icons.reset} Clean Data</button>
+            </>
           )}
         </div>
       </div>
