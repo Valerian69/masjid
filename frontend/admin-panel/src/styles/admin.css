@@ -1647,6 +1647,30 @@ select.form-input {
 
   .admin-form-card {
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 80px);
+  }
+
+  .admin-form-card .admin-form-grid-4 {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding-bottom: 8px;
+  }
+
+  .admin-form-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: 12px;
+    border-top: 1px solid var(--border-light);
+    flex-shrink: 0;
+  }
+
+  .admin-form-actions .btn {
+    flex: 1;
+    justify-content: center;
   }
 
   .filter-bar {
@@ -1971,6 +1995,11 @@ select.form-input {
 
   .btn {
     min-height: 44px;
+  }
+
+  .admin-form-card {
+    padding: 12px;
+    max-height: calc(100dvh - 76px);
   }
 
   .admin-form-card h3 {
