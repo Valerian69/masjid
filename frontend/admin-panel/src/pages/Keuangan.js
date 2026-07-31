@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { keuanganAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import moment from 'moment';
 
 const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount || 0);
@@ -10,6 +11,8 @@ const metodeOptions = ['cash', 'transfer', 'e-wallet'];
 const statusOptions = ['confirmed', 'pending', 'cancelled'];
 
 const Keuangan = () => {
+  const { user } = useAuth();
+  const canEdit = ['superadmin', 'bendahara'].includes(user?.role);
   const [view, setView] = useState('dashboard');
   const [transaksi, setTransaksi] = useState([]);
   const [summary, setSummary] = useState({});
@@ -142,7 +145,9 @@ const Keuangan = () => {
         </div>
         <div className="page-header-actions">
           <button onClick={handleExport} className="btn btn-outline">Export CSV</button>
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); resetForm(); }} className="btn btn-primary">+ Transaksi Baru</button>
+          {canEdit && (
+            <button onClick={() => { setShowForm(!showForm); setEditingId(null); resetForm(); }} className="btn btn-primary">+ Transaksi Baru</button>
+          )}
         </div>
       </div>
 
@@ -253,7 +258,7 @@ const Keuangan = () => {
       {/* ═══════ TRANSAKSI VIEW ═══════ */}
       {view === 'transaksi' && (
         <>
-          {showForm && (
+          {showForm && canEdit && (
             <form onSubmit={handleSubmit} className="admin-form-card">
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: 16 }}>{editingId ? 'Edit Transaksi' : 'Transaksi Baru'}</h3>
               <div className="admin-form-grid-4">
@@ -385,8 +390,12 @@ const Keuangan = () => {
                       </span>
                     </td>
                     <td className="text-center">
-                      <button onClick={() => handleEdit(item)} className="btn btn-blue btn-sm" style={{ marginRight: 6 }}>Edit</button>
-                      <button onClick={() => handleDelete(item.id)} className="btn btn-danger btn-sm">Hapus</button>
+                      {canEdit && (
+                        <>
+                          <button onClick={() => handleEdit(item)} className="btn btn-blue btn-sm" style={{ marginRight: 6 }}>Edit</button>
+                          <button onClick={() => handleDelete(item.id)} className="btn btn-danger btn-sm">Hapus</button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
