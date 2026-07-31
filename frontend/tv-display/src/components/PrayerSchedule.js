@@ -2,6 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { PrayerIcon } from './Icons';
 
+const formatPrayerName = (nama) => {
+  if (moment().day() === 5 && nama === 'Dzuhur') return 'Jum\'at';
+  return nama;
+};
+
 const PrayerSchedule = ({ jadwal }) => {
   const [currentTime, setCurrentTime] = useState(moment());
 
@@ -22,12 +27,12 @@ const PrayerSchedule = ({ jadwal }) => {
         const duration = moment.duration(diff);
         const pad = (n) => String(n).padStart(2, '0');
         return {
-          nextPrayer: prayer.nama_sholat,
+          nextPrayer: formatPrayerName(prayer.nama_sholat),
           countdown: `${pad(Math.floor(duration.asHours()))}:${pad(duration.minutes())}:${pad(duration.seconds())}`
         };
       }
     }
-    return { nextPrayer: jadwal[0]?.nama_sholat, countdown: '--:--:--' };
+    return { nextPrayer: formatPrayerName(jadwal[0]?.nama_sholat), countdown: '--:--:--' };
   }, [jadwal, currentTime]);
 
   const isActive = (waktu) => {
@@ -52,7 +57,7 @@ const PrayerSchedule = ({ jadwal }) => {
             className={`prayer-item ${isActive(item.waktu) ? 'active' : ''}`}
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            <span className="name">{item.nama_sholat}</span>
+            <span className="name">{formatPrayerName(item.nama_sholat)}</span>
             <span className="time">{item.waktu}</span>
           </div>
         ))}

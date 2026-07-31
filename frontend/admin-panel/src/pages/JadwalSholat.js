@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { jadwalSholatAPI } from '../services/api';
+import moment from 'moment';
 
 const SyncIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
     <path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" />
   </svg>
 );
+
+const formatPrayerName = (nama) => {
+  if (moment().day() === 5 && nama === 'Dzuhur') return 'Jum\'at';
+  return nama;
+};
 
 const JadwalSholat = () => {
   const [jadwal, setJadwal] = useState([]);
@@ -121,7 +127,7 @@ const JadwalSholat = () => {
           <tbody>
             {jadwal.map(item => (
               <tr key={item.id}>
-                <td>{item.nama_sholat}</td>
+                <td>{formatPrayerName(item.nama_sholat)}</td>
                 <td style={{ fontWeight: 600, color: '#0b3d2e' }}>{item.waktu}</td>
                 <td>
                   <span className={`badge ${item.is_active ? 'badge-green' : 'badge-red'}`}>
