@@ -551,6 +551,61 @@ body::before {
   transform: translateY(-2px);
 }
 
+/* Stat-card children (JSX uses .stat-icon/.stat-value/.stat-label — match mockup) */
+.stat-card .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+  background: var(--stat-bg, var(--emerald-50));
+  color: var(--stat-color, var(--emerald-600));
+}
+
+.stat-card .stat-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card .stat-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+  font-weight: 500;
+}
+
+.stat-card .stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: var(--space-2);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.stat-card .stat-change.up {
+  color: var(--emerald-600);
+  background: var(--emerald-50);
+}
+
+.stat-card .stat-change.down {
+  color: var(--red-600);
+  background: var(--red-100);
+}
+
 .stat-card-icon {
   width: 40px;
   height: 40px;
