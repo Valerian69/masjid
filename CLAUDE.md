@@ -84,7 +84,13 @@ masjid/
 │           ├── Laporan.js
 │           ├── Users.js       # User management (superadmin)
 │           ├── Settings.js    # Mosque settings
-│           └── Monitoring.js  # System monitoring dashboard
+│           ├── Monitoring.js  # System monitoring dashboard
+│           └── Panduan.js     # In-app guide (feature cards + role table + start tour)
+│       └── components/onboarding/  # First-time onboarding
+│           ├── OnboardingContext.js  # Tour state + per-user localStorage flag
+│           ├── WelcomeModal.js       # First-login welcome (role-aware)
+│           ├── GuidedTour.js         # Spotlight walkthrough of sidebar menus
+│           └── content.js            # Feature descriptions + role summaries (shared w/ Panduan)
 ├── supabase/
 │   ├── schema.sql             # Full database schema (9 tables + indexes + RLS)
 │   └── seed.sql               # Seed data in pure SQL (50 keuangan, 8 kajian, etc.)
@@ -349,7 +355,8 @@ rsync -av --delete --exclude='node_modules/' --exclude='.env' backend/ api/backe
 
 ## Key Features
 - **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at")
-- **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (800+ lines CSS), mobile-responsive forms (sticky submit button)
+- **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (mockup-aligned tokens), mobile-responsive forms (sticky submit button), toast notifications + confirm modal, loading/empty/error states
+- **Onboarding:** First-login welcome modal (role-aware) + interactive guided tour that spotlights each sidebar menu (step x/N, keyboard nav), replayable via the "?" button; permanent **Panduan** page (feature guide + role/permission table). Seen-state stored per user in `localStorage` (`masjid_onboarding_seen_v1_<userId>`)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)
 - **Finance Reports:** Monthly report with category breakdown, PDF download (professional layout), CSV export
 - **Monitoring:** System health, HTTP metrics (RED method), request/error logs, DB collection stats, auto-refresh 10s, Clean Data button (superadmin)
