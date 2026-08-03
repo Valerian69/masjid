@@ -35,6 +35,49 @@
 - Manajemen Users (role-based access control)
 - Monitoring sistem (uptime, memory, CPU)
 - Audit trail perubahan data keuangan
+- **Onboarding pengguna pertama kali** — welcome modal + tur interaktif (spotlight tiap menu), sadar-role
+- **Halaman Panduan** — dokumentasi fitur + tabel peran, bisa diakses kapan saja
+- Notifikasi toast, modal konfirmasi, loading/empty/error state di semua modul
+
+## 📸 Tampilan Aplikasi
+
+### TV Display (layar publik)
+
+Layar untuk publik: jadwal sholat + countdown ke sholat berikutnya, kajian, ringkasan keuangan, agenda, dan running text — rotasi halaman otomatis dengan transisi halus.
+
+![TV Display — Jadwal Sholat](docs/screenshots/tv-jadwal.jpg)
+
+![TV Display — Laporan Kegiatan](docs/screenshots/tv-laporan.jpg)
+
+### Admin Panel
+
+Panel internal untuk mengelola seluruh konten, dengan akses berbasis peran dan design system emerald–amber.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/admin-login.jpg" alt="Login"><br><sub><b>Login</b> — split emerald + amber</sub></td>
+    <td width="50%"><img src="docs/screenshots/admin-dashboard.png" alt="Dashboard"><br><sub><b>Dashboard</b> — ringkasan aktivitas & keuangan</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/admin-keuangan.png" alt="Keuangan"><br><sub><b>Keuangan</b> — saldo, tren 6 bulan, kategori</sub></td>
+    <td><img src="docs/screenshots/admin-kajian.png" alt="Kajian"><br><sub><b>Kajian</b> — grid kartu + filter</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/admin-monitoring.png" alt="Monitoring"><br><sub><b>Monitoring</b> — kesehatan sistem & DB</sub></td>
+    <td><img src="docs/screenshots/admin-panduan.png" alt="Panduan"><br><sub><b>Panduan</b> — dokumentasi fitur + peran</sub></td>
+  </tr>
+</table>
+
+### Onboarding (panduan pengguna pertama kali)
+
+Muncul otomatis saat login pertama; bisa diputar ulang kapan saja lewat tombol **?**.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/onboarding-welcome.png" alt="Welcome modal"><br><sub><b>Welcome modal</b> — sapaan + ringkasan peran</sub></td>
+    <td width="50%"><img src="docs/screenshots/onboarding-tour.png" alt="Tur interaktif"><br><sub><b>Tur interaktif</b> — spotlight tiap menu</sub></td>
+  </tr>
+</table>
 
 ## Tech Stack
 
