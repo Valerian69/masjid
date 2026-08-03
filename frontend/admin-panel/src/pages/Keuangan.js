@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { keuanganAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import moment from 'moment';
 
-const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount || 0);
+const fmt = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount || 0);
 
 const kategoriMasuk = ['Infaq', 'Donasi', 'Sedekah', 'Kas Jumat', 'Dana Pembangunan', 'Zakat', 'Lainnya'];
 const kategoriKeluar = ['Operasional', 'Gaji/Insentif', 'Pemeliharaan', 'Listrik & Air', 'Beli Barang', 'Sosial', 'Renovasi', 'Lainnya'];
-const metodeOptions = ['cash', 'transfer', 'e-wallet'];
-const statusOptions = ['confirmed', 'pending', 'cancelled'];
 
 const Keuangan = () => {
   const { user } = useAuth();
@@ -17,11 +15,11 @@ const Keuangan = () => {
   const [transaksi, setTransaksi] = useState([]);
   const [summary, setSummary] = useState({});
   const [trend, setTrend] = useState([]);
-  const [categoryBreakdown, setCategoryBreakdown] = useState({ masuk: [], keluar: [] });
+  const [catMasuk, setCatMasuk] = useState([]);
+  const [catKeluar, setCatKeluar] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [form, setForm] = useState({
     tanggal: moment().format('YYYY-MM-DD'), jenis: 'masuk', kategori: 'Infaq',
     deskripsi: '', jumlah: '', metode_pembayaran: 'cash', penerima: '', no_ref: '', catatan: '', status: 'confirmed'
@@ -30,45 +28,47 @@ const Keuangan = () => {
   const [reportMonth, setReportMonth] = useState({ year: moment().format('YYYY'), month: moment().format('MM') });
   const [reportData, setReportData] = useState(null);
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const [transRes, summaryRes, trendRes, catRes] = await Promise.all([
-        keuanganAPI.getAll(filter),
-        keuanganAPI.getSummary(),
-        keuanganAPI.getMonthlyTrend(),
-        keuanganAPI.getCategoryBreakdown()
-      ]);
-      setTransaksi(Array.isArray(transRes.data) ? transRes.data : []);
-      setSummary(summaryRes.data || {});
-      setTrend(Array.isArray(trendRes.data) ? trendRes.data : []);
-      setCategoryBreakdown(catRes.data && catRes.data.masuk ? catRes.data : { masuk: [], keluar: [] });
-    } catch (err) {
-      console.error('Failed to load finance data:', err);
-      setError(err.message || 'Gagal memuat data keuangan');
-    } finally {
-      setLoading(false);
-    }
-  }, [filter]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const p = {};
+        Object.keys(filter).forEach(k => { if (filter[k]) p[k] = filter[k]; });
+        const [tRes, sRes, mRes, cRes] = await Promise.all([
+          keuanganAPI.getAll(p).catch(() => ({ data: [] })),
+          keuanganAPI.getSummary().catch(() => ({ data: {} })),
+          keuanganAPI.getMonthlyTrend().catch(() => ({ data: [] })),
+          keuanganAPI.getCategoryBreakdown().catch(() => ({ data: { masuk: [], keluar: [] } })),
+        ]);
+        if (cancelled) return;
+        setTransaksi(Array.isArray(tRes.data) ? tRes.data : []);
+        setSummary(sRes.data || {});
+        setTrend(Array.isArray(mRes.data) ? mRes.data : []);
+        const cd = cRes.data || {};
+        setCatMasuk(Array.isArray(cd.masuk) ? cd.masuk : []);
+        setCatKeluar(Array.isArray(cd.keluar) ? cd.keluar : []);
+      } catch { } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [filter.start_date, filter.end_date, filter.jenis, filter.kategori, filter.metode, filter.status, filter.search]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  const resetForm = () => setForm({
+    tanggal: moment().format('YYYY-MM-DD'), jenis: 'masuk', kategori: 'Infaq',
+    deskripsi: '', jumlah: '', metode_pembayaran: 'cash', penerima: '', no_ref: '', catatan: '', status: 'confirmed'
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingId) {
-        await keuanganAPI.update(editingId, form);
-      } else {
-        await keuanganAPI.create(form);
-      }
-      setShowForm(false);
-      setEditingId(null);
-      resetForm();
-      loadData();
-    } catch (err) {
-      console.error('Failed to save transaction:', err);
-    }
+      if (editingId) await keuanganAPI.update(editingId, form);
+      else await keuanganAPI.create(form);
+      setShowForm(false); setEditingId(null); resetForm();
+      setFilter({ ...filter });
+    } catch (err) { console.error(err); }
   };
 
   const handleEdit = (item) => {
@@ -79,105 +79,57 @@ const Keuangan = () => {
       penerima: item.penerima || '', no_ref: item.no_ref || '',
       catatan: item.catatan || '', status: item.status || 'confirmed'
     });
-    setEditingId(item.id);
-    setShowForm(true);
+    setEditingId(item.id); setShowForm(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus transaksi ini? Tindakan ini tidak dapat dibatalkan.')) {
+    if (window.confirm('Hapus transaksi ini?')) {
       await keuanganAPI.delete(id);
-      loadData();
+      setFilter({ ...filter });
     }
-  };
-
-  const resetForm = () => {
-    setForm({
-      tanggal: moment().format('YYYY-MM-DD'), jenis: 'masuk', kategori: 'Infaq',
-      deskripsi: '', jumlah: '', metode_pembayaran: 'cash', penerima: '', no_ref: '', catatan: '', status: 'confirmed'
-    });
   };
 
   const handleExport = async () => {
     try {
       const res = await keuanganAPI.exportCSV(filter);
       const url = window.URL.createObjectURL(new Blob([res.data]));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `keuangan-${moment().format('YYYY-MM-DD')}.csv`;
-      a.click();
-    } catch (err) {
-      console.error('Export failed:', err);
-    }
+      const a = document.createElement('a'); a.href = url;
+      a.download = `keuangan-${moment().format('YYYY-MM-DD')}.csv`; a.click();
+    } catch (err) { console.error(err); }
   };
 
   const loadReport = async () => {
     try {
       const res = await keuanganAPI.getReport(reportMonth);
       setReportData(res.data);
-    } catch (err) {
-      console.error('Failed to load report:', err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleDownloadPDF = async () => {
     try {
       const res = await keuanganAPI.getReportPDF(reportMonth);
       const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-      const a = document.createElement('a');
-      a.href = url;
+      const a = document.createElement('a'); a.href = url;
       a.download = `laporan-keuangan-${reportMonth.year}-${reportMonth.month}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      document.body.appendChild(a); a.click(); a.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Failed to download PDF:', err);
-    }
+    } catch (err) { console.error(err); }
   };
 
-  const changeFilter = (key, value) => {
-    setFilter(prev => ({ ...prev, [key]: value }));
-  };
-
-  const maxTrend = Math.max(...(Array.isArray(trend) ? trend.map(t => Math.max(t.masuk || 0, t.keluar || 0)) : []), 1);
-  const totalCategoryMasuk = (Array.isArray(categoryBreakdown.masuk) ? categoryBreakdown.masuk : []).reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
-  const totalCategoryKeluar = (Array.isArray(categoryBreakdown.keluar) ? categoryBreakdown.keluar : []).reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
+  const changeFilter = (key, value) => setFilter(prev => ({ ...prev, [key]: value }));
+  const maxTrend = Math.max(...trend.map(t => Math.max(t.masuk || 0, t.keluar || 0)), 1);
+  const totalCM = catMasuk.reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
+  const totalCK = catKeluar.reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
 
   if (loading) {
     return (
       <div className="animate-in">
-        <div className="page-header">
-          <div>
-            <h1>Keuangan Masjid</h1>
-            <p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '80px 0', color: '#7a9a8e' }}>
+        <div className="page-header"><div><h1>Keuangan Masjid</h1><p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p></div></div>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0', color: '#7a9a8e' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 12, animation: 'spin 1s linear infinite' }}>&#8635;</div>
             <p>Memuat data keuangan...</p>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="animate-in">
-        <div className="page-header">
-          <div>
-            <h1>Keuangan Masjid</h1>
-            <p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p>
-          </div>
-        </div>
-        <div style={{
-          background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12,
-          padding: 32, textAlign: 'center', margin: '20px 0'
-        }}>
-          <p style={{ color: '#991b1b', fontWeight: 600, marginBottom: 8 }}>Gagal memuat data</p>
-          <p style={{ color: '#991b1b', fontSize: '0.85rem', marginBottom: 16 }}>{error}</p>
-          <button onClick={loadData} className="btn btn-primary">Coba Lagi</button>
         </div>
       </div>
     );
@@ -206,14 +158,13 @@ const Keuangan = () => {
         ))}
       </div>
 
-      {/* ═══════ DASHBOARD VIEW ═══════ */}
       {view === 'dashboard' && (
         <>
           <div className="summary-grid">
             {[
-              { label: 'Saldo Total', value: formatCurrency(summary.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.08)', border: 'rgba(212,145,61,0.3)' },
-              { label: 'Bulan Ini Masuk', value: formatCurrency(summary.bulan_ini_masuk), color: '#0b3d2e', bg: 'rgba(11,61,46,0.06)', border: 'rgba(11,61,46,0.2)' },
-              { label: 'Bulan Ini Keluar', value: formatCurrency(summary.bulan_ini_keluar), color: '#c62828', bg: 'rgba(198,40,40,0.06)', border: 'rgba(198,40,40,0.2)' },
+              { label: 'Saldo Total', value: fmt(summary.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.08)', border: 'rgba(212,145,61,0.3)' },
+              { label: 'Bulan Ini Masuk', value: fmt(summary.bulan_ini_masuk), color: '#0b3d2e', bg: 'rgba(11,61,46,0.06)', border: 'rgba(11,61,46,0.2)' },
+              { label: 'Bulan Ini Keluar', value: fmt(summary.bulan_ini_keluar), color: '#c62828', bg: 'rgba(198,40,40,0.06)', border: 'rgba(198,40,40,0.2)' },
               { label: 'Transaksi Bulan Ini', value: summary.jumlah_transaksi_bulan || 0, color: '#1565c0', bg: 'rgba(21,101,192,0.06)', border: 'rgba(21,101,192,0.2)', isNumber: true },
             ].map((card, i) => (
               <div key={i} className="summary-card" style={{ background: card.bg, borderColor: card.border }}>
@@ -227,11 +178,11 @@ const Keuangan = () => {
             <div className="admin-card">
               <div className="admin-card-title">Tren 6 Bulan Terakhir</div>
               <div className="bar-chart">
-                {trend.map((item, i) => (
+                {(trend || []).map((item, i) => (
                   <div key={i} className="bar-chart-col">
                     <div className="bar-chart-bars">
-                      <div className="bar-chart-bar masuk" style={{ height: `${(item.masuk / maxTrend) * 130}px` }} title={`Masuk: ${formatCurrency(item.masuk)}`} />
-                      <div className="bar-chart-bar keluar" style={{ height: `${(item.keluar / maxTrend) * 130}px` }} title={`Keluar: ${formatCurrency(item.keluar)}`} />
+                      <div className="bar-chart-bar masuk" style={{ height: `${((item.masuk || 0) / maxTrend) * 130}px` }} title={`Masuk: ${fmt(item.masuk)}`} />
+                      <div className="bar-chart-bar keluar" style={{ height: `${((item.keluar || 0) / maxTrend) * 130}px` }} title={`Keluar: ${fmt(item.keluar)}`} />
                     </div>
                     <div className="bar-chart-label">{item.label}</div>
                   </div>
@@ -245,33 +196,33 @@ const Keuangan = () => {
 
             <div className="admin-card">
               <div className="admin-card-title">Kategori Bulan Ini</div>
-              {categoryBreakdown.masuk.length > 0 && (
+              {catMasuk.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div className="category-section-title" style={{ color: '#0b3d2e' }}>Pemasukan</div>
-                  {categoryBreakdown.masuk.slice(0, 4).map((cat, i) => (
+                  {catMasuk.slice(0, 4).map((cat, i) => (
                     <div key={i} className="category-bar-item">
                       <div className="category-bar-header">
                         <span className="category-bar-name">{cat.kategori}</span>
-                        <span className="category-bar-value">{formatCurrency(cat.jumlah)}</span>
+                        <span className="category-bar-value">{fmt(cat.jumlah)}</span>
                       </div>
                       <div className="category-bar-track">
-                        <div className="category-bar-fill green" style={{ width: `${(cat.jumlah / totalCategoryMasuk) * 100}%` }} />
+                        <div className="category-bar-fill green" style={{ width: `${((cat.jumlah || 0) / totalCM) * 100}%` }} />
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-              {categoryBreakdown.keluar.length > 0 && (
+              {catKeluar.length > 0 && (
                 <div>
                   <div className="category-section-title" style={{ color: '#c62828' }}>Pengeluaran</div>
-                  {categoryBreakdown.keluar.slice(0, 4).map((cat, i) => (
+                  {catKeluar.slice(0, 4).map((cat, i) => (
                     <div key={i} className="category-bar-item">
                       <div className="category-bar-header">
                         <span className="category-bar-name">{cat.kategori}</span>
-                        <span className="category-bar-value">{formatCurrency(cat.jumlah)}</span>
+                        <span className="category-bar-value">{fmt(cat.jumlah)}</span>
                       </div>
                       <div className="category-bar-track">
-                        <div className="category-bar-fill red" style={{ width: `${(cat.jumlah / totalCategoryKeluar) * 100}%` }} />
+                        <div className="category-bar-fill red" style={{ width: `${((cat.jumlah || 0) / totalCK) * 100}%` }} />
                       </div>
                     </div>
                   ))}
@@ -285,16 +236,14 @@ const Keuangan = () => {
             {transaksi.slice(0, 8).map((item) => (
               <div key={item.id} className="transaction-row">
                 <div className="transaction-left">
-                  <div className={`transaction-icon ${item.jenis}`}>
-                    {item.jenis === 'masuk' ? '\u2191' : '\u2193'}
-                  </div>
+                  <div className={`transaction-icon ${item.jenis}`}>{item.jenis === 'masuk' ? '\u2191' : '\u2193'}</div>
                   <div>
                     <div className="transaction-info-title">{item.kategori}{item.penerima ? ` \u2014 ${item.penerima}` : ''}</div>
                     <div className="transaction-info-sub">{item.tanggal}{item.deskripsi ? ` \u00b7 ${item.deskripsi.slice(0, 40)}` : ''}</div>
                   </div>
                 </div>
                 <div className={`transaction-amount ${item.jenis}`}>
-                  {item.jenis === 'masuk' ? '+' : '-'}{formatCurrency(item.jumlah)}
+                  {item.jenis === 'masuk' ? '+' : '-'}{fmt(item.jumlah)}
                 </div>
               </div>
             ))}
@@ -302,7 +251,6 @@ const Keuangan = () => {
         </>
       )}
 
-      {/* ═══════ TRANSAKSI VIEW ═══════ */}
       {view === 'transaksi' && (
         <>
           {showForm && canEdit && (
@@ -332,7 +280,7 @@ const Keuangan = () => {
                 <div className="form-group">
                   <label className="form-label">Metode Pembayaran</label>
                   <select value={form.metode_pembayaran} onChange={e => setForm({...form, metode_pembayaran: e.target.value})} className="form-input">
-                    {metodeOptions.map(m => <option key={m} value={m}>{m === 'cash' ? 'Tunai' : m === 'transfer' ? 'Transfer' : 'E-Wallet'}</option>)}
+                    <option value="cash">Tunai</option><option value="transfer">Transfer</option><option value="e-wallet">E-Wallet</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -346,7 +294,7 @@ const Keuangan = () => {
                 <div className="form-group">
                   <label className="form-label">Status</label>
                   <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="form-input">
-                    {statusOptions.map(s => <option key={s} value={s}>{s === 'confirmed' ? 'Dikonfirmasi' : s === 'pending' ? 'Menunggu' : 'Dibatalkan'}</option>)}
+                    <option value="confirmed">Dikonfirmasi</option><option value="pending">Menunggu</option><option value="cancelled">Dibatalkan</option>
                   </select>
                 </div>
                 <div className="form-group admin-form-full">
@@ -404,15 +352,7 @@ const Keuangan = () => {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Tanggal</th>
-                  <th>Jenis</th>
-                  <th>Kategori</th>
-                  <th>Metode</th>
-                  <th>Pihak Terkait</th>
-                  <th>Deskripsi</th>
-                  <th className="text-right">Jumlah</th>
-                  <th>Status</th>
-                  <th className="text-center">Aksi</th>
+                  <th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Metode</th><th>Pihak Terkait</th><th>Deskripsi</th><th className="text-right">Jumlah</th><th>Status</th><th className="text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -429,7 +369,7 @@ const Keuangan = () => {
                     <td>{item.penerima || '-'}</td>
                     <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.deskripsi || '-'}</td>
                     <td className="text-right" style={{ fontWeight: 600, color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
-                      {item.jenis === 'masuk' ? '+' : '-'}{formatCurrency(item.jumlah)}
+                      {item.jenis === 'masuk' ? '+' : '-'}{fmt(item.jumlah)}
                     </td>
                     <td>
                       <span className={`badge ${item.status === 'confirmed' ? 'badge-green' : item.status === 'pending' ? 'badge-amber' : 'badge-red'}`}>
@@ -453,7 +393,6 @@ const Keuangan = () => {
         </>
       )}
 
-      {/* ═══════ LAPORAN VIEW ═══════ */}
       {view === 'laporan' && (
         <>
           <div className="filter-row" style={{ marginBottom: 20 }}>
@@ -475,34 +414,34 @@ const Keuangan = () => {
             <button onClick={handleDownloadPDF} className="btn btn-danger">Download PDF</button>
           </div>
 
-          {reportData && (
+          {reportData && reportData.summary && (
             <>
               <div className="two-col-grid">
                 <div className="admin-card">
                   <div className="admin-card-title" style={{ color: '#0b3d2e' }}>Pemasukan per Kategori</div>
-                  {reportData.summary.filter(s => s.masuk > 0).map((s, i) => (
+                  {(reportData.summary || []).filter(s => s.masuk > 0).map((s, i) => (
                     <div key={i} className="transaction-row">
                       <span style={{ fontSize: '0.85rem' }}>{s.kategori}</span>
-                      <span style={{ color: '#0b3d2e', fontWeight: 600 }}>{formatCurrency(s.masuk)}</span>
+                      <span style={{ color: '#0b3d2e', fontWeight: 600 }}>{fmt(s.masuk)}</span>
                     </div>
                   ))}
                   <div className="transaction-row" style={{ fontWeight: 700, borderTop: '2px solid #0b3d2e', marginTop: 8 }}>
                     <span>Total Masuk</span>
-                    <span style={{ color: '#0b3d2e' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.masuk, 0))}</span>
+                    <span style={{ color: '#0b3d2e' }}>{fmt((reportData.summary || []).reduce((s, x) => s + (x.masuk || 0), 0))}</span>
                   </div>
                 </div>
 
                 <div className="admin-card">
                   <div className="admin-card-title" style={{ color: '#c62828' }}>Pengeluaran per Kategori</div>
-                  {reportData.summary.filter(s => s.keluar > 0).map((s, i) => (
+                  {(reportData.summary || []).filter(s => s.keluar > 0).map((s, i) => (
                     <div key={i} className="transaction-row">
                       <span style={{ fontSize: '0.85rem' }}>{s.kategori}</span>
-                      <span style={{ color: '#c62828', fontWeight: 600 }}>{formatCurrency(s.keluar)}</span>
+                      <span style={{ color: '#c62828', fontWeight: 600 }}>{fmt(s.keluar)}</span>
                     </div>
                   ))}
                   <div className="transaction-row" style={{ fontWeight: 700, borderTop: '2px solid #c62828', marginTop: 8 }}>
                     <span>Total Keluar</span>
-                    <span style={{ color: '#c62828' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.keluar, 0))}</span>
+                    <span style={{ color: '#c62828' }}>{fmt((reportData.summary || []).reduce((s, x) => s + (x.keluar || 0), 0))}</span>
                   </div>
                 </div>
               </div>
@@ -511,16 +450,16 @@ const Keuangan = () => {
                 <div className="keuangan-summary-inline" style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', gap: 16, flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Total Masuk</div>
-                    <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#0b3d2e' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.masuk, 0))}</div>
+                    <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#0b3d2e' }}>{fmt((reportData.summary || []).reduce((s, x) => s + (x.masuk || 0), 0))}</div>
                   </div>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Total Keluar</div>
-                    <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#c62828' }}>{formatCurrency(reportData.summary.reduce((s, x) => s + x.keluar, 0))}</div>
+                    <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#c62828' }}>{fmt((reportData.summary || []).reduce((s, x) => s + (x.keluar || 0), 0))}</div>
                   </div>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Selisih</div>
                     <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#d4913d' }}>
-                      {formatCurrency(reportData.summary.reduce((s, x) => s + x.masuk, 0) - reportData.summary.reduce((s, x) => s + x.keluar, 0))}
+                      {fmt((reportData.summary || []).reduce((s, x) => s + (x.masuk || 0), 0) - (reportData.summary || []).reduce((s, x) => s + (x.keluar || 0), 0))}
                     </div>
                   </div>
                 </div>
@@ -529,16 +468,10 @@ const Keuangan = () => {
               <div className="admin-table-wrap">
                 <table className="admin-table">
                   <thead>
-                    <tr>
-                      <th>Tanggal</th>
-                      <th>Jenis</th>
-                      <th>Kategori</th>
-                      <th>Deskripsi</th>
-                      <th className="text-right">Jumlah</th>
-                    </tr>
+                    <tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Deskripsi</th><th className="text-right">Jumlah</th></tr>
                   </thead>
                   <tbody>
-                    {reportData.detail.map(item => (
+                    {(reportData.detail || []).map(item => (
                       <tr key={item.id}>
                         <td>{moment(item.tanggal).format('DD MMM YYYY')}</td>
                         <td>
@@ -549,7 +482,7 @@ const Keuangan = () => {
                         <td>{item.kategori}</td>
                         <td>{item.deskripsi || '-'}</td>
                         <td className="text-right" style={{ fontWeight: 600, color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
-                          {item.jenis === 'masuk' ? '+' : '-'}{formatCurrency(item.jumlah)}
+                          {item.jenis === 'masuk' ? '+' : '-'}{fmt(item.jumlah)}
                         </td>
                       </tr>
                     ))}
