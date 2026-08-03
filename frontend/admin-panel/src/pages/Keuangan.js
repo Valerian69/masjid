@@ -20,6 +20,8 @@ const Keuangan = () => {
   const [categoryBreakdown, setCategoryBreakdown] = useState({ masuk: [], keluar: [] });
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [form, setForm] = useState({
     tanggal: moment().format('YYYY-MM-DD'), jenis: 'masuk', kategori: 'Infaq',
     deskripsi: '', jumlah: '', metode_pembayaran: 'cash', penerima: '', no_ref: '', catatan: '', status: 'confirmed'
@@ -30,18 +32,23 @@ const Keuangan = () => {
 
   const loadData = useCallback(async () => {
     try {
+      setLoading(true);
+      setError(null);
       const [transRes, summaryRes, trendRes, catRes] = await Promise.all([
         keuanganAPI.getAll(filter),
         keuanganAPI.getSummary(),
         keuanganAPI.getMonthlyTrend(),
         keuanganAPI.getCategoryBreakdown()
       ]);
-      setTransaksi(transRes.data);
-      setSummary(summaryRes.data);
-      setTrend(trendRes.data);
-      setCategoryBreakdown(catRes.data);
+      setTransaksi(Array.isArray(transRes.data) ? transRes.data : []);
+      setSummary(summaryRes.data || {});
+      setTrend(Array.isArray(trendRes.data) ? trendRes.data : []);
+      setCategoryBreakdown(catRes.data && catRes.data.masuk ? catRes.data : { masuk: [], keluar: [] });
     } catch (err) {
       console.error('Failed to load finance data:', err);
+      setError(err.message || 'Gagal memuat data keuangan');
+    } finally {
+      setLoading(false);
     }
   }, [filter]);
 
@@ -132,9 +139,49 @@ const Keuangan = () => {
     setFilter(prev => ({ ...prev, [key]: value }));
   };
 
-  const maxTrend = Math.max(...trend.map(t => Math.max(t.masuk, t.keluar)), 1);
-  const totalCategoryMasuk = categoryBreakdown.masuk.reduce((s, c) => s + c.jumlah, 0) || 1;
-  const totalCategoryKeluar = categoryBreakdown.keluar.reduce((s, c) => s + c.jumlah, 0) || 1;
+  const maxTrend = Math.max(...(Array.isArray(trend) ? trend.map(t => Math.max(t.masuk || 0, t.keluar || 0)) : []), 1);
+  const totalCategoryMasuk = (Array.isArray(categoryBreakdown.masuk) ? categoryBreakdown.masuk : []).reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
+  const totalCategoryKeluar = (Array.isArray(categoryBreakdown.keluar) ? categoryBreakdown.keluar : []).reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
+
+  if (loading) {
+    return (
+      <div className="animate-in">
+        <div className="page-header">
+          <div>
+            <h1>Keuangan Masjid</h1>
+            <p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '80px 0', color: '#7a9a8e' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 32, marginBottom: 12, animation: 'spin 1s linear infinite' }}>&#8635;</div>
+            <p>Memuat data keuangan...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-in">
+        <div className="page-header">
+          <div>
+            <h1>Keuangan Masjid</h1>
+            <p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p>
+          </div>
+        </div>
+        <div style={{
+          background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12,
+          padding: 32, textAlign: 'center', margin: '20px 0'
+        }}>
+          <p style={{ color: '#991b1b', fontWeight: 600, marginBottom: 8 }}>Gagal memuat data</p>
+          <p style={{ color: '#991b1b', fontSize: '0.85rem', marginBottom: 16 }}>{error}</p>
+          <button onClick={loadData} className="btn btn-primary">Coba Lagi</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in">

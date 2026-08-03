@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import JadwalSholat from './pages/JadwalSholat';
@@ -23,21 +24,23 @@ function App() {
   return (
     <AuthProvider>
       <Router basename="/admin">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route index element={<Dashboard />} />
-            <Route path="jadwal-sholat" element={<JadwalSholat />} />
-            <Route path="kajian" element={<Kajian />} />
-            <Route path="keuangan" element={<Keuangan />} />
-            <Route path="agenda" element={<Agenda />} />
-            <Route path="running-text" element={<RunningText />} />
-            <Route path="laporan" element={<Laporan />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="monitoring" element={<Monitoring />} />
-            <Route path="users" element={<Users />} />
-          </Route>
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route index element={<Dashboard />} />
+              <Route path="jadwal-sholat" element={<JadwalSholat />} />
+              <Route path="kajian" element={<Kajian />} />
+              <Route path="keuangan" element={<Keuangan />} />
+              <Route path="agenda" element={<Agenda />} />
+              <Route path="running-text" element={<RunningText />} />
+              <Route path="laporan" element={<Laporan />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="monitoring" element={<Monitoring />} />
+              <Route path="users" element={<Users />} />
+            </Route>
+          </Routes>
+        </ErrorBoundary>
       </Router>
     </AuthProvider>
   );
