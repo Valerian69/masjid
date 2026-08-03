@@ -36,12 +36,13 @@ const Keuangan = () => {
         const p = {};
         Object.keys(filter).forEach(k => { if (filter[k]) p[k] = filter[k]; });
         const [tRes, sRes, mRes, cRes] = await Promise.all([
-          keuanganAPI.getAll(p).catch(() => ({ data: [] })),
-          keuanganAPI.getSummary().catch(() => ({ data: {} })),
-          keuanganAPI.getMonthlyTrend().catch(() => ({ data: [] })),
-          keuanganAPI.getCategoryBreakdown().catch(() => ({ data: { masuk: [], keluar: [] } })),
+          keuanganAPI.getAll(p).catch(e => { console.error('[Keuangan] getAll failed:', e?.response?.data || e.message); return { data: [] }; }),
+          keuanganAPI.getSummary().catch(e => { console.error('[Keuangan] getSummary failed:', e?.response?.data || e.message); return { data: {} }; }),
+          keuanganAPI.getMonthlyTrend().catch(e => { console.error('[Keuangan] getMonthlyTrend failed:', e?.response?.data || e.message); return { data: [] }; }),
+          keuanganAPI.getCategoryBreakdown().catch(e => { console.error('[Keuangan] getCategoryBreakdown failed:', e?.response?.data || e.message); return { data: { masuk: [], keluar: [] } }; }),
         ]);
         if (cancelled) return;
+        console.log('[Keuangan] loaded:', { transaksi: tRes.data?.length, summary: !!sRes.data?.saldo, trend: mRes.data?.length });
         setTransaksi(Array.isArray(tRes.data) ? tRes.data : []);
         setSummary(sRes.data || {});
         setTrend(Array.isArray(mRes.data) ? mRes.data : []);
