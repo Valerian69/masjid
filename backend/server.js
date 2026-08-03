@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     const originalJson = res.json.bind(res);
     res.json = (body) => {
-      if (body && typeof body === 'object' && body.detail) {
+      if (res.statusCode >= 400 && body && typeof body === 'object' && body.detail) {
         delete body.detail;
       }
       return originalJson(body);
