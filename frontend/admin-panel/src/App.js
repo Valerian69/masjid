@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import { ConfirmProvider } from './components/ConfirmDialog';
+import { OnboardingProvider } from './components/onboarding/OnboardingContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -15,6 +16,7 @@ import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Laporan from './pages/Laporan';
 import Monitoring from './pages/Monitoring';
+import Panduan from './pages/Panduan';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
@@ -27,6 +29,7 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <ConfirmProvider>
+          <OnboardingProvider>
           <Router basename="/admin">
             <ErrorBoundary>
               <Routes>
@@ -42,10 +45,12 @@ function App() {
                   <Route path="settings" element={<Settings />} />
                   <Route path="monitoring" element={<Monitoring />} />
                   <Route path="users" element={<Users />} />
+                  <Route path="panduan" element={<Panduan />} />
                 </Route>
               </Routes>
             </ErrorBoundary>
           </Router>
+          </OnboardingProvider>
         </ConfirmProvider>
       </ToastProvider>
     </AuthProvider>

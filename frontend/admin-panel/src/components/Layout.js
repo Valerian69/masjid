@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useOnboarding } from './onboarding/OnboardingContext';
+import WelcomeModal from './onboarding/WelcomeModal';
+import GuidedTour from './onboarding/GuidedTour';
 
 const MosqueIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -25,26 +28,29 @@ const icons = {
   logout: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   menu: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
   close: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  help: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
 };
 
 const mainMenu = [
-  { text: 'Dashboard', icon: icons.dashboard, path: '/', section: 'Menu Utama' },
-  { text: 'Jadwal Sholat', icon: icons.clock, path: '/jadwal-sholat', section: 'Menu Utama' },
-  { text: 'Kajian', icon: icons.book, path: '/kajian', section: 'Menu Utama' },
-  { text: 'Keuangan', icon: icons.wallet, path: '/keuangan', section: 'Menu Utama' },
-  { text: 'Agenda', icon: icons.calendar, path: '/agenda', section: 'Menu Utama' },
-  { text: 'Running Text', icon: icons.text, path: '/running-text', section: 'Konten' },
-  { text: 'Laporan', icon: icons.document, path: '/laporan', section: 'Konten' },
-  { text: 'Pengaturan', icon: icons.settings, path: '/settings', section: 'Sistem' },
-  { text: 'Monitoring', icon: icons.monitor, path: '/monitoring', section: 'Sistem' },
+  { text: 'Dashboard', icon: icons.dashboard, path: '/', section: 'Menu Utama', tour: 'dashboard' },
+  { text: 'Jadwal Sholat', icon: icons.clock, path: '/jadwal-sholat', section: 'Menu Utama', tour: 'jadwal-sholat' },
+  { text: 'Kajian', icon: icons.book, path: '/kajian', section: 'Menu Utama', tour: 'kajian' },
+  { text: 'Keuangan', icon: icons.wallet, path: '/keuangan', section: 'Menu Utama', tour: 'keuangan' },
+  { text: 'Agenda', icon: icons.calendar, path: '/agenda', section: 'Menu Utama', tour: 'agenda' },
+  { text: 'Running Text', icon: icons.text, path: '/running-text', section: 'Konten', tour: 'running-text' },
+  { text: 'Laporan', icon: icons.document, path: '/laporan', section: 'Konten', tour: 'laporan' },
+  { text: 'Pengaturan', icon: icons.settings, path: '/settings', section: 'Sistem', tour: 'settings' },
+  { text: 'Monitoring', icon: icons.monitor, path: '/monitoring', section: 'Sistem', tour: 'monitoring' },
 ];
 
 const adminMenu = [
-  { text: 'Users', icon: icons.users, path: '/users', section: 'Sistem', roles: ['superadmin'] },
+  { text: 'Users', icon: icons.users, path: '/users', section: 'Sistem', roles: ['superadmin'], tour: 'users' },
+  { text: 'Panduan', icon: icons.help, path: '/panduan', section: 'Bantuan' },
 ];
 
 const Layout = () => {
   const { user, logout } = useAuth();
+  const { startTour } = useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -72,6 +78,9 @@ const Layout = () => {
           <MosqueIcon size={20} />
           <span>Dashboard Masjid</span>
         </div>
+        <button className="mobile-topbar-logout" onClick={startTour} aria-label="Mulai tur panduan" style={{ marginRight: 4 }}>
+          {icons.help}
+        </button>
         <button className="mobile-topbar-logout" onClick={handleLogout} aria-label="Logout">
           {icons.logout}
         </button>
@@ -99,6 +108,7 @@ const Layout = () => {
                   key={item.path}
                   to={item.path}
                   end={item.path === '/'}
+                  data-tour={item.tour}
                   className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                 >
                   {item.icon}
@@ -114,6 +124,9 @@ const Layout = () => {
             <div className="sidebar-user-name">{user?.full_name}</div>
             <div className="sidebar-user-role">{user?.role}</div>
           </div>
+          <button onClick={startTour} className="sidebar-logout sidebar-help" title="Panduan / Tur" aria-label="Mulai tur panduan">
+            {icons.help}
+          </button>
           <button onClick={handleLogout} className="sidebar-logout" title="Logout" aria-label="Logout">
             {icons.logout}
           </button>
@@ -122,6 +135,9 @@ const Layout = () => {
       <main className="admin-main">
         <Outlet />
       </main>
+
+      <WelcomeModal />
+      <GuidedTour />
     </div>
   );
 };
