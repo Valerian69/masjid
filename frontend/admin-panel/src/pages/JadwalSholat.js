@@ -224,31 +224,6 @@ const JadwalSholat = () => {
         </div>
       </div>
       )}
-
-      <div className="card" style={{ marginTop: 'var(--space-6)' }}>
-        <div className="card-header">
-          <h2>Konfigurasi Lokasi</h2>
-        </div>
-        <div className="card-body">
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Provinsi</label>
-              <select className="form-select">
-                <option>Pilih Provinsi</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Kabupaten / Kota</label>
-              <select className="form-select">
-                <option>Pilih Kabupaten/Kota</option>
-              </select>
-            </div>
-            <div className="form-group" style={{ justifyContent: 'flex-end' }}>
-              <button className="btn btn-primary">Simpan Konfigurasi</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
