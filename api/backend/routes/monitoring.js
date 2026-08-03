@@ -56,20 +56,20 @@ router.get('/overview', auth, async (req, res) => {
   }
 });
 
-router.get('/system', auth, (req, res) => {
+router.get('/system', auth, authorize('superadmin'), (req, res) => {
   res.json(getSystemMetrics());
 });
 
-router.get('/http', auth, (req, res) => {
+router.get('/http', auth, authorize('superadmin'), (req, res) => {
   res.json(getHttpRequestMetrics());
 });
 
-router.get('/requests', auth, (req, res) => {
+router.get('/requests', auth, authorize('superadmin'), (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 50, 100);
   res.json(getRecentRequests(limit));
 });
 
-router.get('/errors', auth, (req, res) => {
+router.get('/errors', auth, authorize('superadmin'), (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 20, 100);
   res.json(getRecentErrors(limit));
 });

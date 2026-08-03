@@ -79,7 +79,7 @@ const Login = () => {
         </form>
 
         <p className="login-footer">
-          Default: admin / admin123
+          Hubungi admin untuk mendapatkan akun
         </p>
       </div>
     </div>

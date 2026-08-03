@@ -1,5 +1,6 @@
 const express = require('express');
 const { dbHelpers } = require('../database');
+const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/admin', async (req, res) => {
+router.get('/admin', auth, async (req, res) => {
   try {
     const totalUsers = await dbHelpers.count('users');
     const totalKajian = await dbHelpers.count('kajian');

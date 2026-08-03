@@ -317,12 +317,16 @@ router.get('/report/pdf', auth, authorize('superadmin', 'bendahara'), async (req
 router.post('/', auth, authorize('superadmin', 'bendahara'), async (req, res) => {
   try {
     const { tanggal, jenis, kategori, deskripsi, jumlah, metode_pembayaran, penerima, no_ref, catatan, status } = req.body;
+    const parsedJumlah = parseFloat(jumlah);
+    if (Number.isNaN(parsedJumlah) || parsedJumlah < 0) {
+      return res.status(400).json({ error: 'Invalid jumlah: must be a non-negative number' });
+    }
     const transaksi = await dbHelpers.insert('keuangan', {
       tanggal,
       jenis,
       kategori,
       deskripsi,
-      jumlah: parseFloat(jumlah),
+      jumlah: parsedJumlah,
       metode_pembayaran: metode_pembayaran || 'cash',
       penerima: penerima || '',
       no_ref: no_ref || '',
@@ -340,9 +344,13 @@ router.post('/', auth, authorize('superadmin', 'bendahara'), async (req, res) =>
 router.put('/:id', auth, authorize('superadmin', 'bendahara'), async (req, res) => {
   try {
     const { tanggal, jenis, kategori, deskripsi, jumlah, metode_pembayaran, penerima, no_ref, catatan, status } = req.body;
+    const parsedJumlah = parseFloat(jumlah);
+    if (Number.isNaN(parsedJumlah) || parsedJumlah < 0) {
+      return res.status(400).json({ error: 'Invalid jumlah: must be a non-negative number' });
+    }
     const old = await dbHelpers.findById('keuangan', req.params.id);
     await dbHelpers.update('keuangan', req.params.id, {
-      tanggal, jenis, kategori, deskripsi, jumlah: parseFloat(jumlah),
+      tanggal, jenis, kategori, deskripsi, jumlah: parsedJumlah,
       metode_pembayaran: metode_pembayaran || 'cash',
       penerima: penerima || '',
       no_ref: no_ref || '',

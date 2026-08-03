@@ -1,10 +1,15 @@
 const bcrypt = require('bcryptjs');
 const { dbHelpers } = require('../database');
 const jwt = require('jsonwebtoken');
-const { auth } = require('../middleware/auth');
+const { auth, authorize } = require('../middleware/auth');
 
 const router = require('express').Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'masjid-dashboard-secret-key-2026';
+
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set.');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post('/login', async (req, res) => {
   try {
@@ -19,7 +24,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ token, user: { id: user.id, username: user.username, full_name: user.full_name, role: user.role } });
   } catch (err) {
-    res.status(500).json({ error: 'Login failed', detail: err.message });
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
@@ -30,20 +35,20 @@ router.get('/me', auth, async (req, res) => {
     const { password, ...rest } = user;
     res.json(rest);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to get user', detail: err.message });
+    res.status(500).json({ error: 'Failed to get user' });
   }
 });
 
-router.get('/users', auth, async (req, res) => {
+router.get('/users', auth, authorize('superadmin'), async (req, res) => {
   try {
     const users = await dbHelpers.findAll('users');
     res.json(users.map(({ password, ...u }) => u));
   } catch (err) {
-    res.status(500).json({ error: 'Failed to get users', detail: err.message });
+    res.status(500).json({ error: 'Failed to get users' });
   }
 });
 
-router.post('/users', auth, async (req, res) => {
+router.post('/users', auth, authorize('superadmin'), async (req, res) => {
   try {
     const { username, password, full_name, role } = req.body;
     const users = await dbHelpers.findAll('users');
@@ -54,11 +59,11 @@ router.post('/users', auth, async (req, res) => {
     const { password: _, ...rest } = user;
     res.json(rest);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create user', detail: err.message });
+    res.status(500).json({ error: 'Failed to create user' });
   }
 });
 
-router.put('/users/:id', auth, async (req, res) => {
+router.put('/users/:id', auth, authorize('superadmin'), async (req, res) => {
   try {
     const { full_name, role, password } = req.body;
     const id = req.params.id;
@@ -67,16 +72,16 @@ router.put('/users/:id', auth, async (req, res) => {
     await dbHelpers.update('users', id, updateData);
     res.json({ message: 'User updated' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update user', detail: err.message });
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 
-router.delete('/users/:id', auth, async (req, res) => {
+router.delete('/users/:id', auth, authorize('superadmin'), async (req, res) => {
   try {
     await dbHelpers.remove('users', req.params.id);
     res.json({ message: 'User deleted' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete user', detail: err.message });
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 

@@ -17,10 +17,30 @@ const monitoringRoutes = require('./routes/monitoring');
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : [];
+app.use(cors({
+  origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+
+// Strip error details from responses in production
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+      if (body && typeof body === 'object' && body.detail) {
+        delete body.detail;
+      }
+      return originalJson(body);
+    };
+    next();
+  });
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -42,7 +62,11 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(500).json({
+    error: 'Something went wrong!',
+    ...(isProd ? {} : { detail: err.message }),
+  });
 });
 
 // For local development
