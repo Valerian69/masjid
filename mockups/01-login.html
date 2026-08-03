@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Dashboard Masjid</title>
+  <link rel="stylesheet" href="design-system.css">
+  <style>
+    /* Login-specific overrides */
+    .login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #061a14 0%, #0b3d2e 40%, #0a2e22 100%);
+    }
+
+    .login-page::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: 10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(212,145,61,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .login-layout {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Left panel - brand */
+    .login-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: var(--space-16);
+      position: relative;
+    }
+
+    .login-left::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 10%;
+      bottom: 10%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 6px 14px;
+      background: rgba(240,198,110,0.08);
+      border: 1px solid rgba(240,198,110,0.15);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--amber-400);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-8);
+      width: fit-content;
+    }
+
+    .brand-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--amber-400);
+    }
+
+    .brand-headline {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: var(--space-6);
+      max-width: 480px;
+    }
+
+    .brand-headline span {
+      color: var(--amber-400);
+    }
+
+    .brand-sub {
+      font-size: 1.125rem;
+      color: rgba(240,242,241,0.55);
+      line-height: 1.7;
+      max-width: 400px;
+    }
+
+    .brand-features {
+      margin-top: var(--space-12);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .brand-feature {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .brand-feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-feature-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--emerald-400);
+    }
+
+    .brand-feature-text h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgba(240,242,241,0.9);
+    }
+
+    .brand-feature-text p {
+      font-size: 0.8125rem;
+      color: rgba(240,242,241,0.4);
+    }
+
+    /* Right panel - form */
+    .login-right {
+      width: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-10);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: transparent;
+      padding: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      border: none;
+    }
+
+    .login-card-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-10);
+    }
+
+    .login-card-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(240,198,110,0.1);
+      border: 1px solid rgba(240,198,110,0.15);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card-logo-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--amber-400);
+    }
+
+    .login-card-logo h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .login-card-logo p {
+      font-size: 0.75rem;
+      color: rgba(240,242,241,0.4);
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: var(--space-2);
+    }
+
+    .login-subtitle {
+      font-size: 0.875rem;
+      color: rgba(240,242,241,0.45);
+      margin-bottom: var(--space-8);
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .login-form .form-group label {
+      color: rgba(240,242,241,0.6);
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    .login-form .form-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: white;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+    }
+
+    .login-form .form-input::placeholder {
+      color: rgba(240,242,241,0.3);
+    }
+
+    .login-form .form-input:focus {
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 3px rgba(26,158,104,0.15);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .login-form .btn-primary {
+      width: 100%;
+      padding: 14px;
+      font-size: 0.9375rem;
+      background: var(--emerald-600);
+      border-radius: var(--radius);
+      margin-top: var(--space-2);
+    }
+
+    .login-form .btn-primary:hover {
+      background: var(--emerald-500);
+      box-shadow: 0 4px 20px rgba(26,158,104,0.3);
+    }
+
+    .login-hint {
+      text-align: center;
+      margin-top: var(--space-6);
+      font-size: 0.8125rem;
+      color: rgba(240,242,241,0.35);
+    }
+
+    .login-hint a {
+      color: var(--amber-400);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .login-left { display: none; }
+      .login-right { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-layout">
+      <!-- Left: Brand -->
+      <div class="login-left animate-in">
+        <div class="brand-tag">Panel Admin</div>
+        <h1 class="brand-headline">
+          Dashboard <span>Masjid</span>
+        </h1>
+        <p class="brand-sub">
+          Kelola jadwal sholat, kajian, keuangan, dan seluruh informasi masjid dalam satu panel terintegrasi.
+        </p>
+        <div class="brand-features">
+          <div class="brand-feature">
+            <div class="brand-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="brand-feature-text">
+              <h4>Jadwal Sholat Otomatis</h4>
+              <p>Sinkronisasi dari EQuran.id</p>
+            </div>
+          </div>
+          <div class="brand-feature">
+            <div class="brand-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="brand-feature-text">
+              <h4>Manajemen Keuangan</h4>
+              <p>Laporan & export PDF</p>
+            </div>
+          </div>
+          <div class="brand-feature">
+            <div class="brand-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="brand-feature-text">
+              <h4>Akses Multi-Role</h4>
+              <p>Superadmin, Takmir, Bendahara, Marbot</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="login-right animate-in animate-delay-2">
+        <div class="login-card">
+          <div class="login-card-logo">
+            <div class="login-card-logo-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/>
+              </svg>
+            </div>
+            <div>
+              <h2>Masjid Admin</h2>
+              <p>Panel Administrator</p>
+            </div>
+          </div>
+
+          <h3 class="login-title">Masuk ke Akun</h3>
+          <p class="login-subtitle">Gunakan kredensial yang diberikan admin</p>
+
+          <form class="login-form">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" class="form-input" placeholder="Masukkan username" value="admin">
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" class="form-input" placeholder="Masukkan password" value="admin123">
+            </div>
+            <button type="submit" class="btn btn-primary">Masuk</button>
+          </form>
+
+          <p class="login-hint">Hubungi admin untuk mendapatkan akun</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

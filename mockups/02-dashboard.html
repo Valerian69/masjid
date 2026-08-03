@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Admin Masjid</title>
+  <link rel="stylesheet" href="design-system.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f0c66e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/>
+          </svg>
+        </div>
+        <div class="sidebar-brand">
+          <h1>Dashboard Masjid</h1>
+          <p>Panel Administrator</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menu Utama</div>
+          <a href="#" class="nav-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Jadwal Sholat
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Kajian
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Keuangan
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Agenda
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Konten</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            Running Text
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Laporan
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Pengaturan
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            Monitoring
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Users
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar">AD</div>
+        <div class="user-info">
+          <div class="user-name">Admin Utama</div>
+          <div class="user-role">Superadmin</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="page-header animate-in">
+        <div class="page-header-left">
+          <h1>Dashboard</h1>
+          <p>Ringkasan aktivitas & keuangan masjid</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+          <button class="btn btn-primary btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Data
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-4" style="margin-bottom: var(--space-8);">
+        <div class="stat-card animate-in animate-delay-1" style="--stat-color: var(--emerald-600); --stat-bg: var(--emerald-50);">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="stat-value">Rp 12.5M</div>
+          <div class="stat-label">Total Transaksi</div>
+          <div class="stat-change up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +12.5%
+          </div>
+        </div>
+
+        <div class="stat-card animate-in animate-delay-2" style="--stat-color: var(--blue-600); --stat-bg: var(--blue-100);">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="stat-value">24</div>
+          <div class="stat-label">Total Kajian</div>
+          <div class="stat-change up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +3 bulan ini
+          </div>
+        </div>
+
+        <div class="stat-card animate-in animate-delay-3" style="--stat-color: var(--orange-600); --stat-bg: var(--orange-100);">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="stat-value">18</div>
+          <div class="stat-label">Total Agenda</div>
+          <div class="stat-change up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +5 minggu ini
+          </div>
+        </div>
+
+        <div class="stat-card animate-in animate-delay-4" style="--stat-color: var(--amber-500); --stat-bg: var(--amber-100);">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+          </div>
+          <div class="stat-value">Rp 8.2M</div>
+          <div class="stat-label">Saldo Kas Masjid</div>
+          <div class="stat-change up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +8.3%
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-column: Kajian + Agenda -->
+      <div class="grid grid-sidebar animate-in animate-delay-5">
+        <div class="card">
+          <div class="card-header">
+            <h2>Kajian Terdekat</h2>
+            <a href="#" class="btn btn-ghost btn-sm">Lihat Semua</a>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: var(--space-4);">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius); background: var(--blue-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="1.5" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.9375rem;">Tafsir Al-Mishbah</div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary);">Ustadz Ahmad Fauzi &bull; Jumat, 19:00</div>
+              </div>
+              <span class="badge badge-emerald badge-dot">Minggu Ini</span>
+            </div>
+            <div style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: var(--space-4);">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius); background: var(--emerald-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--emerald-600)" stroke-width="1.5" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.9375rem;">Fiqh Muamalah</div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary);">Ustadz H. Martin &bull; Sabtu, 09:00</div>
+              </div>
+              <span class="badge badge-amber badge-dot">Besok</span>
+            </div>
+            <div style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: var(--space-4);">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius); background: var(--purple-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple-500)" stroke-width="1.5" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.9375rem;">Hadits Arba'in</div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary);">Ustadz Dr. Salim &bull; Minggu, 07:00</div>
+              </div>
+              <span class="badge badge-slate badge-dot">3 Hari Lagi</span>
+            </div>
+            <div style="padding: var(--space-4) var(--space-6); display: flex; align-items: center; gap: var(--space-4);">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius); background: var(--amber-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber-500)" stroke-width="1.5" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.9375rem;">Tilawah & Tadabbur</div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary);">Ustadz H. Rudi &bull; Senin, 20:00</div>
+              </div>
+              <span class="badge badge-slate badge-dot">4 Hari Lagi</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Agenda Terdekat</h2>
+            <a href="#" class="btn btn-ghost btn-sm">Lihat Semua</a>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-light);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+                <span class="badge badge-emerald">Jumat</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">19 Agustus 2026</span>
+              </div>
+              <div style="font-weight: 600; font-size: 0.9375rem;">Kajian Akbar Ramadhan</div>
+              <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">19:00 - 21:00 &bull; Aula Utama</div>
+            </div>
+            <div style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-light);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+                <span class="badge badge-amber">Sabtu</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">20 Agustus 2026</span>
+              </div>
+              <div style="font-weight: 600; font-size: 0.9375rem;">Gotong Royong Bersihkan Masjid</div>
+              <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">07:00 - 10:00 &bull; Halaman Masjid</div>
+            </div>
+            <div style="padding: var(--space-4) var(--space-6);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+                <span class="badge badge-blue">Minggu</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">21 Agustus 2026</span>
+              </div>
+              <div style="font-weight: 600; font-size: 0.9375rem;">Pengajian Ibu-Ibu</div>
+              <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">09:00 - 11:00 &bull; Aula Timur</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
