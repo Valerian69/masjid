@@ -7,8 +7,8 @@ Open source, deploy gratis ke Vercel + Supabase. Lihat [README.md](README.md) un
 
 ## Tech Stack
 - **Backend:** Node.js + Express + Supabase (PostgreSQL) + PDFKit (PDF generation)
-- **Frontend TV:** React.js 18 + Moment.js + moment-hijri
-- **Frontend Admin:** React.js 18 + Material UI + React Router v6 (with `basename="/admin"`)
+- **Frontend TV:** React.js 18 + Moment.js
+- **Frontend Admin:** React.js 18 + React Router v6 (with `basename="/admin"`)
 - **Database:** Supabase (PostgreSQL cloud) — schema in `supabase/schema.sql`, seed in `supabase/seed.sql`
 - **Hosting:** Vercel (serverless backend + static frontend)
 
@@ -110,13 +110,14 @@ masjid/
   - Admin Panel: `http://localhost:3001`
 
 ## Environment Variables
-| Variable | Description | Where to get |
-|----------|-------------|--------------|
-| `SUPABASE_URL` | Supabase project URL | Supabase Dashboard → Settings → API |
-| `SUPABASE_ANON_KEY` | Supabase anonymous key (public, safe for frontend) | Supabase Dashboard → Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret, backend only) | Supabase Dashboard → Settings → API |
-| `JWT_SECRET` | Secret for JWT tokens | Generate random string |
-| `REACT_APP_API_URL` | API URL (local dev only, Vercel uses `/api` relative) | `http://localhost:5001/api` |
+| Variable | Description | Required | Where to get |
+|----------|-------------|----------|--------------|
+| `SUPABASE_URL` | Supabase project URL | Yes | Supabase Dashboard → Settings → API |
+| `SUPABASE_ANON_KEY` | Supabase anonymous key (public, safe for frontend) | Yes | Supabase Dashboard → Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret, backend only) | Yes | Supabase Dashboard → Settings → API |
+| `JWT_SECRET` | Secret for JWT tokens (**server fails without this**) | Yes | Generate random string |
+| `CORS_ORIGIN` | Allowed CORS origins (comma-separated) | Yes | `https://masjid-umber.vercel.app` |
+| `REACT_APP_API_URL` | API URL (local dev only, Vercel uses `/api` relative) | No | `http://localhost:5001/api` |
 
 ## Default Credentials
 - **Username:** `admin`
@@ -127,7 +128,7 @@ masjid/
 ## Role Hierarchy
 | Role | Permissions |
 |------|-------------|
-| `superadmin` | Full access, manage users |
+| `superadmin` | Full access, manage users, monitoring, clean data |
 | `takmir` | Manage jadwal, kajian, agenda, running text, settings, laporan |
 | `bendahara` | Manage keuangan (finance) only |
 | `marbot` | Manage jadwal, kajian, agenda, running text, laporan |
@@ -137,10 +138,10 @@ masjid/
 ### Auth
 - `POST /api/auth/login` — Login (returns JWT)
 - `GET /api/auth/me` — Get current user
-- `GET /api/auth/users` — List all users
-- `POST /api/auth/users` — Create user
-- `PUT /api/auth/users/:id` — Update user
-- `DELETE /api/auth/users/:id` — Delete user
+- `GET /api/auth/users` — List all users (**superadmin only**)
+- `POST /api/auth/users` — Create user (**superadmin only**)
+- `PUT /api/auth/users/:id` — Update user (**superadmin only**)
+- `DELETE /api/auth/users/:id` — Delete user (**superadmin only**)
 
 ### Jadwal Sholat
 - `GET /api/jadwal-sholat` — All prayer times
@@ -193,7 +194,7 @@ masjid/
 
 ### Dashboard
 - `GET /api/dashboard` — TV display data (no auth): jadwal_sholat, kajian_terdekat, agenda_terdekat, running_text, keuangan, settings
-- `GET /api/dashboard/admin` — Admin dashboard data: total_users, total_kajian, total_agenda, total_transaksi, saldo, kajian_terdekat, agenda_terdekat
+- `GET /api/dashboard/admin` — Admin dashboard data (auth required): total_users, total_kajian, total_agenda, total_transaksi, saldo, kajian_terdekat, agenda_terdekat
 
 ### Laporan
 - `GET /api/laporan` — All laporan (auth required)
@@ -205,11 +206,12 @@ masjid/
 
 ### Monitoring
 - `GET /api/monitoring/overview` — Combined system + HTTP + DB + business metrics (auth required)
-- `GET /api/monitoring/system` — System metrics: uptime, memory, CPU, platform (auth required)
-- `GET /api/monitoring/http` — HTTP metrics: request rate, errors, latency percentiles (auth required)
-- `GET /api/monitoring/requests?limit=50` — Recent request log (auth required)
-- `GET /api/monitoring/errors?limit=20` — Recent error log (auth required)
+- `GET /api/monitoring/system` — System metrics: uptime, memory, CPU, platform (**superadmin only**)
+- `GET /api/monitoring/http` — HTTP metrics: request rate, errors, latency percentiles (**superadmin only**)
+- `GET /api/monitoring/requests?limit=50` — Recent request log (**superadmin only**)
+- `GET /api/monitoring/errors?limit=20` — Recent error log (**superadmin only**)
 - `POST /api/monitoring/reset` — Reset all metrics (superadmin only)
+- `POST /api/monitoring/clean-data` — Delete all content except users/settings (superadmin only)
 
 ## Database (Supabase PostgreSQL)
 
@@ -253,6 +255,16 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 - PDF reports generated server-side with PDFKit (professional layout with header, summary, tables)
 - TV pages crossfade (0.8s transition) instead of hard-cutting
 - On Fridays, "Dzuhur" is displayed as "Jum'at" in TV display and admin panel (frontend-only logic, DB keeps "Dzuhur")
+
+## Security
+- **JWT_SECRET mandatory:** Server fails to start without it (no hardcoded fallback)
+- **CORS restriction:** Only origins in `CORS_ORIGIN` env var are allowed (comma-separated)
+- **Role-based access:** User management restricted to superadmin; keuangan restricted to bendahara + superadmin
+- **Monitoring read routes:** System, HTTP, requests, errors restricted to superadmin
+- **Admin dashboard:** Requires authentication (`auth` middleware)
+- **Error detail stripping:** Production middleware removes `detail` field from error responses
+- **401 auto-logout:** Frontend interceptor clears token and redirects to login on 401 responses
+- **Input validation:** Keuangan validates `jumlah` (rejects NaN/negative values with HTTP 400)
 
 ## Running the App (Local Development)
 
@@ -340,6 +352,7 @@ rsync -av --delete --exclude='node_modules/' --exclude='.env' backend/ api/backe
 - **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (800+ lines CSS), mobile-responsive forms (sticky submit button)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)
 - **Finance Reports:** Monthly report with category breakdown, PDF download (professional layout), CSV export
-- **Monitoring:** System health, HTTP metrics (RED method), request/error logs, DB collection stats, auto-refresh 10s
+- **Monitoring:** System health, HTTP metrics (RED method), request/error logs, DB collection stats, auto-refresh 10s, Clean Data button (superadmin)
 - **Hijriah Date:** Uses browser's built-in `Intl.DateTimeFormat` (Umm al-Qura calendar)
 - **Premium Design:** Grain texture overlay, inner-border glassmorphism, custom scrollbar, smooth page transitions
+- **Security:** JWT mandatory, CORS restriction, role-based auth, error detail stripping, 401 auto-logout, input validation
