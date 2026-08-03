@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { jadwalSholatAPI } from '../services/api';
 import moment from 'moment';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import ErrorState from '../components/ErrorState';
+
+const emptyForm = { nama_sholat: '', waktu: '05:00', is_active: 1 };
 
 const SyncIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -37,31 +43,52 @@ const formatPrayerName = (nama) => {
 };
 
 const JadwalSholat = () => {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [jadwal, setJadwal] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ nama_sholat: '', waktu: '05:00', is_active: 1 });
+  const [form, setForm] = useState(emptyForm);
   const [syncing, setSyncing] = useState(false);
-  const [syncMsg, setSyncMsg] = useState('');
 
   useEffect(() => { loadJadwal(); }, []);
 
   const loadJadwal = async () => {
-    const res = await jadwalSholatAPI.getAll();
-    setJadwal(res.data);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await jadwalSholatAPI.getAll();
+      setJadwal(res.data);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await jadwalSholatAPI.update(editingId, form);
-    } else {
-      await jadwalSholatAPI.create(form);
+    setSaving(true);
+    try {
+      if (editingId) {
+        await jadwalSholatAPI.update(editingId, form);
+        toast.success('Jadwal berhasil diperbarui');
+      } else {
+        await jadwalSholatAPI.create(form);
+        toast.success('Jadwal berhasil ditambahkan');
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      loadJadwal();
+    } catch (err) {
+      toast.error('Gagal menyimpan jadwal. Coba lagi.');
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ nama_sholat: '', waktu: '05:00', is_active: 1 });
-    loadJadwal();
   };
 
   const handleEdit = (item) => {
@@ -71,21 +98,25 @@ const JadwalSholat = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus jadwal ini?')) {
+    const ok = await confirm({ title: 'Hapus Jadwal', message: 'Jadwal sholat ini akan dihapus. Lanjutkan?' });
+    if (!ok) return;
+    try {
       await jadwalSholatAPI.delete(id);
+      toast.success('Jadwal berhasil dihapus');
       loadJadwal();
+    } catch (err) {
+      toast.error('Gagal menghapus jadwal.');
     }
   };
 
   const handleSync = async () => {
     setSyncing(true);
-    setSyncMsg('');
     try {
       const res = await jadwalSholatAPI.sync({});
-      setSyncMsg(`Berhasil sinkron: ${res.data.location.kabkota} (${res.data.date})`);
+      toast.success(`Berhasil sinkron: ${res.data.location.kabkota} (${res.data.date})`);
       loadJadwal();
     } catch (err) {
-      setSyncMsg(err.response?.data?.error || 'Gagal sinkronisasi. Atur lokasi di halaman Pengaturan.');
+      toast.error(err.response?.data?.error || 'Gagal sinkronisasi. Atur lokasi di halaman Pengaturan.');
     } finally {
       setSyncing(false);
     }
@@ -103,23 +134,12 @@ const JadwalSholat = () => {
             <SyncIcon />
             {syncing ? 'Sinkron...' : 'Sync dari EQuran.id'}
           </button>
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ nama_sholat: '', waktu: '05:00', is_active: 1 }); }} className="btn btn-primary btn-sm">
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
             <PlusIcon />
             Tambah Jadwal
           </button>
         </div>
       </div>
-
-      {syncMsg && (
-        <div className={`card alert ${syncMsg.includes('Berhasil') ? 'alert-success' : 'alert-error'}`} style={{ marginBottom: 'var(--space-6)' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          <div>
-            {syncMsg}
-          </div>
-        </div>
-      )}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="card">
@@ -141,13 +161,18 @@ const JadwalSholat = () => {
                 </select>
               </div>
               <div className="form-group">
-                <button type="submit" className="btn btn-amber">{editingId ? 'Update' : 'Simpan'}</button>
+                <button type="submit" className="btn btn-amber" disabled={saving}>{saving ? 'Menyimpan...' : (editingId ? 'Update' : 'Simpan')}</button>
               </div>
             </div>
           </div>
         </form>
       )}
 
+      {loading ? (
+        <Loading text="Memuat jadwal sholat..." />
+      ) : error ? (
+        <ErrorState onRetry={loadJadwal} />
+      ) : (
       <div className="card">
         <div className="card-header">
           <h2>Jadwal Aktif</h2>
@@ -191,10 +216,14 @@ const JadwalSholat = () => {
                   </td>
                 </tr>
               ))}
+              {jadwal.length === 0 && (
+                <tr><td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Belum ada jadwal. Klik "Sync dari EQuran.id" atau tambah manual.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
+      )}
 
       <div className="card" style={{ marginTop: 'var(--space-6)' }}>
         <div className="card-header">

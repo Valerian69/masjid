@@ -1,30 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { laporanAPI } from '../services/api';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+
+const emptyForm = { judul: '', tanggal: '', isi: '', kategori: 'kegiatan', is_published: 1 };
 
 const Laporan = () => {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [laporanList, setLaporanList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ judul: '', tanggal: '', isi: '', kategori: 'kegiatan', is_published: 1 });
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => { loadLaporan(); }, []);
 
   const loadLaporan = async () => {
-    const res = await laporanAPI.getAll();
-    setLaporanList(res.data);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await laporanAPI.getAll();
+      setLaporanList(res.data);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await laporanAPI.update(editingId, form);
-    } else {
-      await laporanAPI.create(form);
+    setSaving(true);
+    try {
+      if (editingId) {
+        await laporanAPI.update(editingId, form);
+        toast.success('Laporan berhasil diperbarui');
+      } else {
+        await laporanAPI.create(form);
+        toast.success('Laporan berhasil ditambahkan');
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      loadLaporan();
+    } catch (err) {
+      toast.error('Gagal menyimpan laporan. Coba lagi.');
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ judul: '', tanggal: '', isi: '', kategori: 'kegiatan', is_published: 1 });
-    loadLaporan();
   };
 
   const handleEdit = (item) => {
@@ -34,9 +63,14 @@ const Laporan = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus laporan ini?')) {
+    const ok = await confirm({ title: 'Hapus Laporan', message: 'Laporan ini akan dihapus permanen. Lanjutkan?' });
+    if (!ok) return;
+    try {
       await laporanAPI.delete(id);
+      toast.success('Laporan berhasil dihapus');
       loadLaporan();
+    } catch (err) {
+      toast.error('Gagal menghapus laporan.');
     }
   };
 
@@ -47,7 +81,7 @@ const Laporan = () => {
           <h1>Laporan Kegiatan</h1>
           <p className="page-header-subtitle">Kelola laporan kegiatan masjid</p>
         </div>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ judul: '', tanggal: '', isi: '', kategori: 'kegiatan', is_published: 1 }); }} className="btn btn-primary btn-sm">
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Laporan
         </button>
@@ -88,13 +122,24 @@ const Laporan = () => {
               </div>
             </div>
             <div className="admin-form-actions">
-              <button type="submit" className="btn btn-amber">{editingId ? 'Update' : 'Simpan'}</button>
+              <button type="submit" className="btn btn-amber" disabled={saving}>{saving ? 'Menyimpan...' : (editingId ? 'Update' : 'Simpan')}</button>
               <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
             </div>
           </div>
         </form>
       )}
 
+      {loading ? (
+        <Loading text="Memuat laporan..." />
+      ) : error ? (
+        <ErrorState onRetry={loadLaporan} />
+      ) : laporanList.length === 0 ? (
+        <EmptyState
+          title="Belum ada laporan"
+          message="Buat laporan kegiatan pertama untuk dipublikasikan."
+          action={<button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">Tambah Laporan</button>}
+        />
+      ) : (
       <div className="grid grid-3">
         {laporanList.map(item => (
           <div key={item.id} className="card" style={{ overflow: 'hidden' }}>
@@ -121,6 +166,7 @@ const Laporan = () => {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 };

@@ -1,31 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { kajianAPI } from '../services/api';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+
+const emptyForm = { judul: '', ustadz: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '' };
 
 const Kajian = () => {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [kajianList, setKajianList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ judul: '', ustadz: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '' });
+  const [form, setForm] = useState(emptyForm);
   const [filter, setFilter] = useState('semua');
 
   useEffect(() => { loadKajian(); }, []);
 
   const loadKajian = async () => {
-    const res = await kajianAPI.getAll();
-    setKajianList(res.data);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await kajianAPI.getAll();
+      setKajianList(res.data);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await kajianAPI.update(editingId, form);
-    } else {
-      await kajianAPI.create(form);
+    setSaving(true);
+    try {
+      if (editingId) {
+        await kajianAPI.update(editingId, form);
+        toast.success('Kajian berhasil diperbarui');
+      } else {
+        await kajianAPI.create(form);
+        toast.success('Kajian berhasil ditambahkan');
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      loadKajian();
+    } catch (err) {
+      toast.error('Gagal menyimpan kajian. Coba lagi.');
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ judul: '', ustadz: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '' });
-    loadKajian();
   };
 
   const handleEdit = (item) => {
@@ -35,9 +64,14 @@ const Kajian = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus kajian ini?')) {
+    const ok = await confirm({ title: 'Hapus Kajian', message: 'Kajian ini akan dihapus permanen. Lanjutkan?' });
+    if (!ok) return;
+    try {
       await kajianAPI.delete(id);
+      toast.success('Kajian berhasil dihapus');
       loadKajian();
+    } catch (err) {
+      toast.error('Gagal menghapus kajian.');
     }
   };
 
@@ -81,7 +115,7 @@ const Kajian = () => {
           <p className="page-header-subtitle">Kelola jadwal kajian dan pengajian masjid</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ judul: '', ustadz: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '' }); }} className="btn btn-primary btn-sm">
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Kajian
           </button>
@@ -125,7 +159,7 @@ const Kajian = () => {
                 </div>
               </div>
               <div className="admin-form-actions">
-                <button type="submit" className="btn btn-amber">{editingId ? 'Update' : 'Simpan'}</button>
+                <button type="submit" className="btn btn-amber" disabled={saving}>{saving ? 'Menyimpan...' : (editingId ? 'Update' : 'Simpan')}</button>
                 <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
               </div>
             </form>
@@ -133,6 +167,19 @@ const Kajian = () => {
         </div>
       )}
 
+      {loading ? (
+        <Loading text="Memuat kajian..." />
+      ) : error ? (
+        <ErrorState onRetry={loadKajian} />
+      ) : filteredKajian.length === 0 ? (
+        <EmptyState
+          title="Belum ada kajian"
+          message={filter === 'semua' ? 'Tambahkan jadwal kajian pertama untuk ditampilkan di layar TV.' : 'Tidak ada kajian pada filter ini.'}
+          action={filter === 'semua' ? (
+            <button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">Tambah Kajian</button>
+          ) : null}
+        />
+      ) : (
       <div className="grid grid-3">
         {filteredKajian.map(item => (
           <div key={item.id} className="card" style={{ overflow: 'hidden' }}>
@@ -173,6 +220,7 @@ const Kajian = () => {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 };

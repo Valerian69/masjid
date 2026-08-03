@@ -1,30 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { runningTextAPI } from '../services/api';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import ErrorState from '../components/ErrorState';
+
+const emptyForm = { teks: '', jenis: 'pengumuman', is_active: 1, urutan: 0 };
 
 const RunningText = () => {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [texts, setTexts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ teks: '', jenis: 'pengumuman', is_active: 1, urutan: 0 });
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => { loadTexts(); }, []);
 
   const loadTexts = async () => {
-    const res = await runningTextAPI.getAll();
-    setTexts(res.data);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await runningTextAPI.getAll();
+      setTexts(res.data);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await runningTextAPI.update(editingId, form);
-    } else {
-      await runningTextAPI.create(form);
+    setSaving(true);
+    try {
+      if (editingId) {
+        await runningTextAPI.update(editingId, form);
+        toast.success('Running text berhasil diperbarui');
+      } else {
+        await runningTextAPI.create(form);
+        toast.success('Running text berhasil ditambahkan');
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      loadTexts();
+    } catch (err) {
+      toast.error('Gagal menyimpan running text. Coba lagi.');
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ teks: '', jenis: 'pengumuman', is_active: 1, urutan: 0 });
-    loadTexts();
   };
 
   const handleEdit = (item) => {
@@ -34,9 +62,14 @@ const RunningText = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus running text ini?')) {
+    const ok = await confirm({ title: 'Hapus Running Text', message: 'Teks pengumuman ini akan dihapus permanen. Lanjutkan?' });
+    if (!ok) return;
+    try {
       await runningTextAPI.delete(id);
+      toast.success('Running text berhasil dihapus');
       loadTexts();
+    } catch (err) {
+      toast.error('Gagal menghapus running text.');
     }
   };
 
@@ -50,7 +83,7 @@ const RunningText = () => {
           <p className="page-header-subtitle">Kelola pengumuman scrolling di layar TV</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ teks: '', jenis: 'pengumuman', is_active: 1, urutan: 0 }); }} className="btn btn-primary btn-sm">
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Teks
           </button>
@@ -86,13 +119,18 @@ const RunningText = () => {
               </div>
             </div>
             <div className="admin-form-actions">
-              <button type="submit" className="btn btn-primary btn-sm">{editingId ? 'Update' : 'Simpan'}</button>
+              <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>{saving ? 'Menyimpan...' : (editingId ? 'Update' : 'Simpan')}</button>
               <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline btn-sm">Batal</button>
             </div>
           </div>
         </form>
       )}
 
+      {loading ? (
+        <Loading text="Memuat running text..." />
+      ) : error ? (
+        <ErrorState onRetry={loadTexts} />
+      ) : (
       <div className="card">
         <div className="card-header">
           <h2>Pengumuman Aktif</h2>
@@ -129,12 +167,13 @@ const RunningText = () => {
                 </tr>
               ))}
               {texts.length === 0 && (
-                <tr><td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Belum ada running text</td></tr>
+                <tr><td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Belum ada running text. Klik "Tambah Teks" untuk membuat pengumuman.</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { settingsAPI, jadwalSholatAPI } from '../services/api';
+import { useToast } from '../components/Toast';
+import Loading from '../components/Loading';
 
 const SyncIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -8,6 +10,7 @@ const SyncIcon = () => (
 );
 
 const Settings = () => {
+  const toast = useToast();
   const [settings, setSettings] = useState({
     masjid_name: '',
     masjid_address: '',
@@ -22,7 +25,6 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     loadSettings();
@@ -77,12 +79,11 @@ const Settings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
     try {
       await settingsAPI.update(settings);
-      setMessage('Pengaturan berhasil disimpan!');
+      toast.success('Pengaturan berhasil disimpan');
     } catch (err) {
-      setMessage('Gagal menyimpan pengaturan');
+      toast.error('Gagal menyimpan pengaturan.');
     } finally {
       setSaving(false);
     }
@@ -90,26 +91,25 @@ const Settings = () => {
 
   const handleSync = async () => {
     if (!settings.provinsi || !settings.kabkota) {
-      setMessage('Pilih provinsi dan kabupaten/kota terlebih dahulu!');
+      toast.error('Pilih provinsi dan kabupaten/kota terlebih dahulu.');
       return;
     }
     setSyncing(true);
-    setMessage('');
     try {
       await settingsAPI.update(settings);
       const res = await jadwalSholatAPI.sync({
         provinsi: settings.provinsi,
         kabkota: settings.kabkota,
       });
-      setMessage(`Berhasil sinkronisasi jadwal sholat untuk ${res.data.location.kabkota} (${res.data.date})`);
+      toast.success(`Berhasil sinkron jadwal sholat: ${res.data.location.kabkota} (${res.data.date})`);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Gagal sinkronisasi jadwal sholat');
+      toast.error(err.response?.data?.error || 'Gagal sinkronisasi jadwal sholat.');
     } finally {
       setSyncing(false);
     }
   };
 
-  if (loading) return <div className="empty-state">Memuat...</div>;
+  if (loading) return <Loading text="Memuat pengaturan..." />;
 
   return (
     <div className="animate-in">
@@ -117,12 +117,6 @@ const Settings = () => {
         <button className="tab active">Pengaturan</button>
         <button className="tab" onClick={() => window.location.href = '/admin/users'}>Users</button>
       </div>
-
-      {message && (
-        <div className={`alert ${message.includes('Berhasil') || message.includes('berhasil') ? 'alert-success' : 'alert-error'}`}>
-          {message}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-sidebar animate-in animate-delay-1">

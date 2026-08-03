@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { monitoringAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import ErrorState from '../components/ErrorState';
 
 const formatUptime = (seconds) => {
   if (!seconds) return '0s';
@@ -18,6 +22,8 @@ const formatUptime = (seconds) => {
 
 const Monitoring = () => {
   const { user } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [data, setData] = useState(null);
   const [requests, setRequests] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -49,35 +55,41 @@ const Monitoring = () => {
   }, [fetchAll]);
 
   const handleReset = async () => {
-    if (!window.confirm('Reset semua metrik monitoring?')) return;
+    const ok = await confirm({ title: 'Reset Metrik', message: 'Semua metrik monitoring akan direset ke nol. Lanjutkan?', confirmText: 'Reset', danger: false });
+    if (!ok) return;
     try {
       await monitoringAPI.reset();
+      toast.success('Metrik monitoring berhasil direset');
       fetchAll();
     } catch (err) {
-      alert('Gagal reset metrik');
+      toast.error('Gagal reset metrik.');
     }
   };
 
   const handleCleanData = async () => {
-    const confirm1 = window.confirm(
-      'HAPUS SEMUA DATA?\n\n' +
-      'Ini akan menghapus:\n- Jadwal Sholat\n- Kajian\n- Keuangan\n- Agenda\n- Running Text\n- Laporan\n- Audit Log\n\n' +
-      'Users dan Settings TIDAK akan dihapus.\n\nKetik OK untuk melanjutkan.'
-    );
-    if (!confirm1) return;
-    const confirm2 = window.confirm('PERINGATAN: Tindakan ini tidak dapat dibatalkan. Yakin ingin melanjutkan?');
-    if (!confirm2) return;
+    const ok = await confirm({
+      title: 'Hapus Semua Data?',
+      message: 'Menghapus Jadwal Sholat, Kajian, Keuangan, Agenda, Running Text, Laporan, dan Audit Log. Users & Settings TIDAK dihapus. Tindakan ini TIDAK dapat dibatalkan.',
+      confirmText: 'Hapus Semua',
+    });
+    if (!ok) return;
+    const ok2 = await confirm({
+      title: 'Konfirmasi Terakhir',
+      message: 'Yakin? Semua data konten masjid akan hilang permanen.',
+      confirmText: 'Ya, Hapus Permanen',
+    });
+    if (!ok2) return;
     try {
       await monitoringAPI.cleanData();
-      alert('Semua data berhasil dihapus. Mulai dari awal!');
+      toast.success('Semua data berhasil dihapus. Mulai dari awal!');
       fetchAll();
     } catch (err) {
-      alert('Gagal menghapus data: ' + (err.response?.data?.error || err.message));
+      toast.error('Gagal menghapus data: ' + (err.response?.data?.error || err.message));
     }
   };
 
-  if (loading) return <div className="empty-state">Memuat data monitoring...</div>;
-  if (!data) return <div className="empty-state" style={{ color: '#c00' }}>Gagal memuat data monitoring</div>;
+  if (loading) return <Loading text="Memuat data monitoring..." />;
+  if (!data) return <ErrorState title="Gagal memuat monitoring" onRetry={fetchAll} />;
 
   const { system, http, database, business } = data;
   const memPercent = system.memory.heapUsedBytes / system.memory.heapTotalBytes * 100;

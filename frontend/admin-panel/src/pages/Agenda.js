@@ -1,31 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import { agendaAPI } from '../services/api';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+
+const emptyForm = { judul: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '', lokasi: '', is_published: 1 };
 
 const Agenda = () => {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [agendaList, setAgendaList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ judul: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '', lokasi: '', is_published: 1 });
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => { loadAgenda(); }, []);
 
   const loadAgenda = async () => {
-    const res = await agendaAPI.getAll();
-    setAgendaList(res.data);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await agendaAPI.getAll();
+      setAgendaList(res.data);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await agendaAPI.update(editingId, form);
-    } else {
-      await agendaAPI.create(form);
+    setSaving(true);
+    try {
+      if (editingId) {
+        await agendaAPI.update(editingId, form);
+        toast.success('Agenda berhasil diperbarui');
+      } else {
+        await agendaAPI.create(form);
+        toast.success('Agenda berhasil ditambahkan');
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      loadAgenda();
+    } catch (err) {
+      toast.error('Gagal menyimpan agenda. Coba lagi.');
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ judul: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '', lokasi: '', is_published: 1 });
-    loadAgenda();
   };
 
   const handleEdit = (item) => {
@@ -35,9 +64,14 @@ const Agenda = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus agenda ini?')) {
+    const ok = await confirm({ title: 'Hapus Agenda', message: 'Agenda ini akan dihapus permanen. Lanjutkan?' });
+    if (!ok) return;
+    try {
       await agendaAPI.delete(id);
+      toast.success('Agenda berhasil dihapus');
       loadAgenda();
+    } catch (err) {
+      toast.error('Gagal menghapus agenda.');
     }
   };
 
@@ -57,7 +91,7 @@ const Agenda = () => {
       <div className="page-header">
         <h1>Agenda Kegiatan</h1>
         <p className="page-header-subtitle">Kelola kegiatan dan acara masjid</p>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ judul: '', tanggal: '', jam_mulai: '', jam_selesai: '', deskripsi: '', lokasi: '', is_published: 1 }); }} className="btn btn-primary btn-sm">
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Agenda
         </button>
@@ -100,13 +134,24 @@ const Agenda = () => {
               </div>
             </div>
             <div className="admin-form-actions">
-              <button type="submit" className="btn btn-amber">{editingId ? 'Update' : 'Simpan'}</button>
+              <button type="submit" className="btn btn-amber" disabled={saving}>{saving ? 'Menyimpan...' : (editingId ? 'Update' : 'Simpan')}</button>
               <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
             </div>
           </div>
         </form>
       )}
 
+      {loading ? (
+        <Loading text="Memuat agenda..." />
+      ) : error ? (
+        <ErrorState onRetry={loadAgenda} />
+      ) : agendaList.length === 0 ? (
+        <EmptyState
+          title="Belum ada agenda"
+          message="Tambahkan kegiatan atau acara masjid untuk ditampilkan."
+          action={<button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">Tambah Agenda</button>}
+        />
+      ) : (
       <div className="grid grid-2">
         {agendaList.map(item => {
           const { day, month, dayLabel, color, badgeClass } = getDateInfo(item.tanggal);
@@ -143,6 +188,7 @@ const Agenda = () => {
           );
         })}
       </div>
+      )}
     </div>
   );
 };

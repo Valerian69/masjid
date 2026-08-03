@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardAPI, keuanganAPI } from '../services/api';
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount || 0);
-};
+import Loading from '../components/Loading';
+import ErrorState from '../components/ErrorState';
+import { formatIDR as formatCurrency } from '../utils/format';
 
 const bookIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
@@ -37,8 +36,11 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [finance, setFinance] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
+    setError(false);
     Promise.all([
       dashboardAPI.getAdmin(),
       keuanganAPI.getSummary()
@@ -46,16 +48,22 @@ const Dashboard = () => {
       setData(dashRes.data);
       setFinance(finRes.data);
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+    }).catch(() => {
+      setError(true);
+      setLoading(false);
+    });
+  };
 
-  if (loading) return <div className="loading-state">Memuat data...</div>;
+  useEffect(() => { loadData(); }, []);
+
+  if (loading) return <Loading text="Memuat dashboard..." />;
+  if (error) return <ErrorState onRetry={loadData} />;
 
   const stats = [
-    { title: 'Total Transaksi', value: data?.total_transaksi || 0, icon: 'transaksi', color: 'var(--emerald-600)', bg: 'var(--emerald-50)', change: '+12.5%' },
-    { title: 'Total Kajian', value: data?.total_kajian || 0, icon: 'kajian', color: 'var(--blue-600)', bg: 'var(--blue-100)', change: '+3 bulan ini' },
-    { title: 'Total Agenda', value: data?.total_agenda || 0, icon: 'agenda', color: 'var(--orange-600)', bg: 'var(--orange-100)', change: '+5 minggu ini' },
-    { title: 'Saldo Kas Masjid', value: formatCurrency(finance?.saldo || data?.saldo), icon: 'saldo', color: 'var(--amber-500)', bg: 'var(--amber-100)', change: '+8.3%' },
+    { title: 'Total Transaksi', value: data?.total_transaksi || 0, icon: 'transaksi', color: 'var(--emerald-600)', bg: 'var(--emerald-50)' },
+    { title: 'Total Kajian', value: data?.total_kajian || 0, icon: 'kajian', color: 'var(--blue-600)', bg: 'var(--blue-100)' },
+    { title: 'Total Agenda', value: data?.total_agenda || 0, icon: 'agenda', color: 'var(--orange-600)', bg: 'var(--orange-100)' },
+    { title: 'Saldo Kas Masjid', value: formatCurrency(finance?.saldo || data?.saldo), icon: 'saldo', color: 'var(--amber-500)', bg: 'var(--amber-100)' },
   ];
 
   const statIconSvgs = {
@@ -81,28 +89,12 @@ const Dashboard = () => {
     ),
   };
 
-  const arrowUp = (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-    </svg>
-  );
-
   return (
     <div className="animate-in">
       <div className="page-header">
         <div>
           <h1>Dashboard</h1>
           <p className="page-header-subtitle">Ringkasan aktivitas & keuangan masjid</p>
-        </div>
-        <div className="page-header-actions">
-          <button className="btn btn-outline btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export
-          </button>
-          <button className="btn btn-primary btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Tambah Data
-          </button>
         </div>
       </div>
 
@@ -114,10 +106,6 @@ const Dashboard = () => {
             </div>
             <div className="stat-value">{card.value}</div>
             <div className="stat-label">{card.title}</div>
-            <div className="stat-change up">
-              {arrowUp}
-              {card.change}
-            </div>
           </div>
         ))}
       </div>
@@ -144,7 +132,7 @@ const Dashboard = () => {
                   {timingLabel && <span className="badge badge-emerald badge-dot">{timingLabel}</span>}
                 </div>
               );
-            }) : <p className="empty-state">Belum ada kajian terdekat</p>}
+            }) : <p style={{ padding: '32px 24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>Belum ada kajian terdekat</p>}
           </div>
         </div>
 
@@ -168,7 +156,7 @@ const Dashboard = () => {
                   </div>
                 </div>
               );
-            }) : <p className="empty-state">Belum ada agenda terdekat</p>}
+            }) : <p style={{ padding: '32px 24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>Belum ada agenda terdekat</p>}
           </div>
         </div>
       </div>

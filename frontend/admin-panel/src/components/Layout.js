@@ -65,14 +65,14 @@ const Layout = () => {
   return (
     <div className="admin-layout">
       <div className="mobile-topbar">
-        <button className="mobile-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
+        <button className="mobile-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label={sidebarOpen ? 'Tutup menu' : 'Buka menu'} aria-expanded={sidebarOpen}>
           {sidebarOpen ? icons.close : icons.menu}
         </button>
         <div className="mobile-topbar-title">
           <MosqueIcon size={20} />
           <span>Dashboard Masjid</span>
         </div>
-        <button className="mobile-topbar-logout" onClick={handleLogout}>
+        <button className="mobile-topbar-logout" onClick={handleLogout} aria-label="Logout">
           {icons.logout}
         </button>
       </div>
@@ -114,7 +114,7 @@ const Layout = () => {
             <div className="sidebar-user-name">{user?.full_name}</div>
             <div className="sidebar-user-role">{user?.role}</div>
           </div>
-          <button onClick={handleLogout} className="sidebar-logout" title="Logout">
+          <button onClick={handleLogout} className="sidebar-logout" title="Logout" aria-label="Logout">
             {icons.logout}
           </button>
         </div>

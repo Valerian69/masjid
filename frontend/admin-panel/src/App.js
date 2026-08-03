@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './components/Toast';
+import { ConfirmProvider } from './components/ConfirmDialog';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -23,25 +25,29 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/admin">
-        <ErrorBoundary>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-              <Route index element={<Dashboard />} />
-              <Route path="jadwal-sholat" element={<JadwalSholat />} />
-              <Route path="kajian" element={<Kajian />} />
-              <Route path="keuangan" element={<Keuangan />} />
-              <Route path="agenda" element={<Agenda />} />
-              <Route path="running-text" element={<RunningText />} />
-              <Route path="laporan" element={<Laporan />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="monitoring" element={<Monitoring />} />
-              <Route path="users" element={<Users />} />
-            </Route>
-          </Routes>
-        </ErrorBoundary>
-      </Router>
+      <ToastProvider>
+        <ConfirmProvider>
+          <Router basename="/admin">
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="jadwal-sholat" element={<JadwalSholat />} />
+                  <Route path="kajian" element={<Kajian />} />
+                  <Route path="keuangan" element={<Keuangan />} />
+                  <Route path="agenda" element={<Agenda />} />
+                  <Route path="running-text" element={<RunningText />} />
+                  <Route path="laporan" element={<Laporan />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="monitoring" element={<Monitoring />} />
+                  <Route path="users" element={<Users />} />
+                </Route>
+              </Routes>
+            </ErrorBoundary>
+          </Router>
+        </ConfirmProvider>
+      </ToastProvider>
     </AuthProvider>
   );
 }

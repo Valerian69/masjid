@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
+import Loading from '../components/Loading';
+import ErrorState from '../components/ErrorState';
+
+const emptyForm = { username: '', password: '', full_name: '', role: 'marbot' };
 
 const CheckIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="var(--emerald-500)" strokeWidth="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
@@ -12,29 +18,51 @@ const CrossIcon = () => (
 
 const Users = () => {
   const { user: currentUser } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ username: '', password: '', full_name: '', role: 'marbot' });
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => { loadUsers(); }, []);
 
   const loadUsers = async () => {
-    const res = await authAPI.getUsers();
-    setUsers(res.data);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await authAPI.getUsers();
+      setUsers(res.data);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await authAPI.updateUser(editingId, form);
-    } else {
-      await authAPI.createUser(form);
+    setSaving(true);
+    try {
+      if (editingId) {
+        await authAPI.updateUser(editingId, form);
+        toast.success('User berhasil diperbarui');
+      } else {
+        await authAPI.createUser(form);
+        toast.success('User berhasil ditambahkan');
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      loadUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.error === 'Username already exists' ? 'Username sudah digunakan.' : 'Gagal menyimpan user. Coba lagi.');
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ username: '', password: '', full_name: '', role: 'marbot' });
-    loadUsers();
   };
 
   const handleEdit = (item) => {
@@ -44,10 +72,18 @@ const Users = () => {
   };
 
   const handleDelete = async (id) => {
-    if (id === currentUser?.id) return alert('Tidak bisa menghapus akun sendiri');
-    if (window.confirm('Hapus user ini?')) {
+    if (id === currentUser?.id) {
+      toast.error('Tidak bisa menghapus akun sendiri.');
+      return;
+    }
+    const ok = await confirm({ title: 'Hapus User', message: 'Akun pengguna ini akan dihapus permanen. Lanjutkan?' });
+    if (!ok) return;
+    try {
       await authAPI.deleteUser(id);
+      toast.success('User berhasil dihapus');
       loadUsers();
+    } catch (err) {
+      toast.error('Gagal menghapus user.');
     }
   };
 
@@ -80,7 +116,7 @@ const Users = () => {
         </div>
         {currentUser?.role === 'superadmin' && (
           <div className="page-header-actions">
-            <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ username: '', password: '', full_name: '', role: 'marbot' }); }} className="btn btn-primary btn-sm">
+            <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
               Tambah User
             </button>
@@ -115,13 +151,18 @@ const Users = () => {
               </div>
             </div>
             <div className="admin-form-actions">
-              <button type="submit" className="btn btn-amber">{editingId ? 'Update' : 'Simpan'}</button>
+              <button type="submit" className="btn btn-amber" disabled={saving}>{saving ? 'Menyimpan...' : (editingId ? 'Update' : 'Simpan')}</button>
               <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
             </div>
           </div>
         </form>
       )}
 
+      {loading ? (
+        <Loading text="Memuat data pengguna..." />
+      ) : error ? (
+        <ErrorState onRetry={loadUsers} />
+      ) : (
       <div className="card animate-in animate-delay-3">
         <div className="table-wrapper">
           <table className="table">
@@ -165,10 +206,14 @@ const Users = () => {
                   </tr>
                 );
               })}
+              {users.length === 0 && (
+                <tr><td colSpan={4} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Belum ada pengguna.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
+      )}
 
       <div className="card animate-in animate-delay-4" style={{ marginTop: 'var(--space-6)' }}>
         <div className="card-header"><h2>Hak Akses Role</h2></div>
