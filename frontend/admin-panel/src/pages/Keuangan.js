@@ -125,10 +125,10 @@ const Keuangan = () => {
   if (loading) {
     return (
       <div className="animate-in">
-        <div className="page-header"><div><h1>Keuangan Masjid</h1><p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p></div></div>
+        <div className="page-header"><div><h1>Keuangan</h1><p className="page-header-subtitle">Kelola transaksi &amp; laporan keuangan masjid</p></div></div>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0', color: '#7a9a8e' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 12, animation: 'spin 1s linear infinite' }}>&#8635;</div>
+            <div style={{ width: 32, height: 32, border: '3px solid #e2e8f0', borderTopColor: '#146b4a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
             <p>Memuat data keuangan...</p>
           </div>
         </div>
@@ -140,20 +140,26 @@ const Keuangan = () => {
     <div className="animate-in">
       <div className="page-header">
         <div>
-          <h1>Keuangan Masjid</h1>
-          <p className="page-header-subtitle">Kelola pemasukan dan pengeluaran secara detail</p>
+          <h1>Keuangan</h1>
+          <p className="page-header-subtitle">Kelola transaksi &amp; laporan keuangan masjid</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={handleExport} className="btn btn-outline">Export CSV</button>
+          <button onClick={handleExport} className="btn btn-outline btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            Export CSV
+          </button>
           {canEdit && (
-            <button onClick={() => { setShowForm(!showForm); setEditingId(null); resetForm(); }} className="btn btn-primary">+ Transaksi Baru</button>
+            <button onClick={() => { setShowForm(!showForm); setEditingId(null); resetForm(); }} className="btn btn-primary btn-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+              Transaksi Baru
+            </button>
           )}
         </div>
       </div>
 
-      <div className="tab-bar">
+      <div className="tabs" style={{ marginBottom: 24, width: 'fit-content' }}>
         {['dashboard', 'transaksi', 'laporan'].map(v => (
-          <button key={v} onClick={() => { setView(v); if (v === 'laporan') loadReport(); }} className={`tab-btn ${view === v ? 'active' : ''}`}>
+          <button key={v} onClick={() => { setView(v); if (v === 'laporan') loadReport(); }} className={`tab ${view === v ? 'active' : ''}`}>
             {v === 'dashboard' ? 'Dashboard' : v === 'transaksi' ? 'Transaksi' : 'Laporan'}
           </button>
         ))}
@@ -161,79 +167,86 @@ const Keuangan = () => {
 
       {view === 'dashboard' && (
         <>
-          <div className="summary-grid">
+          <div className="grid grid-4" style={{ marginBottom: 32 }}>
             {[
-              { label: 'Saldo Total', value: fmt(summary.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.08)', border: 'rgba(212,145,61,0.3)' },
-              { label: 'Bulan Ini Masuk', value: fmt(summary.bulan_ini_masuk), color: '#0b3d2e', bg: 'rgba(11,61,46,0.06)', border: 'rgba(11,61,46,0.2)' },
-              { label: 'Bulan Ini Keluar', value: fmt(summary.bulan_ini_keluar), color: '#c62828', bg: 'rgba(198,40,40,0.06)', border: 'rgba(198,40,40,0.2)' },
-              { label: 'Transaksi Bulan Ini', value: summary.jumlah_transaksi_bulan || 0, color: '#1565c0', bg: 'rgba(21,101,192,0.06)', border: 'rgba(21,101,192,0.2)', isNumber: true },
+              { label: 'Saldo Total', value: fmt(summary.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.08)', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' },
+              { label: 'Bulan Ini Masuk', value: fmt(summary.bulan_ini_masuk), color: '#0b3d2e', bg: 'rgba(11,61,46,0.06)', icon: 'M12 19V5M5 12l7-7 7 7' },
+              { label: 'Bulan Ini Keluar', value: fmt(summary.bulan_ini_keluar), color: '#c62828', bg: 'rgba(198,40,40,0.06)', icon: 'M12 5v14M5 12l7 7 7-7' },
+              { label: 'Transaksi Bulan Ini', value: summary.jumlah_transaksi_bulan || 0, color: '#1565c0', bg: 'rgba(21,101,192,0.06)', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5h6', isNumber: true },
             ].map((card, i) => (
-              <div key={i} className="summary-card" style={{ background: card.bg, borderColor: card.border }}>
-                <div className="summary-card-label">{card.label}</div>
-                <div className="summary-card-value" style={{ color: card.color, fontSize: card.isNumber ? '1.8rem' : '1.3rem' }}>{card.value}</div>
+              <div key={i} className="stat-card" style={{ '--stat-color': card.color, '--stat-bg': card.bg }}>
+                <div className="stat-icon" style={{ background: card.bg, color: card.color }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
+                </div>
+                <div>
+                  <div className="stat-value" style={{ color: card.color, fontSize: card.isNumber ? '1.5rem' : '1.25rem' }}>{card.value}</div>
+                  <div className="stat-label">{card.label}</div>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="three-col-grid">
-            <div className="admin-card">
-              <div className="admin-card-title">Tren 6 Bulan Terakhir</div>
-              <div className="bar-chart">
-                {(trend || []).map((item, i) => (
-                  <div key={i} className="bar-chart-col">
-                    <div className="bar-chart-bars">
-                      <div className="bar-chart-bar masuk" style={{ height: `${((item.masuk || 0) / maxTrend) * 130}px` }} title={`Masuk: ${fmt(item.masuk)}`} />
-                      <div className="bar-chart-bar keluar" style={{ height: `${((item.keluar || 0) / maxTrend) * 130}px` }} title={`Keluar: ${fmt(item.keluar)}`} />
+          <div className="grid grid-sidebar">
+            <div className="card">
+              <div className="card-header"><h2>Tren 6 Bulan Terakhir</h2></div>
+              <div className="card-body">
+                <div className="bar-chart">
+                  {(trend || []).map((item, i) => (
+                    <div key={i} className="bar-chart-col">
+                      <div className="bar-chart-bars">
+                        <div className="bar-chart-bar masuk" style={{ height: `${((item.masuk || 0) / maxTrend) * 130}px` }} title={`Masuk: ${fmt(item.masuk)}`} />
+                        <div className="bar-chart-bar keluar" style={{ height: `${((item.keluar || 0) / maxTrend) * 130}px` }} title={`Keluar: ${fmt(item.keluar)}`} />
+                      </div>
+                      <div className="bar-chart-label">{item.label}</div>
                     </div>
-                    <div className="bar-chart-label">{item.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="bar-chart-legend">
-                <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#0b3d2e' }} /> Masuk</div>
-                <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#c62828' }} /> Keluar</div>
+                  ))}
+                </div>
+                <div className="bar-chart-legend">
+                  <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#0b3d2e' }} /> Masuk</div>
+                  <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#c62828' }} /> Keluar</div>
+                </div>
               </div>
             </div>
 
-            <div className="admin-card">
-              <div className="admin-card-title">Kategori Bulan Ini</div>
-              {catMasuk.length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <div className="category-section-title" style={{ color: '#0b3d2e' }}>Pemasukan</div>
-                  {catMasuk.slice(0, 4).map((cat, i) => (
-                    <div key={i} className="category-bar-item">
-                      <div className="category-bar-header">
-                        <span className="category-bar-name">{cat.kategori}</span>
-                        <span className="category-bar-value">{fmt(cat.jumlah)}</span>
+            <div className="card">
+              <div className="card-header"><h2>Kategori Bulan Ini</h2></div>
+              <div className="card-body">
+                {catMasuk.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div className="category-section-title" style={{ color: '#0b3d2e' }}>Pemasukan</div>
+                    {catMasuk.slice(0, 4).map((cat, i) => (
+                      <div key={i} className="category-bar">
+                        <div className="bar-name">{cat.kategori}</div>
+                        <div className="bar-track">
+                          <div className="bar-fill green" style={{ width: `${((cat.jumlah || 0) / totalCM) * 100}%` }} />
+                        </div>
+                        <div className="bar-value">{fmt(cat.jumlah)}</div>
                       </div>
-                      <div className="category-bar-track">
-                        <div className="category-bar-fill green" style={{ width: `${((cat.jumlah || 0) / totalCM) * 100}%` }} />
+                    ))}
+                  </div>
+                )}
+                {catKeluar.length > 0 && (
+                  <div>
+                    <div className="category-section-title" style={{ color: '#c62828' }}>Pengeluaran</div>
+                    {catKeluar.slice(0, 4).map((cat, i) => (
+                      <div key={i} className="category-bar">
+                        <div className="bar-name">{cat.kategori}</div>
+                        <div className="bar-track">
+                          <div className="bar-fill red" style={{ width: `${((cat.jumlah || 0) / totalCK) * 100}%` }} />
+                        </div>
+                        <div className="bar-value">{fmt(cat.jumlah)}</div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {catKeluar.length > 0 && (
-                <div>
-                  <div className="category-section-title" style={{ color: '#c62828' }}>Pengeluaran</div>
-                  {catKeluar.slice(0, 4).map((cat, i) => (
-                    <div key={i} className="category-bar-item">
-                      <div className="category-bar-header">
-                        <span className="category-bar-name">{cat.kategori}</span>
-                        <span className="category-bar-value">{fmt(cat.jumlah)}</span>
-                      </div>
-                      <div className="category-bar-track">
-                        <div className="category-bar-fill red" style={{ width: `${((cat.jumlah || 0) / totalCK) * 100}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="admin-card">
-            <div className="admin-card-title">Transaksi Terakhir</div>
+          <div className="card">
+            <div className="card-header">
+              <h2>Transaksi Terakhir</h2>
+            </div>
             {transaksi.slice(0, 8).map((item) => (
               <div key={item.id} className="transaction-row">
                 <div className="transaction-left">
@@ -255,7 +268,8 @@ const Keuangan = () => {
       {view === 'transaksi' && (
         <>
           {showForm && canEdit && (
-            <form onSubmit={handleSubmit} className="admin-form-card">
+            <form onSubmit={handleSubmit} className="card">
+              <div className="card-body">
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: 16 }}>{editingId ? 'Edit Transaksi' : 'Transaksi Baru'}</h3>
               <div className="admin-form-grid-4">
                 <div className="form-group">
@@ -311,6 +325,7 @@ const Keuangan = () => {
                 <button type="submit" className="btn btn-amber">{editingId ? 'Update Transaksi' : 'Simpan Transaksi'}</button>
                 <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="btn btn-outline">Batal</button>
               </div>
+              </div>
             </form>
           )}
 
@@ -349,8 +364,8 @@ const Keuangan = () => {
             </div>
           </div>
 
-          <div className="admin-table-wrap">
-            <table className="admin-table">
+          <div className="table-wrapper">
+            <table className="table">
               <thead>
                 <tr>
                   <th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Metode</th><th>Pihak Terkait</th><th>Deskripsi</th><th className="text-right">Jumlah</th><th>Status</th><th className="text-center">Aksi</th>
@@ -361,7 +376,7 @@ const Keuangan = () => {
                   <tr key={item.id}>
                     <td>{moment(item.tanggal).format('DD MMM YYYY')}</td>
                     <td>
-                      <span className={`badge ${item.jenis === 'masuk' ? 'badge-green' : 'badge-red'}`}>
+                      <span className={`badge ${item.jenis === 'masuk' ? 'badge-emerald' : 'badge-red'}`}>
                         {item.jenis === 'masuk' ? '\u2191 Masuk' : '\u2193 Keluar'}
                       </span>
                     </td>
@@ -373,14 +388,14 @@ const Keuangan = () => {
                       {item.jenis === 'masuk' ? '+' : '-'}{fmt(item.jumlah)}
                     </td>
                     <td>
-                      <span className={`badge ${item.status === 'confirmed' ? 'badge-green' : item.status === 'pending' ? 'badge-amber' : 'badge-red'}`}>
+                      <span className={`badge ${item.status === 'confirmed' ? 'badge-emerald' : item.status === 'pending' ? 'badge-amber' : 'badge-red'}`}>
                         {item.status === 'confirmed' ? 'Dikonfirmasi' : item.status === 'pending' ? 'Menunggu' : 'Dibatalkan'}
                       </span>
                     </td>
                     <td className="text-center">
                       {canEdit && (
                         <>
-                          <button onClick={() => handleEdit(item)} className="btn btn-blue btn-sm" style={{ marginRight: 6 }}>Edit</button>
+                          <button onClick={() => handleEdit(item)} className="btn btn-ghost btn-sm" style={{ marginRight: 6 }}>Edit</button>
                           <button onClick={() => handleDelete(item.id)} className="btn btn-danger btn-sm">Hapus</button>
                         </>
                       )}
@@ -418,8 +433,8 @@ const Keuangan = () => {
           {reportData && reportData.summary && (
             <>
               <div className="two-col-grid">
-                <div className="admin-card">
-                  <div className="admin-card-title" style={{ color: '#0b3d2e' }}>Pemasukan per Kategori</div>
+                <div className="card">
+                  <div className="card-header"><h2 style={{ color: '#0b3d2e' }}>Pemasukan per Kategori</h2></div>
                   {(reportData.summary || []).filter(s => s.masuk > 0).map((s, i) => (
                     <div key={i} className="transaction-row">
                       <span style={{ fontSize: '0.85rem' }}>{s.kategori}</span>
@@ -432,8 +447,8 @@ const Keuangan = () => {
                   </div>
                 </div>
 
-                <div className="admin-card">
-                  <div className="admin-card-title" style={{ color: '#c62828' }}>Pengeluaran per Kategori</div>
+                <div className="card">
+                  <div className="card-header"><h2 style={{ color: '#c62828' }}>Pengeluaran per Kategori</h2></div>
                   {(reportData.summary || []).filter(s => s.keluar > 0).map((s, i) => (
                     <div key={i} className="transaction-row">
                       <span style={{ fontSize: '0.85rem' }}>{s.kategori}</span>
@@ -447,7 +462,7 @@ const Keuangan = () => {
                 </div>
               </div>
 
-              <div className="admin-card" style={{ marginBottom: 24 }}>
+              <div className="card" style={{ marginBottom: 24 }}>
                 <div className="keuangan-summary-inline" style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', gap: 16, flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#7a9a8e', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Total Masuk</div>
@@ -466,8 +481,8 @@ const Keuangan = () => {
                 </div>
               </div>
 
-              <div className="admin-table-wrap">
-                <table className="admin-table">
+              <div className="table-wrapper">
+                <table className="table">
                   <thead>
                     <tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Deskripsi</th><th className="text-right">Jumlah</th></tr>
                   </thead>
@@ -476,7 +491,7 @@ const Keuangan = () => {
                       <tr key={item.id}>
                         <td>{moment(item.tanggal).format('DD MMM YYYY')}</td>
                         <td>
-                          <span className={`badge ${item.jenis === 'masuk' ? 'badge-green' : 'badge-red'}`}>
+                      <span className={`badge ${item.jenis === 'masuk' ? 'badge-emerald' : 'badge-red'}`}>
                             {item.jenis === 'masuk' ? '\u2191 Masuk' : '\u2193 Keluar'}
                           </span>
                         </td>
