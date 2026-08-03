@@ -2,11 +2,16 @@ import React from 'react';
 
 export const MosqueIcon = ({ size = 24, ...props }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M12 3c-1.1 0-2 .9-2 2v1H8V5c0-1.1-.9-2-2-2s-2 .9-2 2v1H3c-.6 0-1 .4-1 1v5c0 2.8 2.2 5 5 5 1.4 0 2.7-.6 3.6-1.5.9.9 2.2 1.5 3.6 1.5 2.8 0 5-2.2 5-5V6c0-.6-.4-1-1-1h-1V5c0-1.1-.9-2-2-2s-2 .9-2 2v1h-2V5c0-1.1-.9-2-2-2z" />
-    <path d="M5 14v2M19 14v2" />
-    <path d="M9 16h6" />
-    <path d="M12 3v-1" />
-    <circle cx="12" cy="1.5" r="0.5" fill="currentColor" stroke="none" />
+    <path d="M3 21h18" />
+    <path d="M8 21V13" />
+    <path d="M16 21V13" />
+    <path d="M8 13a4 4 0 0 1 8 0" />
+    <path d="M12 9V7" />
+    <path d="M10.5 21v-4a1.5 1.5 0 0 1 3 0v4" />
+    <path d="M5 21V11" />
+    <path d="M4 11a1 1 0 0 1 2 0" />
+    <path d="M19 21V11" />
+    <path d="M18 11a1 1 0 0 1 2 0" />
   </svg>
 );
 
