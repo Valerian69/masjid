@@ -19,20 +19,30 @@ const PrayerSchedule = ({ jadwal }) => {
     if (!jadwal || jadwal.length === 0) return { nextPrayer: null, countdown: '' };
 
     const now = currentTime.clone();
+    const pad = (n) => String(n).padStart(2, '0');
+
+    // Find next prayer today
     for (const prayer of jadwal) {
       const [hours, minutes] = prayer.waktu.split(':');
       const prayerTime = now.clone().hours(parseInt(hours)).minutes(parseInt(minutes)).seconds(0);
       if (prayerTime.isAfter(now)) {
-        const diff = prayerTime.diff(now);
-        const duration = moment.duration(diff);
-        const pad = (n) => String(n).padStart(2, '0');
+        const duration = moment.duration(prayerTime.diff(now));
         return {
           nextPrayer: formatPrayerName(prayer.nama_sholat),
           countdown: `${pad(Math.floor(duration.asHours()))}:${pad(duration.minutes())}:${pad(duration.seconds())}`
         };
       }
     }
-    return { nextPrayer: formatPrayerName(jadwal[0]?.nama_sholat), countdown: '--:--:--' };
+
+    // After Isya — countdown to first prayer tomorrow
+    const tomorrowFirstPrayer = jadwal[0];
+    const [h, m] = tomorrowFirstPrayer.waktu.split(':');
+    const tomorrow = now.clone().add(1, 'day').hours(parseInt(h)).minutes(parseInt(m)).seconds(0);
+    const duration = moment.duration(tomorrow.diff(now));
+    return {
+      nextPrayer: formatPrayerName(tomorrowFirstPrayer.nama_sholat),
+      countdown: `${pad(Math.floor(duration.asHours()))}:${pad(duration.minutes())}:${pad(duration.seconds())}`
+    };
   }, [jadwal, currentTime]);
 
   const isActive = (waktu) => {

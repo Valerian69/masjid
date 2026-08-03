@@ -143,20 +143,30 @@ body {
 
 .page-container {
   min-height: 0;
+  height: 100%;
   position: relative;
 }
 
 .page {
   position: absolute;
   inset: 0;
+  height: 100%;
   opacity: 0;
-  transition: opacity 0.8s ease-in-out;
+  z-index: 0;
   pointer-events: none;
+}
+
+.page.leaving {
+  opacity: 0;
+  z-index: 0;
+  transition: opacity 0.35s ease-out;
 }
 
 .page.active {
   opacity: 1;
+  z-index: 2;
   pointer-events: auto;
+  transition: opacity 0.4s ease-in 0.2s;
 }
 
 .page-main {
@@ -181,6 +191,7 @@ body {
   flex-direction: column;
   gap: 10px;
   min-height: 0;
+  height: 100%;
 }
 
 /* ── Header ── */
@@ -721,14 +732,31 @@ body {
   flex-direction: column;
   gap: 16px;
   padding: 14px 18px;
+  position: relative;
+}
+
+.loading-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.12;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.loading-icon svg {
+  width: 80px;
+  height: 80px;
+  fill: var(--amber);
 }
 
 .skeleton-header {
   height: 68px;
   border-radius: var(--radius);
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.06) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .skeleton-body {
@@ -740,9 +768,10 @@ body {
 
 .skeleton-card {
   border-radius: var(--radius);
-  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
 .skeleton-card-left {
@@ -755,7 +784,7 @@ body {
   height: 20px;
   width: 40%;
   border-radius: 6px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.06) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.08) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
@@ -763,9 +792,10 @@ body {
 .skeleton-row {
   height: 42px;
   border-radius: 8px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
 .skeleton-right {
@@ -777,7 +807,8 @@ body {
 .skeleton-footer {
   height: 44px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,0.04);
 }

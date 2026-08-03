@@ -5,6 +5,7 @@ import KajianFinance from './components/KajianFinance';
 import Agenda from './components/Agenda';
 import Laporan from './components/Laporan';
 import RunningText from './components/RunningText';
+import { MosqueIcon } from './components/Icons';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
@@ -13,6 +14,7 @@ function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [leavingPage, setLeavingPage] = useState(-1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +35,12 @@ function App() {
 
   useEffect(() => {
     const pageInterval = setInterval(() => {
-      setCurrentPage(prev => (prev + 1) % 2);
+      setCurrentPage(prev => {
+        const next = (prev + 1) % 2;
+        setLeavingPage(prev);
+        setTimeout(() => setLeavingPage(-1), 400);
+        return next;
+      });
     }, 10000);
     return () => clearInterval(pageInterval);
   }, []);
@@ -41,6 +48,7 @@ function App() {
   if (loading) {
     return (
       <div className="loading-screen">
+        <div className="loading-icon"><MosqueIcon size={80} /></div>
         <div className="skeleton-header" />
         <div className="skeleton-body">
           <div className="skeleton-card skeleton-card-left">
@@ -63,14 +71,14 @@ function App() {
     <div className="tv-display">
       <Header settings={data?.settings} />
       <div className="page-container">
-        <div className={`page page-main ${currentPage === 0 ? 'active' : ''}`}>
+        <div className={`page page-main ${currentPage === 0 ? 'active' : leavingPage === 0 ? 'leaving' : ''}`}>
           <PrayerSchedule jadwal={data?.jadwal_sholat} />
           <div className="right-column">
             <KajianFinance kajianList={data?.kajian_terdekat} keuangan={data?.keuangan} />
             <Agenda agendaList={data?.agenda_terdekat} />
           </div>
         </div>
-        <div className={`page page-laporan ${currentPage === 1 ? 'active' : ''}`}>
+        <div className={`page page-laporan ${currentPage === 1 ? 'active' : leavingPage === 1 ? 'leaving' : ''}`}>
           <Laporan />
         </div>
       </div>
