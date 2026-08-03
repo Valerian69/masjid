@@ -6,30 +6,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap');
 
 :root {
+  /* Brand — emerald scale (canonical, matches mockups/design-system.css) */
+  --emerald-900: #061a14;
+  --emerald-800: #0b3d2e;
+  --emerald-700: #0f5139;
+  --emerald-600: #146b4a;
+  --emerald-500: #1a9e68;
+  --emerald-400: #34c785;
+  --emerald-300: #6ee7a8;
+  --emerald-200: #a7f3d4;
+  --emerald-100: #d1fae5;
+  --emerald-50:  #ecfdf5;
+  /* App aliases (kept for existing components) */
   --emerald-deep: #0b3d2e;
   --emerald-mid: #146b4a;
   --emerald-light: #1a9e68;
+
+  /* Accent — amber scale */
+  --amber-600: #b8792e;
+  --amber-500: #d4913d;
+  --amber-400: #f0c66e;
+  --amber-300: #f5d89a;
+  --amber-200: #fae8c0;
+  --amber-100: #fef3e0;
   --amber: #d4913d;
   --amber-glow: #f0c66e;
-  --bg-page: #f0f2f1;
-  --bg-card: #ffffff;
-  --bg-sidebar: linear-gradient(180deg, #0b3d2e 0%, #081f18 100%);
-  --text-primary: #1a2e23;
-  --text-secondary: #5a7265;
-  --text-muted: #8fa69a;
-  --border: #e2e8e5;
-  --border-light: #eef1ef;
-  --shadow-xs: 0 1px 2px rgba(10,30,20,0.04);
-  --shadow-sm: 0 2px 8px rgba(10,30,20,0.06);
-  --shadow-md: 0 4px 16px rgba(10,30,20,0.08);
-  --shadow-lg: 0 8px 32px rgba(10,30,20,0.10);
-  --shadow-xl: 0 16px 48px rgba(10,30,20,0.14);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Neutrals — slate scale */
+  --slate-950: #0c1117;
+  --slate-900: #1a2332;
+  --slate-800: #2a3545;
+  --slate-700: #3d4b5c;
+  --slate-600: #546375;
+  --slate-500: #6b7a8d;
+  --slate-400: #8e9bab;
+  --slate-300: #b4bec9;
+  --slate-200: #d5dce3;
+  --slate-100: #ebeef2;
+  --slate-50:  #f5f7f9;
+
+  /* Semantic */
+  --red-600: #c62828;
+  --red-500: #ef4444;
+  --red-100: #fee2e2;
+  --blue-600: #1565c0;
+  --blue-500: #3b82f6;
+  --blue-100: #dbeafe;
+  --orange-600: #e65100;
+  --orange-500: #f97316;
+  --orange-100: #ffedd5;
+  --purple-500: #8b5cf6;
+  --purple-100: #ede9fe;
+  /* Semantic aliases + soft tints (kept for existing components) */
   --red: #c62828;
   --red-light: rgba(198, 40, 40, 0.08);
   --blue: #1565c0;
@@ -38,40 +66,71 @@
   --orange-light: rgba(230, 81, 0, 0.08);
   --green: #0b3d2e;
   --green-light: rgba(11, 61, 46, 0.06);
-  --purple: #7b1fa2;
-  --purple-light: rgba(156, 39, 176, 0.08);
+  --purple: #8b5cf6;
+  --purple-light: rgba(139, 92, 246, 0.10);
 
-  /* Spacing scale (4px base) */
+  /* Surfaces */
+  --bg-root: #f0f2f1;
+  --bg-page: #f0f2f1;
+  --bg-card: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-input: #f8faf9;
+  --bg-sidebar: linear-gradient(180deg, #0b3d2e 0%, #081f18 100%);
+
+  /* Text */
+  --text-primary: #1a2e23;
+  --text-secondary: #5a7265;
+  --text-muted: #8fa69a;
+  --text-inverse: #f0f2f1;
+  --text-accent: #d4913d;
+
+  /* Borders */
+  --border: #e2e8e5;
+  --border-light: #eef1ef;
+  --border-focus: #146b4a;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(10,30,20,0.04);
+  --shadow-sm: 0 2px 8px rgba(10,30,20,0.06);
+  --shadow-md: 0 4px 16px rgba(10,30,20,0.08);
+  --shadow-lg: 0 8px 32px rgba(10,30,20,0.10);
+  --shadow-xl: 0 16px 48px rgba(10,30,20,0.14);
+  --shadow-glow: 0 0 40px rgba(20,107,74,0.12);
+
+  /* Radius */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
 
-  /* Numbered color scale (harmonized with base palette) */
-  --emerald-50: #e9f4ef;
-  --emerald-100: #d2e9e0;
-  --emerald-400: #1a9e68;
-  --emerald-500: #146b4a;
-  --emerald-600: #0f5a3d;
-  --emerald-700: #0b3d2e;
-  --blue-100: #e3f0fb;
-  --blue-500: #1e88e5;
-  --blue-600: #1565c0;
-  --amber-100: #fbf0dc;
-  --amber-400: #f0c66e;
-  --amber-500: #d4913d;
-  --amber-600: #b8752a;
-  --red-500: #e53935;
-  --red-600: #c62828;
-  --orange-100: #fce4d6;
-  --orange-600: #e65100;
-  --purple-100: #f0e0f5;
-  --purple-500: #7b1fa2;
+  /* Typography */
+  --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Amiri', Georgia, serif;
 
-  /* Display face (mosque name / hijri) */
-  --font-display: 'Amiri', serif;
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --topbar-height: 64px;
 }
 
 /* Focus-visible accessibility ring */
@@ -468,12 +527,12 @@ body::before {
 .stat-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 22px;
+  padding: var(--space-6);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
   position: relative;
   overflow: hidden;
-  transition: all 0.25s var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
 .stat-card::before {
@@ -703,17 +762,17 @@ select.form-input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-2);
   padding: 10px 20px;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.86rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: all 0.2s var(--ease-out);
-  letter-spacing: 0.01em;
+  transition: all var(--duration-fast) var(--ease-out);
   white-space: nowrap;
+  line-height: 1.4;
 }
 
 .btn:active {
@@ -816,10 +875,10 @@ select.form-input {
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   padding: 3px 10px;
   border-radius: var(--radius-full);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
 }
