@@ -15,14 +15,13 @@
 ## Fitur
 
 ### TV Display (Publik)
-- Jadwal sholat dengan **countdown animasi** ke sholat berikutnya
-- Jadwal kajian terdekat
+- **Dioptimalkan untuk keterbacaan di TV masjid** — teks besar, kontras tinggi, mudah dibaca dari jauh
+- **Jadwal sholat besar & selalu tampil**, sholat berikutnya disorot kuat
+- **Countdown raksasa** ke sholat berikutnya (breathing animation)
+- **Panel rotasi** — kajian, agenda, laporan, keuangan bergantian otomatis
 - Running text pengumuman (auto-scroll)
-- Info keuangan ringkas (saldo & infaq bulanan)
-- Agenda kegiatan mendatang
-- Laporan kegiatan
 - Tanggal Hijriah (otomatis)
-- Desain glassmorphism dengan ambient glow
+- Desain glassmorphism emerald–amber dengan ambient glow
 
 ### Admin Panel
 - Dashboard ringkasan (total transaksi, kajian, agenda, saldo)
@@ -43,11 +42,11 @@
 
 ### TV Display (layar publik)
 
-Layar untuk publik: jadwal sholat + countdown ke sholat berikutnya, kajian, ringkasan keuangan, agenda, dan running text — rotasi halaman otomatis dengan transisi halus.
+Didesain agar **mudah dibaca dari jauh oleh semua kalangan** saat dipasang di TV masjid: **jadwal sholat besar & selalu tampil**, **countdown raksasa ke sholat berikutnya** (kanan-atas), kontras tinggi (teks putih/amber di latar emerald gelap), dan running text. Konten sekunder (kajian, agenda, laporan, keuangan) **berotasi bergantian** di panel kanan-bawah — tidak menumpuk padat.
 
-![TV Display — Jadwal Sholat](docs/screenshots/tv-jadwal.jpg)
+![TV Display — layar utama (jadwal sholat + countdown)](docs/screenshots/tv-utama.jpg)
 
-![TV Display — Laporan Kegiatan](docs/screenshots/tv-laporan.jpg)
+![TV Display — panel rotasi (Laporan Kegiatan)](docs/screenshots/tv-rotasi.jpg)
 
 ### Admin Panel
 
