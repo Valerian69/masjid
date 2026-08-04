@@ -812,3 +812,183 @@ body {
   animation: shimmer 1.5s ease-in-out infinite;
   border: 1px solid rgba(255,255,255,0.04);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   TV READABILITY OVERHAUL — larger type, higher contrast, prayer-
+   times dominant, permanent layout with rotating secondary panel.
+   (Appended last so it overrides the base rules above.)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --text-secondary: #d3e4dc;   /* lighter for distance readability */
+  --text-muted: #a9c3b8;
+}
+
+.tv-display { gap: 14px; padding: 18px 22px; }
+
+/* ── Layout: prayer schedule (dominant) + right column ── */
+.tv-main {
+  display: grid;
+  grid-template-columns: 1.32fr 1fr;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+}
+.tv-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+/* ── Header (bigger) ── */
+.header { padding: 16px 32px; }
+.header-icon { width: 54px; height: 54px; border-radius: 14px; }
+.header-icon svg { width: 30px; height: 30px; }
+.masjid-name { font-size: 2.7rem; }
+.header .date-hijriah { font-size: 1.55rem; opacity: 1; color: var(--amber-glow); }
+.header .date-time .time { font-size: 3.2rem; color: #ffffff; }
+.header .date-time .date { font-size: 1.15rem; color: var(--text-secondary); }
+
+/* ── Cards ── */
+.card { padding: 20px 22px; }
+.card-title { font-size: 1.45rem; margin-bottom: 14px; padding-bottom: 12px; }
+.card-title svg { width: 26px; height: 26px; }
+
+/* ── Prayer schedule: big rows filling the column ── */
+.prayer-schedule { height: 100%; }
+.prayer-list { gap: 8px; justify-content: space-between; }
+.prayer-item {
+  flex: 1;
+  padding: 0 28px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+}
+.prayer-item .name { font-size: 2.1rem; font-weight: 600; color: #ffffff; }
+.prayer-item .time { font-size: 2.7rem; font-weight: 700; }
+
+/* Next upcoming prayer — strong highlight */
+.prayer-item.next {
+  background: linear-gradient(90deg, rgba(212,145,61,0.28), rgba(212,145,61,0.12));
+  border: 2px solid var(--amber);
+  box-shadow: 0 0 24px rgba(212,145,61,0.18);
+}
+.prayer-item.next .name { color: var(--amber-glow); font-weight: 700; }
+.prayer-item.next .time { color: var(--amber-glow); }
+
+/* ── Next-prayer HERO (top-right, most prominent) ── */
+.next-prayer {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 22px 20px 26px;
+  border-radius: var(--radius);
+  background: linear-gradient(150deg, rgba(20,107,74,0.42), rgba(11,61,46,0.30));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-inset), var(--shadow-card);
+  animation: countdownBreath 4s ease-in-out infinite;
+}
+.next-prayer-label {
+  font-size: 1.15rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.next-prayer-name {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 4px 0 6px;
+}
+.next-prayer-at { color: var(--amber-glow); font-weight: 600; }
+.next-prayer-countdown {
+  font-size: 5.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--amber-glow);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  animation: countdownGlow 4s ease-in-out infinite;
+}
+
+/* ── Secondary rotating panel (bottom-right) ── */
+.secondary-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-inset), var(--shadow-card);
+  overflow: hidden;
+}
+.secondary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.secondary-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 0.02em;
+}
+.secondary-dots { display: flex; gap: 8px; }
+.secondary-dots .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  transition: all 0.3s var(--ease-out);
+}
+.secondary-dots .dot.on { background: var(--amber); width: 26px; border-radius: 5px; }
+
+.secondary-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  animation: fadeInUp 0.5s var(--ease-out) both;
+}
+.sec-list { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+.sec-item {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border-left: 4px solid var(--amber);
+}
+.sec-item.agenda { border-left-color: var(--emerald-light); }
+.sec-item.laporan { border-left-color: var(--amber-glow); }
+.sec-item-title { font-size: 1.4rem; font-weight: 700; color: #ffffff; line-height: 1.25; }
+.sec-item-accent { font-size: 1.15rem; color: var(--amber-glow); font-weight: 600; margin-top: 2px; }
+.sec-item-sub { font-size: 1.05rem; color: var(--text-secondary); margin-top: 3px; }
+.sec-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.sec-badge {
+  font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--amber-glow); background: rgba(212,145,61,0.16);
+  padding: 3px 12px; border-radius: 999px;
+}
+.sec-item-date { font-size: 1rem; color: var(--text-muted); }
+.sec-item-text {
+  font-size: 1.05rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Finance panel */
+.sec-finance { display: flex; flex-direction: column; gap: 14px; height: 100%; justify-content: center; }
+.sec-finance-box { padding: 22px; border-radius: var(--radius); text-align: center; }
+.sec-finance-box.saldo { background: linear-gradient(135deg, rgba(212,145,61,0.14), rgba(212,145,61,0.05)); border: 1px solid rgba(212,145,61,0.25); }
+.sec-finance-box.infaq { background: linear-gradient(135deg, rgba(26,158,104,0.14), rgba(26,158,104,0.05)); border: 1px solid rgba(26,158,104,0.25); }
+.sec-finance-label { font-size: 1.1rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
+.sec-finance-amount { font-size: 2.6rem; font-weight: 800; color: var(--amber-glow); font-variant-numeric: tabular-nums; }
+.sec-finance-box.infaq .sec-finance-amount { color: var(--emerald-light); }
+
+/* ── Running text (bigger, higher contrast) ── */
+.running-text-bar { min-height: 62px; padding: 14px 28px; }
+.running-text-content { font-size: 1.55rem; color: var(--amber-glow); font-weight: 600; }
+.running-text-content .dot { width: 7px; height: 7px; }
