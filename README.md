@@ -49,6 +49,24 @@ Didesain agar **mudah dibaca dari jauh oleh semua kalangan** saat dipasang di TV
 
 ![TV Display — panel rotasi (Laporan Kegiatan)](docs/screenshots/tv-rotasi.jpg)
 
+### Jeda Ikamah & Layar Sholat
+
+Begitu waktu sholat fardhu masuk, TV mengambil alih seluruh layar dan menuntun jamaah lewat tiga fase, lalu kembali sendiri ke tampilan normal. Semuanya diturunkan dari jam — tidak ada timer yang perlu dijaga, sehingga TV yang mati lampu atau di-restart langsung kembali ke fase yang benar.
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/tv-ikamah-azan.jpg" alt="Fase azan"><br><sub><b>1. Azan</b> — 2 menit, menandai waktu sholat masuk</sub></td>
+    <td width="33%"><img src="docs/screenshots/tv-ikamah-countdown.jpg" alt="Fase hitung mundur ikamah"><br><sub><b>2. Jeda Ikamah</b> — hitung mundur raksasa, latar menggelap perlahan</sub></td>
+    <td width="33%"><img src="docs/screenshots/tv-ikamah-sholat.png" alt="Fase layar gelap"><br><sub><b>3. Sholat</b> — layar hampir hitam agar tidak mengganggu</sub></td>
+  </tr>
+</table>
+
+Angka hitung mundur sengaja memakai goresan tipis: pada ukuran sebesar itu tetap terbaca dari ujung ruangan, tapi memancarkan cahaya jauh lebih sedikit daripada angka tebal. Latar belakangnya ikut menggelap sepanjang hitung mundur sehingga peralihan ke fase sholat terasa menyatu, bukan memotong.
+
+Durasi tiap fase diatur per sholat dari **Pengaturan** di panel admin — misalnya ikamah Subuh 15 menit tapi Maghrib cukup 5 menit. Isi `0` untuk melewati salah satu fase, dan sholat Jum'at otomatis dilewati karena diisi khutbah.
+
+![Panel admin — pengaturan durasi Jeda Ikamah per sholat](docs/screenshots/admin-jeda-ikamah.png)
+
 ### Admin Panel
 
 Panel internal untuk mengelola seluruh konten, dengan akses berbasis peran dan design system emerald–amber.
