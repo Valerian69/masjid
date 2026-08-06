@@ -1062,6 +1062,15 @@ body {
 /* Fase ikamah */
 .phase-ikamah {
   background: var(--bg-deep);
+}
+
+/* Dimming layer for smooth ikamah-to-blank transition; positioned under content (z-index: 0)
+   to keep countdown digits at full brightness while background darkens toward pure black. */
+.phase-overlay .phase-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #000;
   transition: opacity 1s linear;
 }
 

@@ -21,9 +21,11 @@ const PrayerPhaseOverlay = ({ phase, prayer, sisa, total }) => {
   if (phase === 'ikamah') {
     const progress = total > 0 ? (total - sisa) / total : 0;
     return (
-      // Kecerahan turun perlahan sepanjang hitung mundur agar peralihan ke
-      // layar gelap terasa mulus, bukan mendadak.
-      <div className="phase-overlay phase-ikamah" style={{ opacity: 1 - progress * 0.25 }}>
+      <div className="phase-overlay phase-ikamah">
+        {/* Dimming layer darkens the background toward pure black across the countdown,
+            creating a smooth visual transition to the blank phase. Kept separate from
+            container opacity so countdown digits stay fully bright. */}
+        <div className="phase-dim" style={{ opacity: progress }} />
         <div className="phase-ikamah-prayer">{prayer.nama}</div>
         <div className="phase-kicker">Menuju Ikamah</div>
         <div className={`phase-countdown ${sisa <= 60 ? 'urgent' : ''}`}>{formatCountdown(sisa)}</div>
