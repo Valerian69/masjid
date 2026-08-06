@@ -9,6 +9,14 @@ const SyncIcon = () => (
   </svg>
 );
 
+const PRAYERS = [
+  { key: 'subuh', label: 'Subuh' },
+  { key: 'dzuhur', label: 'Dzuhur' },
+  { key: 'ashar', label: 'Ashar' },
+  { key: 'maghrib', label: 'Maghrib' },
+  { key: 'isya', label: 'Isya' },
+];
+
 const Settings = () => {
   const toast = useToast();
   const [settings, setSettings] = useState({
@@ -19,6 +27,17 @@ const Settings = () => {
     timezone: 'Asia/Jakarta',
     provinsi: '',
     kabkota: '',
+    iqomah_enabled: 'true',
+    ikamah_subuh: '15',
+    ikamah_dzuhur: '10',
+    ikamah_ashar: '10',
+    ikamah_maghrib: '5',
+    ikamah_isya: '10',
+    sholat_subuh: '15',
+    sholat_dzuhur: '15',
+    sholat_ashar: '15',
+    sholat_maghrib: '15',
+    sholat_isya: '15',
   });
   const [provinsiList, setProvinsiList] = useState([]);
   const [kabkotaList, setKabkotaList] = useState([]);
@@ -40,7 +59,9 @@ const Settings = () => {
   const loadSettings = async () => {
     try {
       const res = await settingsAPI.get();
-      setSettings(res.data);
+      // Merge, bukan timpa: deployment lama belum punya key jeda ikamah, dan
+      // menimpa akan membuang seluruh nilai default sehingga input tampil kosong.
+      setSettings((prev) => ({ ...prev, ...res.data }));
     } catch (err) {
       console.error('Failed to load settings:', err);
     } finally {
@@ -238,6 +259,43 @@ const Settings = () => {
                 </select>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="card animate-in animate-delay-2" style={{ marginTop: 24 }}>
+          <div className="card-header">
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Jeda Ikamah</h3>
+          </div>
+          <div className="card-body">
+            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 16 }}>
+              Setelah waktu sholat masuk, TV menampilkan notifikasi azan, lalu hitung mundur menuju ikamah, lalu layar gelap selama sholat berjamaah.
+            </p>
+            <div className="form-group">
+              <label className="form-label">Aktifkan Jeda Ikamah &amp; Layar Sholat</label>
+              <select value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select">
+                <option value="true">Aktif</option>
+                <option value="false">Nonaktif</option>
+              </select>
+            </div>
+            {PRAYERS.map(p => (
+              <div key={p.key} className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Jeda Ikamah {p.label} (menit)</label>
+                  <input type="number" min="0" max="120" step="1" className="form-input"
+                    value={settings[`ikamah_${p.key}`] ?? ''}
+                    onChange={e => setSettings({...settings, [`ikamah_${p.key}`]: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Layar Gelap {p.label} (menit)</label>
+                  <input type="number" min="0" max="120" step="1" className="form-input"
+                    value={settings[`sholat_${p.key}`] ?? ''}
+                    onChange={e => setSettings({...settings, [`sholat_${p.key}`]: e.target.value})} />
+                </div>
+              </div>
+            ))}
+            <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 8 }}>
+              Sholat Jum'at dilewati — saat waktu Jum'at TV tetap menampilkan tampilan normal. Sholat lain di hari Jumat tetap berjalan seperti biasa. Isi 0 untuk melewati salah satu fase.
+            </p>
           </div>
         </div>
       </form>
