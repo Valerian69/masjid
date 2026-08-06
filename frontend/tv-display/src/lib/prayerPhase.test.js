@@ -98,11 +98,30 @@ describe('computePhase — transisi fase Subuh (ikamah 15 menit, sholat 15 menit
     const r = computePhase(at('04:47:00'), JADWAL, CONFIG);
     expect(r.phase).toBe('ikamah');
     expect(r.sisa).toBe(13 * 60);
-    expect(r.total).toBe(15 * 60);
+    expect(r.progress).toBe(0);
   });
 
   it('sisa hitung mundur berkurang per detik', () => {
     expect(computePhase(at('04:59:59'), JADWAL, CONFIG).sisa).toBe(1);
+  });
+
+  it('dimming ramp dimulai dari nol saat countdown pertama kali terlihat', () => {
+    const r = computePhase(at('04:47:00'), JADWAL, CONFIG);
+    expect(r.phase).toBe('ikamah');
+    expect(r.progress).toBe(0);
+  });
+
+  it('dimming ramp mencapai tengah perjalanan di tengah-tengah countdown', () => {
+    const r = computePhase(at('04:53:30'), JADWAL, CONFIG);
+    expect(r.phase).toBe('ikamah');
+    expect(r.progress).toBeCloseTo(0.5, 5);
+  });
+
+  it('dimming ramp mendekati satu sebelum sholat berjamaah', () => {
+    const r = computePhase(at('04:59:59'), JADWAL, CONFIG);
+    expect(r.phase).toBe('ikamah');
+    expect(r.progress).toBeGreaterThan(0.99);
+    expect(r.progress).toBeLessThanOrEqual(1);
   });
 
   it('masuk layar gelap tepat saat hitung mundur habis', () => {
@@ -115,6 +134,22 @@ describe('computePhase — transisi fase Subuh (ikamah 15 menit, sholat 15 menit
 
   it('kembali normal setelah durasi sholat habis', () => {
     expect(computePhase(at('05:15:00'), JADWAL, CONFIG).phase).toBe('normal');
+  });
+});
+
+describe('computePhase — transisi fase Maghrib (ikamah 5 menit, sholat 15 menit)', () => {
+  it('dimming ramp mulai dari nol pada saat countdown pertama kali terlihat', () => {
+    const r = computePhase(at('17:59:00'), JADWAL, CONFIG);
+    expect(r.phase).toBe('ikamah');
+    expect(r.prayer.key).toBe('maghrib');
+    expect(r.progress).toBe(0);
+  });
+
+  it('dimming ramp mencapai tengah perjalanan di tengah-tengah countdown', () => {
+    const r = computePhase(at('18:00:30'), JADWAL, CONFIG);
+    expect(r.phase).toBe('ikamah');
+    expect(r.prayer.key).toBe('maghrib');
+    expect(r.progress).toBeCloseTo(0.5, 5);
   });
 });
 

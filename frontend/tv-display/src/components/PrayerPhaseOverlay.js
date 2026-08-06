@@ -7,7 +7,7 @@ const formatCountdown = (sisa) => `${pad(Math.floor(sisa / 60))}:${pad(sisa % 60
 
 // Murni presentasional: tidak punya timer, tidak melakukan fetch, dan tidak
 // menyimpan state. Seluruh keputusan fase diambil oleh computePhase.
-const PrayerPhaseOverlay = ({ phase, prayer, sisa, total }) => {
+const PrayerPhaseOverlay = ({ phase, prayer, sisa, progress }) => {
   if (phase === 'azan') {
     return (
       <div className="phase-overlay phase-azan">
@@ -19,7 +19,6 @@ const PrayerPhaseOverlay = ({ phase, prayer, sisa, total }) => {
   }
 
   if (phase === 'ikamah') {
-    const progress = total > 0 ? (total - sisa) / total : 0;
     return (
       <div className="phase-overlay phase-ikamah">
         {/* Dimming layer darkens the background toward pure black across the countdown,

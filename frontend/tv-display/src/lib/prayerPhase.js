@@ -99,8 +99,19 @@ export const computePhase = (now, jadwal, config) => {
 
   // Fase azan berada di dalam durasi ikamah, dan dipangkas agar konfigurasi
   // ekstrem seperti ikamah 1 menit tidak membuat azan lebih panjang darinya.
-  if (elapsed < Math.min(AZAN_SECONDS, ikamah)) return { phase: 'azan', prayer };
-  if (elapsed < ikamah) return { phase: 'ikamah', prayer, sisa: ikamah - elapsed, total: ikamah };
+  const azanCutoff = Math.min(AZAN_SECONDS, ikamah);
+  if (elapsed < azanCutoff) return { phase: 'azan', prayer };
+
+  if (elapsed < ikamah) {
+    // Dimming ramp progress is measured from when the countdown becomes visible (end of azan),
+    // not from the start of the ikamah period. This ensures the dimming starts at 0 when
+    // the overlay first appears, not at whatever fraction elapsed/ikamah gives. Without this,
+    // the background would snap to dark instead of fading in smoothly.
+    const visibleWindow = ikamah - azanCutoff;
+    const progress = visibleWindow > 0 ? Math.min(1, (elapsed - azanCutoff) / visibleWindow) : 1;
+    return { phase: 'ikamah', prayer, sisa: ikamah - elapsed, progress };
+  }
+
   if (elapsed < ikamah + sholat) return { phase: 'blank', prayer };
   return normal;
 };
