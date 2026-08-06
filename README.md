@@ -19,6 +19,7 @@
 - **Jadwal sholat besar & selalu tampil**, sholat berikutnya disorot kuat
 - **Countdown raksasa** ke sholat berikutnya (breathing animation)
 - **Panel rotasi** — kajian, agenda, laporan, keuangan bergantian otomatis
+- **Jeda Ikamah & Layar Sholat** — saat waktu sholat fardhu masuk, TV otomatis menampilkan notifikasi azan layar penuh, lalu hitung mundur ikamah, lalu layar gelap selama sholat berjamaah, sebelum kembali normal. **Aktif secara default** dan hanya bisa dimatikan dari menu Pengaturan di panel admin — jika baru upgrade ke versi ini, Maghrib pertama setelah deploy akan menggelapkan layar selama ±15 menit walau belum pernah diatur secara sengaja
 - Running text pengumuman (auto-scroll)
 - Tanggal Hijriah (otomatis)
 - Desain glassmorphism emerald–amber dengan ambient glow

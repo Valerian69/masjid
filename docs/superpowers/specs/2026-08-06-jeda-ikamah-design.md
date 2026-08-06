@@ -74,7 +74,7 @@ GET /api/dashboard  (tiap 30 detik, sudah ada di App.js:29)
 
 ## 4. Kontrak konfigurasi
 
-Seluruh nilai di tabel `settings` bertipe TEXT. `parseConfig()` mengubahnya menjadi angka dan jatuh ke default bila nilainya kosong, bukan angka, negatif, atau lebih dari 120.
+Seluruh nilai di tabel `settings` bertipe TEXT. `parseConfig()` mengubahnya menjadi angka dan jatuh ke default bila nilainya kosong, bukan angka, negatif, atau lebih dari 120. Nilai pecahan dalam rentang yang sah (mis. `10.5`) dipangkas ke bawah (`Math.floor`) alih-alih ditolak — dianggap lebih ramah daripada melompat ke default, dan form admin memakai `step="1"` sehingga nilai pecahan tidak pernah benar-benar diketik lewat UI.
 
 | Key | Default | Arti |
 |---|---|---|
@@ -165,7 +165,9 @@ Fase yang seharusnya melewati tengah malam terpotong di 00:00, karena perhitunga
 
 ## 6. Desain visual
 
-Seluruh ukuran memakai satuan `vw` agar proporsinya tetap di TV 32" maupun 55". Transisi antar fase memakai crossfade 0.8 detik, konsisten dengan rotasi halaman yang sudah ada.
+Seluruh ukuran memakai satuan `vw` agar proporsinya tetap di TV 32" maupun 55".
+
+Transisi memudar dua arah, konsisten dengan crossfade 0.8 detik pada rotasi halaman yang sudah ada. Container overlay tetap mounted sepanjang waktu dan hanya beralih `opacity` 0 ⇄ 1 (transition 0.8s) antara "tidak ada fase yang tampil" dan "azan/ikamah/blank sedang tampil" — termasuk saat kembali ke NORMAL, di mana container menahan (memegang) konten fase terakhir yang terlihat sambil memudar keluar, alih-alih memotong seketika dari layar gelap ke dashboard terang. Di dalam container, elemen konten di-key oleh string fase: berpindah fase (mis. azan → ikamah) me-remount elemen ini sehingga animasi masuknya (`phaseFadeIn`, fade-in 0.8 detik) berjalan ulang di atas latar container yang sudah tampil, membuat tiap fase punya kemunculan yang lembut tanpa ikut memudarkan seluruh container.
 
 ### Fase Azan
 
@@ -202,7 +204,7 @@ Angka adalah elemen dominan, memakai `font-weight 300`. Pada ukuran 26vw, goresa
 └──────────────────────────────────────────────┘
 ```
 
-Kecerahan keseluruhan turun perlahan sepanjang hitung mundur, dari opacity 1.0 ke 0.75, agar masuk ke layar gelap terasa mulus. Pada 60 detik terakhir angka berdenyut halus sebagai penanda ikamah sudah dekat.
+Lapisan `.phase-dim` (hitam, di bawah konten) meredupkan latar dari opacity 0 ke 1 sepanjang hitung mundur, agar masuk ke layar gelap terasa mulus tanpa ikut meredupkan angka countdown itu sendiri. Pada 60 detik terakhir angka berdenyut halus sebagai penanda ikamah sudah dekat.
 
 ### Fase Blank
 

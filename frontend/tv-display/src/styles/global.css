@@ -994,7 +994,18 @@ body {
 .running-text-content .dot { width: 7px; height: 7px; }
 
 /* ── Fase sholat: azan / ikamah / layar gelap ─────────────────────── */
+/* Posisi blok ini di akhir file bersifat load-bearing. .phase-dim tetap di
+   bawah konten karena aturannya lebih spesifik daripada `.phase-overlay-content
+   > *` di bawah, dan .phase-progress tetap merentang penuh layar karena
+   .phase-overlay-content sengaja dibiarkan tidak positioned (lihat komentar
+   di bawah). Memindahkan atau memecah blok ini bisa diam-diam merusak
+   keduanya tanpa error apa pun yang terlihat.
 
+   Container tetap mounted sepanjang waktu (lihat PrayerPhaseOverlay.js) dan
+   hanya beralih opacity antara kondisi tersembunyi dan `.phase-visible`,
+   sehingga transisi fase memudar (crossfade) alih-alih memotong seketika —
+   termasuk saat kembali ke tampilan normal, yang sebelumnya adalah
+   perubahan paling kasar (hitam pekat → dashboard terang). */
 .phase-overlay {
   position: fixed;
   inset: 0;
@@ -1004,10 +1015,36 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s var(--ease-out);
+}
+
+.phase-overlay.phase-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Wrapper konten, di-key oleh fase yang sedang tampil di sisi React sehingga
+   remount (mis. azan → ikamah) memicu ulang phaseFadeIn untuk isinya.
+   z-index diset tanpa `position` karena flex item mendapat stacking context
+   dari z-index saja (pengecualian pada spesifikasi Flexbox) — dengan
+   sengaja TIDAK diberi `position: relative` di sini, supaya elemen ini
+   tetap bukan containing block dan .phase-progress di bawah tetap
+   mengambil containing block dari .phase-overlay (position: fixed),
+   bukan dari wrapper ini. Properti flex-nya meniru .phase-overlay lama
+   agar tiap baris konten tetap shrink-wrap dan center seperti sebelum
+   wrapper ini ada.
+*/
+.phase-overlay-content {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   animation: phaseFadeIn 0.8s var(--ease-out);
 }
 
-.phase-overlay > * {
+.phase-overlay-content > * {
   position: relative;
   z-index: 1;
 }

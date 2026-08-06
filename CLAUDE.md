@@ -265,7 +265,7 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 - PDF reports generated server-side with PDFKit (professional layout with header, summary, tables)
 - TV pages crossfade (0.8s transition) instead of hard-cutting
 - On Fridays, "Dzuhur" is displayed as "Jum'at" in TV display and admin panel (frontend-only logic, DB keeps "Dzuhur")
-- Iqomah phases (azan → countdown → blank screen) are derived from the browser clock by `computePhase()` in `frontend/tv-display/src/lib/prayerPhase.js` — no timers, so the display recovers its phase after a reload
+- Iqomah phases (azan → countdown → blank screen) are derived from the browser clock by `computePhase()` in `frontend/tv-display/src/lib/prayerPhase.js` — no scheduled state transitions or timer chains, just a value re-derived from the current phase's inputs every tick, so the display recovers its phase after a reload
 - Durations live in `settings` as flat keys: `iqomah_enabled`, `ikamah_<sholat>`, `sholat_<sholat>` for subuh/dzuhur/ashar/maghrib/isya (minutes, 0 skips the phase, invalid values fall back to defaults)
 - The azan notice runs inside the iqomah duration, not in addition to it; Jum'at (Dzuhur on Fridays) skips the sequence entirely
 

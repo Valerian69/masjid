@@ -68,8 +68,14 @@ describe('parseConfig', () => {
     expect(parseConfig({ ikamah_subuh: '121' }).ikamah.subuh).toBe(15);
   });
 
-  it('menganggap fitur aktif ketika key iqomah_enabled belum ada', () => {
+  it('menerima 120 sebagai batas atas yang sah', () => {
+    expect(parseConfig({ ikamah_subuh: '120' }).ikamah.subuh).toBe(120);
+    expect(parseConfig({ sholat_subuh: '120' }).sholat.subuh).toBe(120);
+  });
+
+  it('menganggap fitur aktif ketika key iqomah_enabled belum ada atau eksplisit null', () => {
     expect(parseConfig({ masjid_name: 'X' }).enabled).toBe(true);
+    expect(parseConfig({ iqomah_enabled: null }).enabled).toBe(true);
   });
 
   it('menganggap fitur nonaktif ketika iqomah_enabled bukan string "true"', () => {
@@ -226,5 +232,13 @@ describe('computePhase — kasus tepi', () => {
     const r = computePhase(at('19:09:30'), JADWAL, c);
     expect(r.phase).toBe('azan');
     expect(r.prayer.key).toBe('isya');
+  });
+
+  it('jatuh ke normal alih-alih melempar ketika `now` bukan objek moment yang sah', () => {
+    // {} tidak punya .hours()/.minutes()/.seconds() — computePhaseUnsafe akan
+    // melempar TypeError. Wrapper computePhase harus menangkapnya, bukan
+    // membiarkannya lolos ke luar modul (lihat App.js yang memanggil hook
+    // ini di luar jangkauan PhaseErrorBoundary).
+    expect(computePhase({}, JADWAL, CONFIG).phase).toBe('normal');
   });
 });

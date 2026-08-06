@@ -41,9 +41,10 @@ const toMinutes = (raw, fallback) => {
 export const parseConfig = (settings) => {
   const s = settings || {};
   const config = {
-    // Key yang belum ada berarti deployment lama yang belum menyimpan pengaturan:
-    // fitur dianggap aktif dengan durasi default.
-    enabled: s.iqomah_enabled === undefined ? true : s.iqomah_enabled === 'true' || s.iqomah_enabled === true,
+    // Key yang belum ada (atau eksplisit null) berarti deployment lama yang belum
+    // menyimpan pengaturan: fitur dianggap aktif dengan durasi default. Backend
+    // tidak pernah mengirim null hari ini, tapi `== null` menjaga kedua kasus sama.
+    enabled: s.iqomah_enabled == null ? true : s.iqomah_enabled === 'true' || s.iqomah_enabled === true,
     ikamah: {},
     sholat: {},
   };
@@ -81,7 +82,7 @@ const findCurrentPrayer = (nowSeconds, jadwal) => {
   return best;
 };
 
-export const computePhase = (now, jadwal, config) => {
+const computePhaseUnsafe = (now, jadwal, config) => {
   const normal = { phase: 'normal' };
   if (!config || !config.enabled) return normal;
 
@@ -114,4 +115,17 @@ export const computePhase = (now, jadwal, config) => {
 
   if (elapsed < ikamah + sholat) return { phase: 'blank', prayer };
   return normal;
+};
+
+// Dipanggil setiap detik dari render body App.js, di luar jangkauan
+// PhaseErrorBoundary (boundary hanya membungkus overlay, bukan pemanggilnya).
+// Bila logika di atas suatu saat berkembang dan melempar, try/catch di sini
+// mencegah exception sampai ke React root dan melepas seluruh tampilan TV.
+export const computePhase = (now, jadwal, config) => {
+  try {
+    return computePhaseUnsafe(now, jadwal, config);
+  } catch (error) {
+    console.error('computePhase failed:', error);
+    return { phase: 'normal' };
+  }
 };

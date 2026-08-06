@@ -72,7 +72,7 @@ function App() {
         </div>
       </div>
       <RunningText texts={data?.running_text} />
-      <PhaseErrorBoundary>
+      <PhaseErrorBoundary phase={phaseState.phase}>
         <PrayerPhaseOverlay {...phaseState} />
       </PhaseErrorBoundary>
     </div>

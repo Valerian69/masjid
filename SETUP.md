@@ -51,7 +51,7 @@ Supabase adalah database PostgreSQL gratis di cloud.
 
 > **Yang dilakukan:** Mengisi database dengan data contoh:
 > - 4 user admin (password: `admin123`)
-> - 7 pengaturan masjid
+> - 18 pengaturan masjid (termasuk durasi Jeda Ikamah per sholat)
 > - 8 jadwal sholat
 > - 8 jadwal kajian
 > - 50 transaksi keuangan (6 bulan)
