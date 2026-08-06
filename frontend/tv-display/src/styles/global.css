@@ -992,3 +992,164 @@ body {
 .running-text-bar { min-height: 62px; padding: 14px 28px; }
 .running-text-content { font-size: 1.55rem; color: var(--amber-glow); font-weight: 600; }
 .running-text-content .dot { width: 7px; height: 7px; }
+
+/* ── Fase sholat: azan / ikamah / layar gelap ─────────────────────── */
+
+.phase-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  animation: phaseFadeIn 0.8s var(--ease-out);
+}
+
+.phase-overlay > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes phaseFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.phase-kicker {
+  font-size: 2.2vw;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+/* Fase azan */
+.phase-azan {
+  background: var(--bg-deep);
+}
+
+.phase-azan::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(26, 158, 104, 0.22), transparent 62%);
+  animation: phaseBreathe 4s ease-in-out infinite;
+}
+
+@keyframes phaseBreathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.phase-prayer-name {
+  font-size: 11vw;
+  font-weight: 700;
+  line-height: 1;
+  margin: 2vh 0;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.phase-prayer-time {
+  font-size: 4vw;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fase ikamah */
+.phase-ikamah {
+  background: var(--bg-deep);
+  transition: opacity 1s linear;
+}
+
+.phase-ikamah-prayer {
+  font-size: 3vw;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.phase-countdown {
+  /* Goresan tipis pada ukuran sebesar ini tetap terbaca dari jarak jauh,
+     tapi memancarkan cahaya jauh lebih sedikit daripada angka tebal. */
+  font-size: 26vw;
+  font-weight: 300;
+  line-height: 1;
+  margin: 1vh 0 3vh;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--amber-glow);
+  opacity: 0.9;
+}
+
+.phase-countdown.urgent {
+  animation: phasePulse 1s ease-in-out infinite;
+}
+
+@keyframes phasePulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.6; }
+}
+
+.phase-notice {
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  padding: 1.6vh 3vw;
+  font-size: 3vw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.phase-notice svg {
+  width: 3vw;
+  height: 3vw;
+  flex-shrink: 0;
+}
+
+.phase-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.phase-progress-fill {
+  height: 100%;
+  background: var(--amber);
+  transition: width 1s linear;
+}
+
+/* Fase layar gelap */
+.phase-blank {
+  background: #000;
+}
+
+.phase-blank-text {
+  font-size: 2.4vw;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0.1;
+  /* Bergeser beberapa piksel tiap menit. Tidak terlihat mata, tapi mencegah
+     burn-in pada panel yang menyala 24 jam. */
+  animation: phaseDrift 300s steps(5, end) infinite;
+}
+
+@keyframes phaseDrift {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(7px, -5px); }
+  40% { transform: translate(-6px, 6px); }
+  60% { transform: translate(5px, 7px); }
+  80% { transform: translate(-7px, -6px); }
+  100% { transform: translate(0, 0); }
+}
