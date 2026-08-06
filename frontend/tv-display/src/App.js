@@ -5,6 +5,9 @@ import NextPrayer from './components/NextPrayer';
 import SecondaryRotator from './components/SecondaryRotator';
 import RunningText from './components/RunningText';
 import { MosqueIcon } from './components/Icons';
+import PrayerPhaseOverlay from './components/PrayerPhaseOverlay';
+import PhaseErrorBoundary from './components/PhaseErrorBoundary';
+import usePrayerPhase from './hooks/usePrayerPhase';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
@@ -29,6 +32,8 @@ function App() {
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const phaseState = usePrayerPhase(data?.jadwal_sholat, data?.settings);
 
   if (loading) {
     return (
@@ -67,6 +72,9 @@ function App() {
         </div>
       </div>
       <RunningText texts={data?.running_text} />
+      <PhaseErrorBoundary>
+        <PrayerPhaseOverlay {...phaseState} />
+      </PhaseErrorBoundary>
     </div>
   );
 }
