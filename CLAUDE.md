@@ -58,6 +58,8 @@ masjid/
 ├── frontend/tv-display/       # TV Display (port 3000)
 │   └── src/
 │       ├── App.js             # Main TV layout + crossfade page rotation (API_URL = /api)
+│       ├── lib/prayerPhase.js     # Pure azan/iqomah/blank phase logic (+ tests)
+│       ├── hooks/usePrayerPhase.js # 1-second tick wrapper around computePhase
 │       ├── components/
 │       │   ├── Icons.js       # Shared Phosphor-style SVG icon components
 │       │   ├── Header.js      # Mosque name + Hijri date + live clock
@@ -65,7 +67,9 @@ masjid/
 │       │   ├── KajianFinance.js   # Combined Kajian + Finance card
 │       │   ├── Agenda.js      # Upcoming events
 │       │   ├── Laporan.js     # Activity reports display (full content, no truncation)
-│       │   └── RunningText.js # Scrolling announcement text (55s cycle)
+│       │   ├── RunningText.js # Scrolling announcement text (55s cycle)
+│       │   ├── PrayerPhaseOverlay.js  # Azan / iqomah countdown / blank screen
+│       │   └── PhaseErrorBoundary.js  # Keeps overlay bugs from blanking the TV
 │       └── styles/global.css  # TV display styles (design system)
 ├── frontend/admin-panel/      # Admin Panel (port 3001)
 │   └── src/
@@ -236,7 +240,7 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 ### Seed Data
 - `supabase/seed.sql` — Pure SQL seed data (run in Supabase SQL Editor)
   - 4 users (admin, bendahara, takmir, marbot) — password: `admin123`
-  - 7 settings (masjid name, address, coordinates, timezone)
+  - 18 settings (masjid name, address, coordinates, timezone, iqomah durations)
   - 8 prayer times (Imsak–Isya)
   - 8 kajian sessions
   - 50 keuangan transactions (6 months realistic data)
@@ -261,6 +265,9 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 - PDF reports generated server-side with PDFKit (professional layout with header, summary, tables)
 - TV pages crossfade (0.8s transition) instead of hard-cutting
 - On Fridays, "Dzuhur" is displayed as "Jum'at" in TV display and admin panel (frontend-only logic, DB keeps "Dzuhur")
+- Iqomah phases (azan → countdown → blank screen) are derived from the browser clock by `computePhase()` in `frontend/tv-display/src/lib/prayerPhase.js` — no timers, so the display recovers its phase after a reload
+- Durations live in `settings` as flat keys: `iqomah_enabled`, `ikamah_<sholat>`, `sholat_<sholat>` for subuh/dzuhur/ashar/maghrib/isya (minutes, 0 skips the phase, invalid values fall back to defaults)
+- The azan notice runs inside the iqomah duration, not in addition to it; Jum'at (Dzuhur on Fridays) skips the sequence entirely
 
 ## Security
 - **JWT_SECRET mandatory:** Server fails to start without it (no hardcoded fallback)
@@ -354,7 +361,7 @@ rsync -av --delete --exclude='node_modules/' --exclude='.env' backend/ api/backe
 - Do NOT run `npm run build` alone — it lacks `PUBLIC_URL` and env vars needed for Vercel
 
 ## Key Features
-- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at")
+- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at"), iqomah sequence (azan notice → full-screen countdown with "Mohon Nonaktifkan Ponsel" → dark blank screen during prayer)
 - **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (mockup-aligned tokens), mobile-responsive forms (sticky submit button), toast notifications + confirm modal, loading/empty/error states
 - **Onboarding:** First-login welcome modal (role-aware) + interactive guided tour that spotlights each sidebar menu (step x/N, keyboard nav), replayable via the "?" button; permanent **Panduan** page (feature guide + role/permission table). Seen-state stored per user in `localStorage` (`masjid_onboarding_seen_v1_<userId>`)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)

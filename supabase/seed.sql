@@ -19,7 +19,18 @@ INSERT INTO settings (key, value) VALUES
   ('longitude', '106.9369'),
   ('timezone', 'Asia/Jakarta'),
   ('provinsi', 'DKI Jakarta'),
-  ('kabkota', 'Kota Administrasi Jakarta Timur');
+  ('kabkota', 'Kota Administrasi Jakarta Timur'),
+  ('iqomah_enabled', 'true'),
+  ('ikamah_subuh', '15'),
+  ('ikamah_dzuhur', '10'),
+  ('ikamah_ashar', '10'),
+  ('ikamah_maghrib', '5'),
+  ('ikamah_isya', '10'),
+  ('sholat_subuh', '15'),
+  ('sholat_dzuhur', '15'),
+  ('sholat_ashar', '15'),
+  ('sholat_maghrib', '15'),
+  ('sholat_isya', '15');
 
 -- 3. Jadwal Sholat
 INSERT INTO jadwal_sholat (nama_sholat, waktu, is_active) VALUES
