@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOnboarding } from './OnboardingContext';
 import useTourTarget from './useTourTarget';
+import MenuTourCards from './MenuTourCards';
 
 const TOOLTIP_W = 320;
 
@@ -14,6 +15,17 @@ const readStep = (step, mode) =>
 
 const GuidedTour = () => {
   const { tourActive, mode, stepIndex, steps, nextStep, prevStep, stopTour } = useOnboarding();
+
+  // 768 px adalah ambang yang sama dengan media query tempat sidebar jadi
+  // off-canvas (admin.css). Menyamakannya mencegah JS dan CSS berselisih.
+  const [isPhone, setIsPhone] = useState(() => window.matchMedia('(max-width: 768px)').matches);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => setIsPhone(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   const step = steps[stepIndex];
   const view = step ? readStep(step, mode) : null;
@@ -35,6 +47,8 @@ const GuidedTour = () => {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [tourActive, stopTour, nextStep, prevStep]);
+
+  if (tourActive && mode === 'menu' && isPhone) return <MenuTourCards />;
 
   if (!tourActive || !step) return null;
 

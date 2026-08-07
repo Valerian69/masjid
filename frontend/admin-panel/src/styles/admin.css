@@ -2665,3 +2665,35 @@ select.form-input {
   .help-fab { width: 44px; height: 44px; }
   .help-fab-menu { min-width: 220px; }
 }
+
+/* ── Tur peta menu di HP: kartu layar penuh ───────────────────────── */
+
+.menu-cards-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 26, 20, 0.72);
+}
+
+.menu-cards-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+}
+
+.menu-cards-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.menu-cards-title { font-size: 1.25rem; margin: 0 0 8px; color: var(--text-primary); }
+.menu-cards-body { font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); margin: 0 0 20px; }
+
+.menu-cards-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.menu-cards-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-light); transition: background 0.2s, width 0.2s; }
+.menu-cards-dot.on { width: 18px; border-radius: 3px; background: var(--emerald-600); }
+
+.menu-cards-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
