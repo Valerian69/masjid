@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { visibleFeatures } from './content';
@@ -15,6 +15,15 @@ export const OnboardingProvider = ({ children }) => {
   const [mode, setMode] = useState(null); // 'menu' | 'page' | null
   const [pageSteps, setPageSteps] = useState([]);
   const [stepIndex, setStepIndex] = useState(0);
+
+  // Pathname the active tour was started on. Effects commit child-before-parent,
+  // and this provider is an ancestor of every routed page — so in the same commit
+  // where a descendant starts a tour and the route changes together, a naive
+  // `useEffect(..., [location.pathname])` reset would fire after the start and
+  // wipe it out immediately. Comparing against the remembered pathname instead
+  // of just "did pathname change since last render" lets the reset only fire on
+  // a *real* subsequent navigation, not the one a tour legitimately starts on.
+  const tourPathnameRef = useRef(null);
 
   const menuSteps = useMemo(() => visibleFeatures(user?.role), [user?.role]);
 
@@ -40,19 +49,22 @@ export const OnboardingProvider = ({ children }) => {
   const stopTour = useCallback(() => {
     setMode(null);
     setPageSteps([]);
+    tourPathnameRef.current = null;
     markSeen();
   }, [markSeen]);
 
   const startMenuTour = useCallback(() => {
+    tourPathnameRef.current = location.pathname;
     setWelcomeOpen(false);
     setStepIndex(0);
     setPageSteps([]);
     setMode('menu');
-  }, []);
+  }, [location.pathname]);
 
   const startPageTour = useCallback((pathname) => {
     const found = getPageTour(pathname);
     if (found.length === 0) return;
+    tourPathnameRef.current = pathname;
     setWelcomeOpen(false);
     setStepIndex(0);
     setPageSteps(found);
@@ -60,18 +72,22 @@ export const OnboardingProvider = ({ children }) => {
   }, []);
 
   // Berhenti bila rute berubah: tur Keuangan tidak boleh terus berjalan di
-  // atas halaman Agenda.
+  // atas halaman Agenda. Dibandingkan dengan pathname yang direkam saat tur
+  // dimulai (bukan sekadar "pathname berubah sejak render lalu") supaya commit
+  // yang men-start tur sekaligus mengubah rute tidak langsung menimpanya —
+  // lihat komentar pada tourPathnameRef di atas.
   useEffect(() => {
-    setMode(null);
-    setPageSteps([]);
+    if (tourPathnameRef.current !== null && location.pathname !== tourPathnameRef.current) {
+      setMode(null);
+      setPageSteps([]);
+      tourPathnameRef.current = null;
+    }
   }, [location.pathname]);
 
   const nextStep = useCallback(() => {
-    setStepIndex((i) => {
-      if (i >= steps.length - 1) { stopTour(); return i; }
-      return i + 1;
-    });
-  }, [steps.length, stopTour]);
+    if (stepIndex >= steps.length - 1) { stopTour(); return; }
+    setStepIndex((i) => i + 1);
+  }, [stepIndex, steps.length, stopTour]);
 
   const prevStep = useCallback(() => setStepIndex((i) => Math.max(0, i - 1)), []);
 
