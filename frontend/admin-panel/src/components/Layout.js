@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useOnboarding } from './onboarding/OnboardingContext';
 import WelcomeModal from './onboarding/WelcomeModal';
 import GuidedTour from './onboarding/GuidedTour';
+import HelpButton from './onboarding/HelpButton';
 
 const MosqueIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -50,7 +50,6 @@ const adminMenu = [
 
 const Layout = () => {
   const { user, logout } = useAuth();
-  const { startMenuTour } = useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,9 +77,6 @@ const Layout = () => {
           <MosqueIcon size={20} />
           <span>Dashboard Masjid</span>
         </div>
-        <button className="mobile-topbar-logout" onClick={startMenuTour} aria-label="Mulai tur panduan" style={{ marginRight: 4 }}>
-          {icons.help}
-        </button>
         <button className="mobile-topbar-logout" onClick={handleLogout} aria-label="Logout">
           {icons.logout}
         </button>
@@ -124,9 +120,6 @@ const Layout = () => {
             <div className="sidebar-user-name">{user?.full_name}</div>
             <div className="sidebar-user-role">{user?.role}</div>
           </div>
-          <button onClick={startMenuTour} className="sidebar-logout sidebar-help" title="Panduan / Tur" aria-label="Mulai tur panduan">
-            {icons.help}
-          </button>
           <button onClick={handleLogout} className="sidebar-logout" title="Logout" aria-label="Logout">
             {icons.logout}
           </button>
@@ -138,6 +131,7 @@ const Layout = () => {
 
       <WelcomeModal />
       <GuidedTour />
+      <HelpButton />
     </div>
   );
 };
