@@ -94,7 +94,11 @@ masjid/
 │           ├── OnboardingContext.js  # Tour state + per-user localStorage flag
 │           ├── WelcomeModal.js       # First-login welcome (role-aware)
 │           ├── GuidedTour.js         # Spotlight walkthrough of sidebar menus
-│           └── content.js            # Feature descriptions + role summaries (shared w/ Panduan)
+│           ├── content.js            # Feature descriptions + role summaries (shared w/ Panduan)
+│           ├── pageTours.js         # Per-page tour content (37 steps, keyed by route)
+│           ├── useTourTarget.js     # Drives openWith clicks, measures the target
+│           ├── HelpButton.js        # Floating help menu (replaces the old "?" buttons)
+│           └── MenuTourCards.js     # Phone variant of the menu tour
 ├── supabase/
 │   ├── schema.sql             # Full database schema (9 tables + indexes + RLS)
 │   └── seed.sql               # Seed data in pure SQL (50 keuangan, 8 kajian, etc.)
@@ -268,6 +272,8 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 - Iqomah phases (azan → countdown → blank screen) are derived from the browser clock by `computePhase()` in `frontend/tv-display/src/lib/prayerPhase.js` — no scheduled state transitions or timer chains, just a value re-derived from the current phase's inputs every tick, so the display recovers its phase after a reload
 - Durations live in `settings` as flat keys: `iqomah_enabled`, `ikamah_<sholat>`, `sholat_<sholat>` for subuh/dzuhur/ashar/maghrib/isya (minutes, 0 skips the phase, invalid values fall back to defaults)
 - The azan notice runs inside the iqomah duration, not in addition to it; Jum'at (Dzuhur on Fridays) skips the sequence entirely
+- Tour steps are pure data in `pageTours.js`; pages only carry `data-tour` attributes and never import the tour. `useTourTarget` is the only code that touches page DOM
+- `pageTours.test.js` statically verifies every `data-tour` selector referenced by a step actually exists in the page sources — the guard against markup drifting away from tour content
 
 ## Security
 - **JWT_SECRET mandatory:** Server fails to start without it (no hardcoded fallback)
@@ -363,7 +369,7 @@ rsync -av --delete --exclude='node_modules/' --exclude='.env' backend/ api/backe
 ## Key Features
 - **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at"), iqomah sequence (azan notice → full-screen countdown with "Mohon Nonaktifkan Ponsel" → dark blank screen during prayer)
 - **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (mockup-aligned tokens), mobile-responsive forms (sticky submit button), toast notifications + confirm modal, loading/empty/error states
-- **Onboarding:** First-login welcome modal (role-aware) + interactive guided tour that spotlights each sidebar menu (step x/N, keyboard nav), replayable via the "?" button; permanent **Panduan** page (feature guide + role/permission table). Seen-state stored per user in `localStorage` (`masjid_onboarding_seen_v1_<userId>`)
+- **Onboarding:** First-login welcome modal (role-aware) + two tours sharing one engine — a 10-step **menu tour** that maps the sidebar, and **per-page tours** (37 steps across 10 pages) that spotlight real controls and drive the page to reveal them (switching tabs, opening forms). Both run from one floating help button. On phones (≤768px) the menu tour becomes full-screen swipe cards, since the sidebar is off-canvas there. Permanent **Panduan** page (feature guide + role/permission table). Seen-state stored per user in `localStorage` (`masjid_onboarding_seen_v1_<userId>`)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)
 - **Finance Reports:** Monthly report with category breakdown, PDF download (professional layout), CSV export
 - **Monitoring:** System health, HTTP metrics (RED method), request/error logs, DB collection stats, auto-refresh 10s, Clean Data button (superadmin)
