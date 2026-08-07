@@ -1,22 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useOnboarding } from './OnboardingContext';
 
 // Di layar HP sidebar berada di luar layar (translateX(-100%)), jadi menyorotnya
 // berarti menunjuk ke ketiadaan. Tur peta menu di sini berganti bentuk jadi
 // kartu layar penuh; tur halaman tetap memakai spotlight karena isinya memang
 // terlihat.
+//
+// Penanganan keyboard (Escape/ArrowLeft/ArrowRight) sengaja TIDAK ada di sini.
+// GuidedTour tetap terpasang saat varian ini tampil dan sudah punya listener
+// keydown-nya sendiri yang mencakup kedua varian. Menambahkan listener kedua
+// di sini akan membuat satu tekan tombol memicu dua langkah.
 const MenuTourCards = () => {
   const { stepIndex, steps, nextStep, prevStep, stopTour } = useOnboarding();
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') stopTour();
-      else if (e.key === 'ArrowRight') nextStep();
-      else if (e.key === 'ArrowLeft') prevStep();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [stopTour, nextStep, prevStep]);
 
   const step = steps[stepIndex];
   if (!step) return null;
