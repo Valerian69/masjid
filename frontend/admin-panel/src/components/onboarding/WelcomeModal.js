@@ -56,7 +56,7 @@ const WelcomeModal = () => {
           <button className="btn btn-primary" onClick={startMenuTour}>Mulai Tur</button>
           <button className="btn btn-outline" onClick={closeWelcome}>Lewati</button>
         </div>
-        <p className="onboarding-welcome-hint">Tur bisa diputar ulang kapan saja lewat tombol <strong>?</strong> di bawah menu.</p>
+        <p className="onboarding-welcome-hint">Tur bisa diputar ulang kapan saja lewat tombol bantuan mengambang di pojok kanan-bawah.</p>
       </div>
     </div>
   );

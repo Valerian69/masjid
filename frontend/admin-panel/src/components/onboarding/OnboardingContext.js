@@ -62,14 +62,14 @@ export const OnboardingProvider = ({ children }) => {
   }, [location.pathname]);
 
   const startPageTour = useCallback((pathname) => {
-    const found = getPageTour(pathname);
+    const found = getPageTour(pathname, user?.role);
     if (found.length === 0) return;
     tourPathnameRef.current = pathname;
     setWelcomeOpen(false);
     setStepIndex(0);
     setPageSteps(found);
     setMode('page');
-  }, []);
+  }, [user?.role]);
 
   // Berhenti bila rute berubah: tur Keuangan tidak boleh terus berjalan di
   // atas halaman Agenda. Dibandingkan dengan pathname yang direkam saat tur
@@ -78,11 +78,9 @@ export const OnboardingProvider = ({ children }) => {
   // lihat komentar pada tourPathnameRef di atas.
   useEffect(() => {
     if (tourPathnameRef.current !== null && location.pathname !== tourPathnameRef.current) {
-      setMode(null);
-      setPageSteps([]);
-      tourPathnameRef.current = null;
+      stopTour();
     }
-  }, [location.pathname]);
+  }, [location.pathname, stopTour]);
 
   const nextStep = useCallback(() => {
     if (stepIndex >= steps.length - 1) { stopTour(); return; }

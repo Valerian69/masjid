@@ -30,26 +30,26 @@ function App() {
       <ToastProvider>
         <ConfirmProvider>
           <Router basename="/admin">
-          <OnboardingProvider>
-            <ErrorBoundary>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="jadwal-sholat" element={<JadwalSholat />} />
-                  <Route path="kajian" element={<Kajian />} />
-                  <Route path="keuangan" element={<Keuangan />} />
-                  <Route path="agenda" element={<Agenda />} />
-                  <Route path="running-text" element={<RunningText />} />
-                  <Route path="laporan" element={<Laporan />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="monitoring" element={<Monitoring />} />
-                  <Route path="users" element={<Users />} />
-                  <Route path="panduan" element={<Panduan />} />
-                </Route>
-              </Routes>
-            </ErrorBoundary>
-          </OnboardingProvider>
+            <OnboardingProvider>
+              <ErrorBoundary>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="jadwal-sholat" element={<JadwalSholat />} />
+                    <Route path="kajian" element={<Kajian />} />
+                    <Route path="keuangan" element={<Keuangan />} />
+                    <Route path="agenda" element={<Agenda />} />
+                    <Route path="running-text" element={<RunningText />} />
+                    <Route path="laporan" element={<Laporan />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="monitoring" element={<Monitoring />} />
+                    <Route path="users" element={<Users />} />
+                    <Route path="panduan" element={<Panduan />} />
+                  </Route>
+                </Routes>
+              </ErrorBoundary>
+            </OnboardingProvider>
           </Router>
         </ConfirmProvider>
       </ToastProvider>

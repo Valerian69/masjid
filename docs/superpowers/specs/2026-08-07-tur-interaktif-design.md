@@ -56,7 +56,7 @@ Dua jenis tur berbagi satu mesin; yang membedakan hanya sumber langkahnya.
    mode='menu' & layar HP      selainnya
         │                          │
   MenuTourCards              GuidedTour (spotlight)
-  (kartu geser)                    │
+  (kartu layar penuh)              │
                             useTourTarget(step)
                               ├─ klik `openWith` bila ada
                               ├─ tunggu satu frame render
@@ -71,13 +71,13 @@ Dua jenis tur berbagi satu mesin; yang membedakan hanya sumber langkahnya.
 |---|---|
 | `onboarding/pageTours.js` *(baru)* | Data langkah semua halaman, dikunci per rute |
 | `onboarding/useTourTarget.js` *(baru)* | Menyetir dan mengukur satu langkah; satu-satunya penyentuh DOM |
-| `onboarding/MenuTourCards.js` *(baru)* | Varian kartu geser untuk tur peta menu di HP |
+| `onboarding/MenuTourCards.js` *(baru)* | Varian kartu layar penuh untuk tur peta menu di HP |
 | `onboarding/HelpButton.js` *(baru)* | Tombol mengambang dan menu kecilnya |
 | `onboarding/GuidedTour.js` | Penggambar spotlight; kini melayani dua jenis tur |
 | `onboarding/OnboardingContext.js` | Dua mode tur, sadar rute; `openHelp` yang mati dihapus |
 | `onboarding/content.js` | Tetap sebagai isi tur menu dan halaman Panduan |
 | `components/Layout.js` | Dua tombol "?" dihapus, `HelpButton` dipasang |
-| `styles/admin.css` | Gaya tombol mengambang dan kartu geser |
+| `styles/admin.css` | Gaya tombol mengambang dan kartu layar penuh |
 | 10 berkas halaman + 3 sub-komponen `pages/keuangan/` | **Hanya menambah atribut `data-tour`** — tanpa import, tanpa state |
 
 ### Bentuk satu langkah
@@ -137,7 +137,7 @@ Sekitar sepuluh langkah memakai `openWith`, dalam dua bentuk. Yang memindahkan t
 
 **Progress tidak disimpan.** Keluar di tengah lalu membuka lagi berarti mulai dari langkah pertama.
 
-**Di layar HP** — didefinisikan sebagai lebar ≤ 768 px, ambang yang sama dengan media query tempat sidebar berubah jadi off-canvas (`styles/admin.css:2169`), sehingga tidak mungkin meleset dari perilaku CSS-nya. Tur halaman tetap memakai spotlight, karena isi halaman memang terlihat di layar kecil dan `scrollIntoView` yang sudah ada menanganinya. Yang berganti bentuk hanya tur peta menu, menjadi kartu geser layar penuh berisi ikon, nama menu, teks `detail`, serta indikator titik dan tombol maju/mundur.
+**Di layar HP** — didefinisikan sebagai lebar ≤ 768 px, ambang yang sama dengan media query tempat sidebar berubah jadi off-canvas (`styles/admin.css:2169`), sehingga tidak mungkin meleset dari perilaku CSS-nya. Tur halaman tetap memakai spotlight, karena isi halaman memang terlihat di layar kecil dan `scrollIntoView` yang sudah ada menanganinya. Yang berganti bentuk hanya tur peta menu, menjadi kartu layar penuh berisi nama menu, teks `detail`, serta indikator titik dan tombol maju/mundur — tanpa ikon dan tanpa gestur geser; navigasi murni lewat tombol.
 
 **Tombol mengambang** duduk di pojok kanan-bawah dan **menghilang selama tur berjalan** supaya tidak menutupi sorotan maupun tooltip. Menunya berisi tiga baris: "Pandu halaman ini" (dengan nama halaman dan jumlah langkahnya), "Tur peta menu", dan "Buka halaman Panduan".
 
@@ -157,7 +157,7 @@ Panel admin belum punya test sama sekali, dan menambah `@testing-library/react` 
 1. **Selector cocok dengan markup.** Test membaca `pageTours.js`, mengumpulkan semua nilai `target` dan `openWith`, lalu memindai berkas sumber halaman untuk memastikan setiap `data-tour` yang dirujuk benar-benar ada. Ini menangkap kegagalan yang paling mungkin terjadi: seseorang mengubah markup Keuangan enam bulan lagi dan beberapa langkah tur diam-diam berhenti menyorot apa pun.
 2. **Tidak ada halaman yang terlewat.** Test memastikan setiap rute yang punya menu di sidebar juga punya entri di `pageTours.js`, supaya tidak ada halaman yang tombolnya nonaktif karena lupa diisi.
 
-**Verifikasi manual** setelah implementasi: jalankan tur halaman di Keuangan dan pastikan perpindahan tab terjadi otomatis; jalankan tur peta menu di lebar layar HP dan pastikan yang tampil kartu geser, bukan spotlight ke sidebar yang tak terlihat; tekan Escape di tengah tur; dan klik menu lain di sidebar saat tur berjalan untuk memastikan tur berhenti, bukan ikut berpindah.
+**Verifikasi manual** setelah implementasi: jalankan tur halaman di Keuangan dan pastikan perpindahan tab terjadi otomatis; jalankan tur peta menu di lebar layar HP dan pastikan yang tampil kartu layar penuh, bukan spotlight ke sidebar yang tak terlihat; tekan Escape di tengah tur; dan klik menu lain di sidebar saat tur berjalan untuk memastikan tur berhenti, bukan ikut berpindah.
 
 ## 9. Deployment
 

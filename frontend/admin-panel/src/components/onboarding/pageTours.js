@@ -2,9 +2,19 @@
 // disorot tidak tahu-menahu soal berkas ini — keterkaitannya hanya lewat
 // atribut data-tour.
 //
-// target   : elemen yang disorot (wajib)
-// openWith : selector, atau larik selector, yang diklik berurutan lebih dulu
-//            agar target muncul (opsional)
+// target     : elemen yang disorot (wajib)
+// openWith   : selector, atau larik selector, yang SELALU diklik berurutan
+//              lebih dulu agar target muncul (opsional). Untuk pembuka yang
+//              idempoten seperti tab — mengkliknya lagi tidak mengubah apa-apa
+//              bila sudah aktif.
+// revealWith : selector, atau larik selector, yang diklik berurutan HANYA
+//              bila target belum ada di DOM (opsional). Untuk tombol pembuka
+//              yang membalik status (mis. "Tambah ..." -> setShowForm(!showForm))
+//              — mengkliknya lagi saat target sudah tampil justru menutupnya.
+// roles      : larik peran yang berhak melihat langkah ini (opsional). Tanpa
+//              field ini, langkah tampil untuk semua peran. Dipakai saat
+//              kontrol di halaman digerbang peran padahal menunya sendiri
+//              terlihat oleh semua orang di sidebar.
 //
 // Prinsip pemilihan langkah: jelaskan yang TIDAK terbaca dari layarnya sendiri.
 // Tombol "Hapus" tidak perlu dijelaskan; keterkaitan antar menu, syarat yang
@@ -42,7 +52,7 @@ export const pageTours = {
     },
     {
       target: '[data-tour="jadwal-form"]',
-      openWith: '[data-tour="jadwal-add"]',
+      revealWith: '[data-tour="jadwal-add"]',
       title: 'Koreksi manual',
       body: 'Bila jadwal hasil sinkron perlu digeser sedikit menyesuaikan kebiasaan masjid, ubah atau tambahkan waktunya di sini.',
     },
@@ -67,7 +77,7 @@ export const pageTours = {
     },
     {
       target: '[data-tour="kajian-form"]',
-      openWith: '[data-tour="kajian-add"]',
+      revealWith: '[data-tour="kajian-add"]',
       title: 'Menambah kajian',
       body: 'Isi judul, ustadz, tanggal, dan jam. Kajian yang dibuat dari form ini berlaku sekali jalan.',
     },
@@ -99,7 +109,9 @@ export const pageTours = {
     },
     {
       target: '[data-tour="keu-form"]',
-      openWith: ['[data-tour="keu-tab-transaksi"]', '[data-tour="keu-add"]'],
+      openWith: '[data-tour="keu-tab-transaksi"]',
+      revealWith: '[data-tour="keu-add"]',
+      roles: ['superadmin', 'bendahara'],
       title: 'Mencatat transaksi',
       body: 'Selain nominal dan kategori, isi juga metode pembayaran dan nomor referensi bila ada — keduanya yang membuat rekonsiliasi bulanan jadi mudah. Setiap perubahan tercatat di audit trail.',
     },
@@ -119,7 +131,7 @@ export const pageTours = {
   '/agenda': [
     {
       target: '[data-tour="agenda-form"]',
-      openWith: '[data-tour="agenda-add"]',
+      revealWith: '[data-tour="agenda-add"]',
       title: 'Menambah agenda',
       body: 'Isi judul, tanggal, jam, dan lokasi. Agenda dipakai untuk kegiatan masjid di luar kajian rutin.',
     },
@@ -138,7 +150,7 @@ export const pageTours = {
   '/running-text': [
     {
       target: '[data-tour="rt-form"]',
-      openWith: '[data-tour="rt-add"]',
+      revealWith: '[data-tour="rt-add"]',
       title: 'Teks berjalan di TV',
       body: 'Teks yang ditulis di sini bergulir di bagian bawah layar TV. Pilih jenisnya — pengumuman, infaq, atau info — sebagai penanda isi.',
     },
@@ -157,7 +169,7 @@ export const pageTours = {
   '/laporan': [
     {
       target: '[data-tour="lap-form"]',
-      openWith: '[data-tour="lap-add"]',
+      revealWith: '[data-tour="lap-add"]',
       title: 'Laporan kegiatan',
       body: 'Catat hasil kegiatan masjid — renovasi, bakti sosial, kegiatan edukasi — beserta tanggal dan uraiannya.',
     },
@@ -214,6 +226,7 @@ export const pageTours = {
     },
     {
       target: '[data-tour="mon-danger"]',
+      roles: ['superadmin'],
       title: 'Dua tombol yang tidak bisa dibatalkan',
       body: 'Reset Metrics menghapus seluruh riwayat metrik. Clean Data menghapus seluruh konten masjid — kajian, agenda, keuangan, laporan — dan hanya menyisakan akun serta pengaturan. Keduanya permanen.',
     },
@@ -227,7 +240,7 @@ export const pageTours = {
     },
     {
       target: '[data-tour="users-form"]',
-      openWith: '[data-tour="users-add"]',
+      revealWith: '[data-tour="users-add"]',
       title: 'Menambah pengguna',
       body: 'Peran menentukan menu apa saja yang terlihat: takmir mengelola konten, bendahara hanya keuangan, marbot konten tanpa pengaturan, superadmin semuanya.',
     },
@@ -252,6 +265,21 @@ const PAGE_LABELS = {
   '/users': 'Users',
 };
 
-export const getPageTour = (pathname) => pageTours[pathname] || [];
+// Buang garis miring di akhir ('/keuangan/' -> '/keuangan') supaya rute
+// dengan trailing slash tetap cocok; akar tetap '/' bukan string kosong.
+const normalizePathname = (pathname) => {
+  if (!pathname) return pathname;
+  const stripped = pathname.replace(/\/+$/, '');
+  return stripped === '' ? '/' : stripped;
+};
 
-export const pageTourLabel = (pathname) => PAGE_LABELS[pathname] || null;
+// role di sini adalah user?.role — bisa undefined saat belum login. Langkah
+// tanpa field `roles` tampil untuk semua orang; yang punya field ini hanya
+// tampil untuk peran yang terdaftar, sama seperti visibleFeatures() di
+// content.js untuk tur menu.
+export const getPageTour = (pathname, role) => {
+  const steps = pageTours[normalizePathname(pathname)] || [];
+  return steps.filter((step) => !step.roles || step.roles.includes(role));
+};
+
+export const pageTourLabel = (pathname) => PAGE_LABELS[normalizePathname(pathname)] || null;

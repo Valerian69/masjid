@@ -4,8 +4,39 @@ const { pageTours, getPageTour, pageTourLabel } = require('./pageTours');
 
 const PAGES_DIR = path.join(__dirname, '..', '..', 'pages');
 
-// Seluruh sumber halaman digabung jadi satu string; cukup untuk memastikan
-// sebuah data-tour benar-benar ada di markup.
+// Peta rute -> berkas yang benar-benar merender markup rute itu. Eksplisit,
+// bukan diturunkan otomatis dari nama rute, supaya tetap benar walau nama
+// berkas dan nama rute berbeda (mis. '/' -> Dashboard.js). Untuk Keuangan,
+// tiap tab hidup di sub-komponennya sendiri di pages/keuangan/.
+const ROUTE_FILES = {
+  '/': ['Dashboard.js'],
+  '/jadwal-sholat': ['JadwalSholat.js'],
+  '/kajian': ['Kajian.js'],
+  '/keuangan': [
+    'Keuangan.js',
+    'keuangan/KeuanganDashboard.js',
+    'keuangan/KeuanganTransaksi.js',
+    'keuangan/KeuanganLaporan.js',
+    'keuangan/TransaksiForm.js',
+    'keuangan/constants.js',
+  ],
+  '/agenda': ['Agenda.js'],
+  '/running-text': ['RunningText.js'],
+  '/laporan': ['Laporan.js'],
+  '/settings': ['Settings.js'],
+  '/monitoring': ['Monitoring.js'],
+  '/users': ['Users.js'],
+};
+
+const readFile = (relPath) => fs.readFileSync(path.join(PAGES_DIR, relPath), 'utf8');
+
+// Sumber markup milik satu rute saja — bukan seluruh pages/ digabung jadi
+// satu string. Itu yang membuat test ini berarti: sebuah selector yang cocok
+// hanya karena ada di berkas rute LAIN sekarang gagal, bukan lolos diam-diam.
+const readRouteSource = (route) => (ROUTE_FILES[route] || []).map(readFile).join('\n');
+
+// Seluruh sumber halaman digabung — dipakai khusus untuk memeriksa atribut
+// data-tour yang tidak dirujuk oleh langkah manapun (lihat describe di bawah).
 const readAllPageSources = () => {
   const files = [];
   const walk = (dir) => {
@@ -22,6 +53,7 @@ const readAllPageSources = () => {
 const selectorsOf = (step) => {
   const list = [step.target];
   if (step.openWith) list.push(...(Array.isArray(step.openWith) ? step.openWith : [step.openWith]));
+  if (step.revealWith) list.push(...(Array.isArray(step.revealWith) ? step.revealWith : [step.revealWith]));
   return list;
 };
 
@@ -52,11 +84,11 @@ describe('pageTours — bentuk data', () => {
   });
 });
 
-describe('pageTours — selector cocok dengan markup', () => {
-  it('setiap data-tour yang dirujuk benar-benar ada di berkas halaman', () => {
-    const source = readAllPageSources();
+describe('pageTours — selector cocok dengan markup rutenya sendiri', () => {
+  it('setiap data-tour yang dirujuk (target, openWith, revealWith) benar-benar ada di berkas rute itu', () => {
     const missing = [];
     Object.entries(pageTours).forEach(([route, steps]) => {
+      const source = readRouteSource(route);
       steps.forEach((step) => {
         selectorsOf(step).forEach((sel) => {
           const key = keyOf(sel);
@@ -69,6 +101,18 @@ describe('pageTours — selector cocok dengan markup', () => {
     });
     expect(missing).toEqual([]);
   });
+
+  it('tidak ada atribut data-tour di halaman yang tidak dirujuk oleh langkah manapun', () => {
+    const source = readAllPageSources();
+    const referenced = new Set();
+    Object.values(pageTours).forEach((steps) => {
+      steps.forEach((step) => selectorsOf(step).forEach((sel) => referenced.add(keyOf(sel))));
+    });
+
+    const found = [...source.matchAll(/data-tour="([a-z0-9-]+)"/g)].map((m) => m[1]);
+    const orphans = [...new Set(found)].filter((key) => !referenced.has(key));
+    expect(orphans).toEqual([]);
+  });
 });
 
 describe('pageTours — cakupan rute', () => {
@@ -79,12 +123,12 @@ describe('pageTours — cakupan rute', () => {
 
   it('setiap rute bermenu punya tur halaman', () => {
     SIDEBAR_ROUTES.forEach((route) => {
-      expect(getPageTour(route).length).toBeGreaterThan(0);
+      expect(getPageTour(route, 'superadmin').length).toBeGreaterThan(0);
     });
   });
 
   it('rute tanpa tur mengembalikan larik kosong dan label null', () => {
-    expect(getPageTour('/panduan')).toEqual([]);
+    expect(getPageTour('/panduan', 'superadmin')).toEqual([]);
     expect(pageTourLabel('/panduan')).toBeNull();
   });
 
@@ -92,5 +136,31 @@ describe('pageTours — cakupan rute', () => {
     SIDEBAR_ROUTES.forEach((route) => {
       expect(typeof pageTourLabel(route)).toBe('string');
     });
+  });
+
+  it('trailing slash tetap cocok dengan rute yang sama', () => {
+    expect(getPageTour('/keuangan/', 'superadmin').length).toBe(getPageTour('/keuangan', 'superadmin').length);
+    expect(pageTourLabel('/keuangan/')).toBe(pageTourLabel('/keuangan'));
+  });
+});
+
+describe('pageTours — penggerbangan peran', () => {
+  it('langkah tanpa `roles` tampil untuk semua peran', () => {
+    const step = pageTours['/jadwal-sholat'][0];
+    expect(step.roles).toBeUndefined();
+    ['superadmin', 'takmir', 'bendahara', 'marbot', undefined].forEach((role) => {
+      expect(getPageTour('/jadwal-sholat', role)).toContainEqual(step);
+    });
+  });
+
+  it('langkah form Keuangan hanya tampil untuk superadmin dan bendahara', () => {
+    const steps = getPageTour('/keuangan', 'takmir');
+    expect(steps.find((s) => s.target === '[data-tour="keu-form"]')).toBeUndefined();
+    expect(getPageTour('/keuangan', 'bendahara').find((s) => s.target === '[data-tour="keu-form"]')).toBeDefined();
+  });
+
+  it('langkah mon-danger hanya tampil untuk superadmin', () => {
+    expect(getPageTour('/monitoring', 'takmir').find((s) => s.target === '[data-tour="mon-danger"]')).toBeUndefined();
+    expect(getPageTour('/monitoring', 'superadmin').find((s) => s.target === '[data-tour="mon-danger"]')).toBeDefined();
   });
 });

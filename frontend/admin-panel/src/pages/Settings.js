@@ -272,7 +272,7 @@ const Settings = () => {
             </p>
             <div className="form-group">
               <label className="form-label">Aktifkan Jeda Ikamah &amp; Layar Sholat</label>
-              <select value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select" data-tour="set-ikamah-toggle">
+              <select value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select">
                 <option value="true">Aktif</option>
                 <option value="false">Nonaktif</option>
               </select>

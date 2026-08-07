@@ -22,6 +22,14 @@ const useTourTarget = (step, active) => {
     setRect({ top: r.top, left: r.left, width: r.width, height: r.height, right: r.right, bottom: r.bottom });
   }, [step]);
 
+  // Dipetakan sebagai const bernama di luar effect: array dependency yang
+  // berupa ekspresi (mis. JSON.stringify(...) langsung di dalam larik) hanya
+  // "aman" karena ESLint proyek ini belum menyalakan exhaustive-deps. Kalau
+  // aturan itu dinyalakan nanti, ekspresi inline akan dianggap dependency baru
+  // di setiap render dan memicu re-run terus-menerus.
+  const openWithKey = JSON.stringify(step?.openWith);
+  const revealWithKey = JSON.stringify(step?.revealWith);
+
   useLayoutEffect(() => {
     if (!active || !step) {
       setRect(null);
@@ -31,13 +39,29 @@ const useTourTarget = (step, active) => {
     let cancelled = false;
 
     const run = async () => {
-      // Buka jalan menuju target: klik tiap selector berurutan, beri satu frame
-      // di antaranya supaya React sempat merender hasilnya.
+      // Buka jalan menuju target: klik tiap selector openWith berurutan, beri
+      // satu frame di antaranya supaya React sempat merender hasilnya. Ini
+      // untuk pembuka yang idempoten (tab dsb) — aman diklik walau tujuannya
+      // sudah aktif.
       for (const selector of toArray(step.openWith)) {
         if (cancelled) return;
         const opener = document.querySelector(selector);
         if (opener) opener.click();
         await nextFrame();
+      }
+
+      // revealWith: toggle pembuka (mis. tombol "Tambah ..."). Diklik hanya
+      // bila targetnya belum ada di DOM — sebab tombolnya membalik status
+      // (setShowForm(!showForm)), mengkliknya saat target sudah tampil justru
+      // menutupnya lagi. Diperiksa setelah openWith supaya pemeriksaan "sudah
+      // ada belum" memakai tab/tampilan yang sudah benar, bukan yang lama.
+      if (step.revealWith && !document.querySelector(step.target)) {
+        for (const selector of toArray(step.revealWith)) {
+          if (cancelled) return;
+          const opener = document.querySelector(selector);
+          if (opener) opener.click();
+          await nextFrame();
+        }
       }
 
       for (let i = 0; i < MAX_FRAMES; i += 1) {
@@ -63,10 +87,11 @@ const useTourTarget = (step, active) => {
     run();
 
     return () => { cancelled = true; };
-    // Key on step contents (target + openWith) not identity: if parent passes a new
-    // object with identical contents, we should not re-run the entire click sequence.
-    // Re-clicking a toggle like "Transaksi Baru" closes the form the tour just opened.
-  }, [active, step?.target, JSON.stringify(step?.openWith)]);
+    // Key on step contents (target + openWith + revealWith) not identity: if parent
+    // passes a new object with identical contents, we should not re-run the entire
+    // click sequence. Re-clicking a toggle like "Transaksi Baru" closes the form the
+    // tour just opened.
+  }, [active, step?.target, openWithKey, revealWithKey]);
 
   // Sorotan harus ikut bergerak saat halaman digulir atau jendela diubah.
   useEffect(() => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useOnboarding } from './OnboardingContext';
 import { getPageTour, pageTourLabel } from './pageTours';
 
@@ -13,6 +14,7 @@ const HelpIcon = () => (
 
 const HelpButton = () => {
   const { startMenuTour, startPageTour, tourActive } = useOnboarding();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -20,7 +22,7 @@ const HelpButton = () => {
   const menuRef = useRef(null);
   const triggerRef = useRef(null);
 
-  const pageSteps = getPageTour(location.pathname);
+  const pageSteps = getPageTour(location.pathname, user?.role);
   const label = pageTourLabel(location.pathname);
 
   useEffect(() => setOpen(false), [location.pathname]);
