@@ -29,8 +29,8 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <ConfirmProvider>
-          <OnboardingProvider>
           <Router basename="/admin">
+          <OnboardingProvider>
             <ErrorBoundary>
               <Routes>
                 <Route path="/login" element={<Login />} />
@@ -49,8 +49,8 @@ function App() {
                 </Route>
               </Routes>
             </ErrorBoundary>
-          </Router>
           </OnboardingProvider>
+          </Router>
         </ConfirmProvider>
       </ToastProvider>
     </AuthProvider>

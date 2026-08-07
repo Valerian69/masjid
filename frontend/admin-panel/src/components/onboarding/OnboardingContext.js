@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { visibleFeatures } from './content';
+import { getPageTour } from './pageTours';
 
 const OnboardingContext = createContext(null);
 
@@ -8,11 +10,15 @@ const flagKey = (userId) => `masjid_onboarding_seen_v1_${userId || 'anon'}`;
 
 export const OnboardingProvider = ({ children }) => {
   const { user } = useAuth();
+  const location = useLocation();
   const [welcomeOpen, setWelcomeOpen] = useState(false);
-  const [tourActive, setTourActive] = useState(false);
+  const [mode, setMode] = useState(null); // 'menu' | 'page' | null
+  const [pageSteps, setPageSteps] = useState([]);
   const [stepIndex, setStepIndex] = useState(0);
 
-  const steps = useMemo(() => visibleFeatures(user?.role), [user?.role]);
+  const menuSteps = useMemo(() => visibleFeatures(user?.role), [user?.role]);
+
+  const steps = mode === 'page' ? pageSteps : mode === 'menu' ? menuSteps : [];
 
   // Auto-show the welcome modal once per user on first login.
   useEffect(() => {
@@ -31,35 +37,47 @@ export const OnboardingProvider = ({ children }) => {
     markSeen();
   }, [markSeen]);
 
-  const startTour = useCallback(() => {
-    setWelcomeOpen(false);
-    setStepIndex(0);
-    setTourActive(true);
-  }, []);
-
   const stopTour = useCallback(() => {
-    setTourActive(false);
+    setMode(null);
+    setPageSteps([]);
     markSeen();
   }, [markSeen]);
 
+  const startMenuTour = useCallback(() => {
+    setWelcomeOpen(false);
+    setStepIndex(0);
+    setPageSteps([]);
+    setMode('menu');
+  }, []);
+
+  const startPageTour = useCallback((pathname) => {
+    const found = getPageTour(pathname);
+    if (found.length === 0) return;
+    setWelcomeOpen(false);
+    setStepIndex(0);
+    setPageSteps(found);
+    setMode('page');
+  }, []);
+
+  // Berhenti bila rute berubah: tur Keuangan tidak boleh terus berjalan di
+  // atas halaman Agenda.
+  useEffect(() => {
+    setMode(null);
+    setPageSteps([]);
+  }, [location.pathname]);
+
   const nextStep = useCallback(() => {
     setStepIndex((i) => {
-      if (i >= steps.length - 1) { setTourActive(false); markSeen(); return i; }
+      if (i >= steps.length - 1) { stopTour(); return i; }
       return i + 1;
     });
-  }, [steps.length, markSeen]);
+  }, [steps.length, stopTour]);
 
   const prevStep = useCallback(() => setStepIndex((i) => Math.max(0, i - 1)), []);
 
-  // Opened manually from the help button — reset and show welcome again.
-  const openHelp = useCallback(() => {
-    setStepIndex(0);
-    setWelcomeOpen(true);
-  }, []);
-
   const value = {
-    welcomeOpen, tourActive, stepIndex, steps,
-    startTour, stopTour, nextStep, prevStep, closeWelcome, openHelp,
+    welcomeOpen, mode, tourActive: mode !== null, stepIndex, steps,
+    startMenuTour, startPageTour, stopTour, nextStep, prevStep, closeWelcome,
   };
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;

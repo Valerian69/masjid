@@ -66,7 +66,6 @@ const useTourTarget = (step, active) => {
     // Key on step contents (target + openWith) not identity: if parent passes a new
     // object with identical contents, we should not re-run the entire click sequence.
     // Re-clicking a toggle like "Transaksi Baru" closes the form the tour just opened.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, step?.target, JSON.stringify(step?.openWith)]);
 
   // Sorotan harus ikut bergerak saat halaman digulir atau jendela diubah.

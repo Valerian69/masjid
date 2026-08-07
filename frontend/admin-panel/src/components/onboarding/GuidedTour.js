@@ -1,40 +1,32 @@
-import React, { useLayoutEffect, useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useOnboarding } from './OnboardingContext';
+import useTourTarget from './useTourTarget';
 
-const TOOLTIP_W = 300;
+const TOOLTIP_W = 320;
+
+// Langkah tur menu memakai bentuk `features` (label/detail); langkah tur
+// halaman memakai bentuk pageTours (title/body). Satu penerjemah kecil supaya
+// penggambarnya tidak perlu tahu bedanya.
+const readStep = (step, mode) =>
+  mode === 'menu'
+    ? { selector: `[data-tour="${step.key}"]`, title: step.label, body: step.detail }
+    : { selector: step.target, title: step.title, body: step.body };
 
 const GuidedTour = () => {
-  const { tourActive, stepIndex, steps, nextStep, prevStep, stopTour } = useOnboarding();
-  const [rect, setRect] = useState(null);
+  const { tourActive, mode, stepIndex, steps, nextStep, prevStep, stopTour } = useOnboarding();
 
   const step = steps[stepIndex];
+  const view = step ? readStep(step, mode) : null;
 
-  const measure = useCallback(() => {
-    if (!step) return;
-    const el = document.querySelector(`[data-tour="${step.key}"]`);
-    if (el) {
-      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      const r = el.getBoundingClientRect();
-      setRect({ top: r.top, left: r.left, width: r.width, height: r.height, right: r.right, bottom: r.bottom });
-    } else {
-      setRect(null);
-    }
-  }, [step]);
+  // useTourTarget menerima bentuk seragam: target + openWith.
+  const normalized = step
+    ? (mode === 'menu' ? { target: view.selector } : step)
+    : null;
 
-  useLayoutEffect(() => {
-    if (!tourActive) return;
-    measure();
-    const onChange = () => measure();
-    window.addEventListener('resize', onChange);
-    window.addEventListener('scroll', onChange, true);
-    return () => {
-      window.removeEventListener('resize', onChange);
-      window.removeEventListener('scroll', onChange, true);
-    };
-  }, [tourActive, stepIndex, measure]);
+  const rect = useTourTarget(normalized, tourActive);
 
   useEffect(() => {
-    if (!tourActive) return;
+    if (!tourActive) return undefined;
     const onKey = (e) => {
       if (e.key === 'Escape') stopTour();
       else if (e.key === 'ArrowRight') nextStep();
@@ -49,13 +41,13 @@ const GuidedTour = () => {
   const isLast = stepIndex >= steps.length - 1;
   const pad = 6;
 
-  // Tooltip placement: to the right of the highlighted sidebar item, clamped.
+  // Tooltip di sebelah kanan sorotan bila muat, kalau tidak di kirinya.
   let tipStyle;
   if (rect) {
     let left = rect.right + 16;
     if (left + TOOLTIP_W > window.innerWidth - 12) left = Math.max(12, rect.left - TOOLTIP_W - 16);
     let top = rect.top - 6;
-    top = Math.min(top, window.innerHeight - 220);
+    top = Math.min(top, window.innerHeight - 240);
     top = Math.max(12, top);
     tipStyle = { left, top };
   } else {
@@ -76,15 +68,15 @@ const GuidedTour = () => {
           }}
         />
       )}
-      <div className="tour-tooltip" style={tipStyle} role="dialog" aria-modal="true" aria-label={`Panduan: ${step.label}`}>
+      <div className="tour-tooltip" style={tipStyle} role="dialog" aria-modal="true" aria-label={`Panduan: ${view.title}`}>
         <div className="tour-tooltip-head">
           <span className="tour-step-count">{stepIndex + 1} / {steps.length}</span>
           <button className="tour-close" onClick={stopTour} aria-label="Tutup tur">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
         </div>
-        <h3 className="tour-tooltip-title">{step.label}</h3>
-        <p className="tour-tooltip-body">{step.short}</p>
+        <h3 className="tour-tooltip-title">{view.title}</h3>
+        <p className="tour-tooltip-body">{view.body}</p>
         <div className="tour-tooltip-actions">
           <button className="btn btn-ghost btn-sm tour-skip" onClick={stopTour}>Lewati</button>
           <div className="tour-nav">

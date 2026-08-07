@@ -7,7 +7,7 @@ const PlayIcon = () => (
 );
 
 const Panduan = () => {
-  const { startTour } = useOnboarding();
+  const { startMenuTour } = useOnboarding();
 
   return (
     <div className="animate-in">
@@ -17,7 +17,7 @@ const Panduan = () => {
           <p className="page-header-subtitle">Kenali fitur panel admin masjid</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={startTour} className="btn btn-primary btn-sm">
+          <button onClick={startMenuTour} className="btn btn-primary btn-sm">
             <PlayIcon /> Mulai Tur Interaktif
           </button>
         </div>

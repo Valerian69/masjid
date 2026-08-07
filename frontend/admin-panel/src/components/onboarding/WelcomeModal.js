@@ -12,7 +12,7 @@ const MosqueIcon = () => (
 
 const WelcomeModal = () => {
   const { user } = useAuth();
-  const { welcomeOpen, startTour, closeWelcome } = useOnboarding();
+  const { welcomeOpen, startMenuTour, closeWelcome } = useOnboarding();
   const [masjidName, setMasjidName] = useState('');
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const WelcomeModal = () => {
         )}
 
         <div className="onboarding-welcome-actions">
-          <button className="btn btn-primary" onClick={startTour}>Mulai Tur</button>
+          <button className="btn btn-primary" onClick={startMenuTour}>Mulai Tur</button>
           <button className="btn btn-outline" onClick={closeWelcome}>Lewati</button>
         </div>
         <p className="onboarding-welcome-hint">Tur bisa diputar ulang kapan saja lewat tombol <strong>?</strong> di bawah menu.</p>

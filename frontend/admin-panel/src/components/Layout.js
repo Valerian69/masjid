@@ -50,7 +50,7 @@ const adminMenu = [
 
 const Layout = () => {
   const { user, logout } = useAuth();
-  const { startTour } = useOnboarding();
+  const { startMenuTour } = useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,7 +78,7 @@ const Layout = () => {
           <MosqueIcon size={20} />
           <span>Dashboard Masjid</span>
         </div>
-        <button className="mobile-topbar-logout" onClick={startTour} aria-label="Mulai tur panduan" style={{ marginRight: 4 }}>
+        <button className="mobile-topbar-logout" onClick={startMenuTour} aria-label="Mulai tur panduan" style={{ marginRight: 4 }}>
           {icons.help}
         </button>
         <button className="mobile-topbar-logout" onClick={handleLogout} aria-label="Logout">
@@ -124,7 +124,7 @@ const Layout = () => {
             <div className="sidebar-user-name">{user?.full_name}</div>
             <div className="sidebar-user-role">{user?.role}</div>
           </div>
-          <button onClick={startTour} className="sidebar-logout sidebar-help" title="Panduan / Tur" aria-label="Mulai tur panduan">
+          <button onClick={startMenuTour} className="sidebar-logout sidebar-help" title="Panduan / Tur" aria-label="Mulai tur panduan">
             {icons.help}
           </button>
           <button onClick={handleLogout} className="sidebar-logout" title="Logout" aria-label="Logout">
