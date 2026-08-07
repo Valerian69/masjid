@@ -28,6 +28,10 @@ const selectorsOf = (step) => {
 // '[data-tour="keu-export"]' -> 'keu-export'
 const keyOf = (selector) => selector.replace(/^\[data-tour="/, '').replace(/"\]$/, '');
 
+// Nilai data-tour yang dihasilkan template literal di Keuangan.js, ditulis
+// eksplisit karena pencocokan awalan akan meloloskan akhiran yang salah ketik.
+const TEMPLATE_KEYS = ['keu-tab-dashboard', 'keu-tab-transaksi', 'keu-tab-laporan'];
+
 describe('pageTours — bentuk data', () => {
   it('setiap langkah punya target, judul, dan isi', () => {
     Object.values(pageTours).forEach((steps) => {
@@ -56,12 +60,8 @@ describe('pageTours — selector cocok dengan markup', () => {
       steps.forEach((step) => {
         selectorsOf(step).forEach((sel) => {
           const key = keyOf(sel);
-          // Cocokkan atribut literal maupun yang dihasilkan template literal
-          // (mis. data-tour={`keu-tab-${v}`} untuk keu-tab-transaksi).
           const literal = `data-tour="${key}"`;
-          const templatePrefix = key.replace(/-[a-z0-9]+$/, '');
-          const template = `data-tour={\`${templatePrefix}-\${`;
-          if (!source.includes(literal) && !source.includes(template)) {
+          if (!source.includes(literal) && !TEMPLATE_KEYS.includes(key)) {
             missing.push(`${route}: ${key}`);
           }
         });
