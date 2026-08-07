@@ -107,7 +107,7 @@ const Monitoring = () => {
           <h1>Monitoring</h1>
           <p className="page-header-subtitle">System health & performance metrics</p>
         </div>
-        <div className="page-header-actions">
+        <div className="page-header-actions" data-tour="mon-danger">
           <button onClick={fetchAll} className="btn btn-outline btn-sm">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" /></svg>
             Refresh
@@ -153,7 +153,7 @@ const Monitoring = () => {
       </div>
 
       <div className="grid grid-2" style={{ marginBottom: 24 }}>
-        <div className="card">
+        <div className="card" data-tour="mon-health">
           <div className="card-header"><h2>System Health</h2></div>
           <div className="card-body">
             <div style={{ marginBottom: 20 }}>
@@ -178,7 +178,7 @@ const Monitoring = () => {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" data-tour="mon-db">
           <div className="card-header"><h2>Database Collections</h2></div>
           <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {Object.entries(database.collections).map(([col, count]) => {
@@ -234,7 +234,7 @@ const Monitoring = () => {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" data-tour="mon-latency">
           <div className="card-header"><h2>Latency Distribution</h2></div>
           <div className="card-body" style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 160, paddingBottom: 32, position: 'relative' }}>
             {http.p50 != null && (

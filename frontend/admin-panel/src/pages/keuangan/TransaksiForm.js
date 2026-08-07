@@ -2,7 +2,7 @@ import React from 'react';
 import { kategoriMasuk, kategoriKeluar } from './constants';
 
 const TransaksiForm = ({ form, setForm, editingId, saving, onSubmit, onCancel }) => (
-  <form onSubmit={onSubmit} className="card">
+  <form onSubmit={onSubmit} className="card" data-tour="keu-form">
     <div className="card-body">
       <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
         {editingId ? 'Edit Transaksi' : 'Transaksi Baru'}

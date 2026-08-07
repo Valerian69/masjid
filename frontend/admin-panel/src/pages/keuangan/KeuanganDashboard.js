@@ -15,7 +15,7 @@ const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) =
 
   return (
     <>
-      <div className="grid grid-4" style={{ marginBottom: 32 }}>
+      <div className="grid grid-4" style={{ marginBottom: 32 }} data-tour="keu-summary">
         {cards.map((card, i) => (
           <div key={i} className="stat-card" style={{ '--stat-color': card.color, '--stat-bg': card.bg }}>
             <div className="stat-icon" style={{ background: card.bg, color: card.color }}>

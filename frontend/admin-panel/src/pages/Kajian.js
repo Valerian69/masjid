@@ -115,23 +115,23 @@ const Kajian = () => {
           <p className="page-header-subtitle">Kelola jadwal kajian dan pengajian masjid</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="kajian-add">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Kajian
           </button>
         </div>
       </div>
 
-      <div className="tabs" style={{ marginBottom: 'var(--space-6)', width: 'fit-content' }}>
-        <button className={`tab ${filter === 'semua' ? 'active' : ''}`} onClick={() => setFilter('semua')}>Semua Kajian</button>
+      <div className="tabs" style={{ marginBottom: 'var(--space-6)', width: 'fit-content' }} data-tour="kajian-tabs">
+        <button className={`tab ${filter === 'semua' ? 'active' : ''}`} onClick={() => setFilter('semua')} data-tour="kajian-tab-semua">Semua Kajian</button>
         <button className={`tab ${filter === 'mendatang' ? 'active' : ''}`} onClick={() => setFilter('mendatang')}>Mendatang</button>
-        <button className={`tab ${filter === 'berulang' ? 'active' : ''}`} onClick={() => setFilter('berulang')}>Berulang</button>
+        <button className={`tab ${filter === 'berulang' ? 'active' : ''}`} onClick={() => setFilter('berulang')} data-tour="kajian-tab-berulang">Berulang</button>
       </div>
 
       {showForm && (
         <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
           <div className="card-body">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} data-tour="kajian-form">
               <div className="admin-form-grid">
                 <div className="form-group">
                   <label className="form-label">Judul</label>
@@ -180,7 +180,7 @@ const Kajian = () => {
           ) : null}
         />
       ) : (
-      <div className="grid grid-3">
+      <div className="grid grid-3" data-tour="kajian-list">
         {filteredKajian.map(item => (
           <div key={item.id} className="card" style={{ overflow: 'hidden' }}>
             <div style={{ height: 8, background: getGradient(item) }}></div>

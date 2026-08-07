@@ -141,7 +141,7 @@ const Settings = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-sidebar animate-in animate-delay-1">
-          <div className="card">
+          <div className="card" data-tour="set-info">
             <div className="card-header">
               <h2>Informasi Masjid</h2>
               <span className="badge badge-emerald badge-dot">Tersimpan</span>
@@ -181,7 +181,7 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card" data-tour="set-preview">
             <div className="card-header"><h2>Preview TV Display</h2></div>
             <div className="card-body">
               <div style={{ background: 'linear-gradient(135deg, #061a14, #0b3d2e)', borderRadius: 'var(--radius)', padding: 'var(--space-6)', color: 'white', minHeight: 300 }}>
@@ -227,7 +227,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="card animate-in animate-delay-2" style={{ marginTop: 24 }}>
+        <div className="card animate-in animate-delay-2" style={{ marginTop: 24 }} data-tour="set-lokasi">
           <div className="card-header">
             <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Lokasi Jadwal Sholat</h3>
             <button type="button" onClick={handleSync} disabled={syncing || !settings.provinsi || !settings.kabkota} className="btn btn-blue btn-sm" style={{ opacity: syncing || !settings.provinsi || !settings.kabkota ? 0.6 : 1 }}>
@@ -266,13 +266,13 @@ const Settings = () => {
           <div className="card-header">
             <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Jeda Ikamah</h3>
           </div>
-          <div className="card-body">
+          <div className="card-body" data-tour="set-ikamah-durasi">
             <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 16 }}>
               Setelah waktu sholat masuk, TV menampilkan notifikasi azan, lalu hitung mundur menuju ikamah, lalu layar gelap selama sholat berjamaah.
             </p>
             <div className="form-group">
               <label className="form-label">Aktifkan Jeda Ikamah &amp; Layar Sholat</label>
-              <select value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select">
+              <select value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select" data-tour="set-ikamah-toggle">
                 <option value="true">Aktif</option>
                 <option value="false">Nonaktif</option>
               </select>

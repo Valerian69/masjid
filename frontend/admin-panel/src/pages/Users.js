@@ -104,7 +104,7 @@ const Users = () => {
 
   return (
     <div className="animate-in">
-      <div className="tabs animate-in" style={{ marginBottom: 32, width: 'fit-content' }}>
+      <div className="tabs animate-in" style={{ marginBottom: 32, width: 'fit-content' }} data-tour="users-tabs">
         <button className="tab" onClick={() => window.location.href = '/admin/settings'}>Pengaturan</button>
         <button className="tab active">Users</button>
       </div>
@@ -116,7 +116,7 @@ const Users = () => {
         </div>
         {currentUser?.role === 'superadmin' && (
           <div className="page-header-actions">
-            <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
+            <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="users-add">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
               Tambah User
             </button>
@@ -125,7 +125,7 @@ const Users = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="card animate-in animate-delay-2">
+        <form onSubmit={handleSubmit} className="card animate-in animate-delay-2" data-tour="users-form">
           <div className="card-body">
             <div className="admin-form-grid">
               <div className="form-group">
@@ -164,7 +164,7 @@ const Users = () => {
         <ErrorState onRetry={loadUsers} />
       ) : (
       <div className="card animate-in animate-delay-3">
-        <div className="table-wrapper">
+        <div className="table-wrapper" data-tour="users-table">
           <table className="table">
             <thead>
               <tr>

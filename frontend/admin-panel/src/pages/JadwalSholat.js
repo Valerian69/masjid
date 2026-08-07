@@ -130,11 +130,11 @@ const JadwalSholat = () => {
           <p className="page-header-subtitle">Kelola waktu sholat harian masjid</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={handleSync} disabled={syncing} className="btn btn-outline btn-sm">
+          <button onClick={handleSync} disabled={syncing} className="btn btn-outline btn-sm" data-tour="jadwal-sync">
             <SyncIcon />
             {syncing ? 'Sinkron...' : 'Sync dari EQuran.id'}
           </button>
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="jadwal-add">
             <PlusIcon />
             Tambah Jadwal
           </button>
@@ -142,7 +142,7 @@ const JadwalSholat = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="card">
+        <form onSubmit={handleSubmit} className="card" data-tour="jadwal-form">
           <div className="card-body">
             <div className="admin-form-grid-3">
               <div className="form-group">
@@ -155,7 +155,7 @@ const JadwalSholat = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">Status</label>
-                <select value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input">
+                <select value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input" data-tour="jadwal-status">
                   <option value={1}>Aktif</option>
                   <option value={0}>Nonaktif</option>
                 </select>
@@ -178,7 +178,7 @@ const JadwalSholat = () => {
           <h2>Jadwal Aktif</h2>
           <span className="badge badge-emerald badge-dot">{jadwal.filter(j => j.is_active).length} Jadwal Aktif</span>
         </div>
-        <div className="table-wrapper">
+        <div className="table-wrapper" data-tour="jadwal-table">
           <table className="table">
             <thead>
               <tr>

@@ -98,7 +98,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-4" style={{ marginBottom: 32 }}>
+      <div className="grid grid-4" style={{ marginBottom: 32 }} data-tour="dash-stats">
         {stats.map((card, i) => (
           <div key={i} className={`stat-card animate-in animate-delay-${i + 1}`} style={{ '--stat-color': card.color, '--stat-bg': card.bg }}>
             <div className="stat-icon">
@@ -111,7 +111,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-sidebar">
-        <div className="card">
+        <div className="card" data-tour="dash-kajian">
           <div className="card-header">
             <h2>Kajian Terdekat</h2>
           </div>
@@ -136,7 +136,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" data-tour="dash-agenda">
           <div className="card-header">
             <h2>Agenda Terdekat</h2>
           </div>

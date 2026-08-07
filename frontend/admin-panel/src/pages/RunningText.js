@@ -83,7 +83,7 @@ const RunningText = () => {
           <p className="page-header-subtitle">Kelola pengumuman scrolling di layar TV</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
+          <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="rt-add">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Teks
           </button>
@@ -91,7 +91,7 @@ const RunningText = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 24 }}>
+        <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 24 }} data-tour="rt-form">
           <div className="card-body">
             <div className="admin-form-grid-3">
               <div className="form-group">
@@ -108,7 +108,7 @@ const RunningText = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">Urutan</label>
-                <input type="number" value={form.urutan} onChange={e => setForm({...form, urutan: parseInt(e.target.value)})} className="form-input" min="0" />
+                <input type="number" value={form.urutan} onChange={e => setForm({...form, urutan: parseInt(e.target.value)})} className="form-input" min="0" data-tour="rt-urutan" />
               </div>
               <div className="form-group">
                 <label className="form-label">Status</label>
@@ -136,7 +136,7 @@ const RunningText = () => {
           <h2>Pengumuman Aktif</h2>
           <span className="badge badge-emerald badge-dot">{activeCount} Aktif</span>
         </div>
-        <div className="table-wrapper">
+        <div className="table-wrapper" data-tour="rt-table">
           <table className="table">
             <thead>
               <tr>

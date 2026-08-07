@@ -159,12 +159,12 @@ const Keuangan = () => {
           <p className="page-header-subtitle">Kelola transaksi &amp; laporan keuangan masjid</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={handleExport} className="btn btn-outline btn-sm">
+          <button onClick={handleExport} className="btn btn-outline btn-sm" data-tour="keu-export">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             Export CSV
           </button>
           {canEdit && (
-            <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyTransaksiForm()); }} className="btn btn-primary btn-sm">
+            <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyTransaksiForm()); }} className="btn btn-primary btn-sm" data-tour="keu-add">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
               Transaksi Baru
             </button>
@@ -172,9 +172,9 @@ const Keuangan = () => {
         </div>
       </div>
 
-      <div className="tabs" style={{ marginBottom: 24, width: 'fit-content' }}>
+      <div className="tabs" style={{ marginBottom: 24, width: 'fit-content' }} data-tour="keu-tabs">
         {['dashboard', 'transaksi', 'laporan'].map((v) => (
-          <button key={v} onClick={() => { setView(v); if (v === 'laporan') loadReport(); }} className={`tab ${view === v ? 'active' : ''}`}>
+          <button key={v} onClick={() => { setView(v); if (v === 'laporan') loadReport(); }} className={`tab ${view === v ? 'active' : ''}`} data-tour={`keu-tab-${v}`}>
             {v === 'dashboard' ? 'Dashboard' : v === 'transaksi' ? 'Transaksi' : 'Laporan'}
           </button>
         ))}

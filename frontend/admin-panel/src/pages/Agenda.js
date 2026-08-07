@@ -91,14 +91,14 @@ const Agenda = () => {
       <div className="page-header">
         <h1>Agenda Kegiatan</h1>
         <p className="page-header-subtitle">Kelola kegiatan dan acara masjid</p>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="agenda-add">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Agenda
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="card">
+        <form onSubmit={handleSubmit} className="card" data-tour="agenda-form">
           <div className="card-body">
             <div className="admin-form-grid">
               <div className="form-group">
@@ -123,7 +123,7 @@ const Agenda = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">Status</label>
-                <select value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input">
+                <select value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input" data-tour="agenda-status">
                   <option value={1}>Publish</option>
                   <option value={0}>Draft</option>
                 </select>
@@ -152,7 +152,7 @@ const Agenda = () => {
           action={<button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">Tambah Agenda</button>}
         />
       ) : (
-      <div className="grid grid-2">
+      <div className="grid grid-2" data-tour="agenda-list">
         {agendaList.map(item => {
           const { day, month, dayLabel, color, badgeClass } = getDateInfo(item.tanggal);
           return (

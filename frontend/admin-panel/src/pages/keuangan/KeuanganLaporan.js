@@ -29,7 +29,7 @@ const KeuanganLaporan = ({ reportMonth, setReportMonth, reportData, onView, onDo
           </select>
         </div>
         <button onClick={onView} className="btn btn-primary">Lihat Laporan</button>
-        <button onClick={onDownloadPDF} className="btn btn-danger">Download PDF</button>
+        <button onClick={onDownloadPDF} className="btn btn-danger" data-tour="keu-pdf">Download PDF</button>
       </div>
 
       {reportData && reportData.summary && (

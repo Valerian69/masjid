@@ -13,7 +13,7 @@ const KeuanganTransaksi = ({
       <TransaksiForm form={form} setForm={setForm} editingId={editingId} saving={saving} onSubmit={onSubmit} onCancel={onCancelForm} />
     )}
 
-    <div className="filter-bar">
+    <div className="filter-bar" data-tour="keu-filter">
       <div className="filter-row">
         <div className="form-group flex-grow">
           <label className="form-label">Cari</label>

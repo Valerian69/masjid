@@ -81,14 +81,14 @@ const Laporan = () => {
           <h1>Laporan Kegiatan</h1>
           <p className="page-header-subtitle">Kelola laporan kegiatan masjid</p>
         </div>
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm">
+        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="lap-add">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Laporan
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="card">
+        <form onSubmit={handleSubmit} className="card" data-tour="lap-form">
           <div className="card-body">
             <div className="admin-form-grid">
               <div className="form-group">
@@ -101,7 +101,7 @@ const Laporan = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">Kategori</label>
-                <select value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} className="form-input">
+                <select value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} className="form-input" data-tour="lap-kategori">
                   <option value="kegiatan">Kegiatan</option>
                   <option value="renovasi">Renovasi</option>
                   <option value="sosial">Sosial</option>
@@ -111,7 +111,7 @@ const Laporan = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">Status</label>
-                <select value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input">
+                <select value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input" data-tour="lap-status">
                   <option value={1}>Publish</option>
                   <option value={0}>Draft</option>
                 </select>
