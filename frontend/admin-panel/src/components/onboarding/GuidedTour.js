@@ -35,7 +35,11 @@ const GuidedTour = () => {
     ? (mode === 'menu' ? { target: view.selector } : step)
     : null;
 
-  const rect = useTourTarget(normalized, tourActive);
+  // Varian kartu di HP tidak punya sorotan, jadi mengukur sidebar off-canvas
+  // (yang tetap ada di DOM, hanya digeser translateX(-100%)) hanya kerja sia-sia
+  // terhadap elemen yang tidak bisa dilihat pengguna. Matikan mesin sorotan
+  // sepenuhnya selama kartu tampil.
+  const rect = useTourTarget(normalized, tourActive && !(mode === 'menu' && isPhone));
 
   useEffect(() => {
     if (!tourActive) return undefined;
