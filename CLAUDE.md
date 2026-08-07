@@ -91,9 +91,9 @@ masjid/
 │           ├── Monitoring.js  # System monitoring dashboard
 │           └── Panduan.js     # In-app guide (feature cards + role table + start tour)
 │       └── components/onboarding/  # First-time onboarding
-│           ├── OnboardingContext.js  # Tour state + per-user localStorage flag
+│           ├── OnboardingContext.js  # Tour state + localStorage flag + mode + startMenuTour/startPageTour
 │           ├── WelcomeModal.js       # First-login welcome (role-aware)
-│           ├── GuidedTour.js         # Spotlight walkthrough of sidebar menus
+│           ├── GuidedTour.js         # Spotlight for both tours + keyboard (Escape, arrows)
 │           ├── content.js            # Feature descriptions + role summaries (shared w/ Panduan)
 │           ├── pageTours.js         # Per-page tour content (37 steps, keyed by route)
 │           ├── useTourTarget.js     # Drives openWith clicks, measures the target
