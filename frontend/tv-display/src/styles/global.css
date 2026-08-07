@@ -1185,17 +1185,20 @@ body {
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: #fff;
-  opacity: 0.1;
-  /* Bergeser beberapa piksel tiap menit. Tidak terlihat mata, tapi mencegah
-     burn-in pada panel yang menyala 24 jam. */
+  /* Putih penuh: teks ini harus terbaca dari jauh agar jelas TV sedang bekerja,
+     bukan mati. Satu baris tipis di layar hitam tetap memancarkan cahaya jauh
+     lebih sedikit daripada tampilan normal. */
+  opacity: 1;
+  /* Bergeser tiap menit. Karena teksnya kini terang dan diam selama belasan
+     menit, lima kali sehari, pergeseran ini yang menahan burn-in. */
   animation: phaseDrift 300s steps(5, end) infinite;
 }
 
 @keyframes phaseDrift {
   0% { transform: translate(0, 0); }
-  20% { transform: translate(7px, -5px); }
-  40% { transform: translate(-6px, 6px); }
-  60% { transform: translate(5px, 7px); }
-  80% { transform: translate(-7px, -6px); }
+  20% { transform: translate(16px, -11px); }
+  40% { transform: translate(-13px, 14px); }
+  60% { transform: translate(11px, 16px); }
+  80% { transform: translate(-16px, -13px); }
   100% { transform: translate(0, 0); }
 }

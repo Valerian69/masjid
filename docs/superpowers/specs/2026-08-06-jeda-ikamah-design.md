@@ -208,19 +208,21 @@ Lapisan `.phase-dim` (hitam, di bawah konten) meredupkan latar dari opacity 0 ke
 
 ### Fase Blank
 
-Latar `#000` murni dengan satu baris teks pada opacity 0.10.
+Latar `#000` murni dengan satu baris teks putih penuh.
 
 ```
 ┌──────────────────────────────────────────────┐
 │                                              │
 │                                              │
-│          SEDANG SHOLAT BERJAMAAH             │  2.4vw · weight 300 · opacity 0.10
+│          SEDANG SHOLAT BERJAMAAH             │  2.4vw · weight 300 · putih penuh
 │                                              │
 │                                              │
 └──────────────────────────────────────────────┘
 ```
 
-Karena teks ini statis selama 15 menit dan berulang lima kali sehari, posisinya bergeser beberapa piksel setiap menit. Pergeseran ini tidak terlihat mata tetapi menghilangkan risiko burn-in pada panel yang menyala 24 jam. Implementasinya murni CSS dan tidak menambah state.
+Teks ini semula dirancang nyaris tak terlihat (opacity 0.10) demi meminimalkan cahaya, tetapi diubah menjadi putih penuh atas permintaan: keterbacaan menang, karena satu-satunya fungsi teks ini adalah meyakinkan jamaah bahwa TV sedang bekerja dan bukan mati. Satu baris tipis di layar hitam tetap memancarkan cahaya jauh lebih sedikit daripada tampilan normal maupun fase hitung mundur.
+
+Karena teks ini kini terang, statis selama 15 menit, dan berulang lima kali sehari, posisinya bergeser setiap menit untuk menahan burn-in pada panel yang menyala 24 jam. Jarak geser dinaikkan seiring kenaikan kecerahan — masih jauh di bawah tinggi hurufnya sehingga tidak terbaca sebagai gerakan. Implementasinya murni CSS dan tidak menambah state.
 
 ### Catatan operasional
 

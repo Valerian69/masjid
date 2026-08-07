@@ -57,7 +57,7 @@ Begitu waktu sholat fardhu masuk, TV mengambil alih seluruh layar dan menuntun j
   <tr>
     <td width="33%"><img src="docs/screenshots/tv-ikamah-azan.jpg" alt="Fase azan"><br><sub><b>1. Azan</b> — 2 menit, menandai waktu sholat masuk</sub></td>
     <td width="33%"><img src="docs/screenshots/tv-ikamah-countdown.jpg" alt="Fase hitung mundur ikamah"><br><sub><b>2. Jeda Ikamah</b> — hitung mundur raksasa, latar menggelap perlahan</sub></td>
-    <td width="33%"><img src="docs/screenshots/tv-ikamah-sholat.png" alt="Fase layar gelap"><br><sub><b>3. Sholat</b> — layar hampir hitam agar tidak mengganggu</sub></td>
+    <td width="33%"><img src="docs/screenshots/tv-ikamah-sholat.png" alt="Fase layar gelap"><br><sub><b>3. Sholat</b> — layar hitam, satu baris penanda agar TV tak dikira mati</sub></td>
   </tr>
 </table>
 
