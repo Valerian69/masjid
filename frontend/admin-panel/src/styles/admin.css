@@ -2606,7 +2606,9 @@ select.form-input {
   bottom: 24px;
   z-index: 900; /* di bawah .tour-backdrop, tombol memang menyingkir saat tur */
   display: flex;
-  flex-direction: column;
+  /* Tombol pemicu duluan di DOM (urutan Tab mengikuti urutan baca), tapi
+     menu tetap tampil di atasnya secara visual lewat column-reverse. */
+  flex-direction: column-reverse;
   align-items: flex-end;
   gap: 10px;
 }

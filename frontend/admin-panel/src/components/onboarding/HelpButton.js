@@ -17,18 +17,36 @@ const HelpButton = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
+  const menuRef = useRef(null);
+  const triggerRef = useRef(null);
 
   const pageSteps = getPageTour(location.pathname);
   const label = pageTourLabel(location.pathname);
 
   useEffect(() => setOpen(false), [location.pathname]);
 
+  // Saat menu terbuka, pindahkan fokus ke item pertama yang tidak disabled —
+  // item "Pandu halaman ini" bisa disabled di rute tanpa tur halaman, dan
+  // elemen disabled tidak bisa menerima fokus.
+  useEffect(() => {
+    if (!open || !menuRef.current) return;
+    const firstEnabled = menuRef.current.querySelector('.help-fab-item:not(:disabled)');
+    if (firstEnabled) firstEnabled.focus();
+  }, [open]);
+
   useEffect(() => {
     if (!open) return undefined;
     const onDown = (e) => {
+      // Klik di luar: cukup tutup, jangan rebut fokus dari elemen yang baru diklik user.
       if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false);
     };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e) => {
+      // Escape: tutup dan kembalikan fokus ke tombol pemicu.
+      if (e.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
     document.addEventListener('mousedown', onDown);
     window.addEventListener('keydown', onKey);
     return () => {
@@ -44,8 +62,19 @@ const HelpButton = () => {
 
   return (
     <div className="help-fab-root" ref={rootRef}>
+      <button
+        type="button"
+        ref={triggerRef}
+        className="help-fab"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Bantuan dan panduan"
+      >
+        <HelpIcon />
+      </button>
       {open && (
-        <div className="help-fab-menu" role="menu" aria-label="Bantuan">
+        <div className="help-fab-menu" role="menu" aria-label="Bantuan" ref={menuRef}>
           <button
             type="button"
             role="menuitem"
@@ -68,16 +97,6 @@ const HelpButton = () => {
           </button>
         </div>
       )}
-      <button
-        type="button"
-        className="help-fab"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label="Bantuan dan panduan"
-      >
-        <HelpIcon />
-      </button>
     </div>
   );
 };
