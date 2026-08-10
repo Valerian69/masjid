@@ -1,5 +1,6 @@
 const express = require('express');
-const { dbHelpers } = require('../database');
+const { dbHelpers, getSetting } = require('../database');
+const { hariIni } = require('../lib/waktu');
 const { auth, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -9,7 +10,7 @@ router.get('/', async (req, res) => {
     const { upcoming } = req.query;
     let agenda = await dbHelpers.findAll('agenda');
     if (upcoming === 'true') {
-      const today = new Date().toISOString().split('T')[0];
+      const today = hariIni(await getSetting('timezone'));
       agenda = agenda.filter(a => a.tanggal >= today && (a.is_published === 1 || a.is_published === true))
         .sort((a, b) => a.tanggal.localeCompare(b.tanggal)).slice(0, 5);
     } else {

@@ -28,6 +28,7 @@ rsync -av --delete \
   --exclude='db.json' \
   --exclude='uploads/' \
   --exclude='scripts/' \
+  --exclude='test/' \
   --exclude='.gitignore' \
   backend/ api/backend/
 echo "✅ api/backend/"

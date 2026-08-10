@@ -170,5 +170,13 @@ const dbHelpers = {
   }
 };
 
+// Membaca satu baris dari tabel settings. Dipakai rute yang hanya butuh satu
+// nilai — mis. zona waktu masjid — tanpa perlu membangun objek settings penuh.
+const getSetting = async (key) => {
+  const rows = await dbHelpers.findAll('settings');
+  const row = rows.find((s) => s.key === key);
+  return row ? row.value : null;
+};
+
 // Export supabase client for direct queries if needed
-module.exports = { supabase, dbHelpers };
+module.exports = { supabase, dbHelpers, getSetting };

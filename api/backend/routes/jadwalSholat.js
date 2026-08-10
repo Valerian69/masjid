@@ -1,5 +1,6 @@
 const express = require('express');
 const { dbHelpers } = require('../database');
+const { hariIni } = require('../lib/waktu');
 const { auth, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -102,9 +103,11 @@ router.post('/sync', auth, authorize('superadmin', 'takmir', 'marbot'), async (r
       return res.status(400).json({ error: 'Provinsi dan kabupaten/kota harus diatur di Pengaturan atau dikirim dalam request' });
     }
 
-    const now = new Date();
-    const bulan = req.body.bulan || now.getMonth() + 1;
-    const tahun = req.body.tahun || now.getFullYear();
+    // Tanggal hari ini menurut zona masjid, bukan zona server. Sinkron dini
+    // hari di WIB pernah mengambil jadwal kemarin karena server masih UTC.
+    const [tahunKini, bulanKini, tanggalKini] = hariIni(settings.timezone).split('-');
+    const bulan = req.body.bulan || Number(bulanKini);
+    const tahun = req.body.tahun || Number(tahunKini);
 
     const response = await fetch(`${EQURAN_API}/shalat`, {
       method: 'POST',
@@ -118,7 +121,7 @@ router.post('/sync', auth, authorize('superadmin', 'takmir', 'marbot'), async (r
     }
 
     const jadwalHariIni = data.data.jadwal.find(j => {
-      const tgl = `${tahun}-${String(bulan).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const tgl = `${tahun}-${String(bulan).padStart(2, '0')}-${tanggalKini}`;
       return j.tanggal_lengkap === tgl;
     });
 

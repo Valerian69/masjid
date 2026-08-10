@@ -1,5 +1,6 @@
 const express = require('express');
-const { dbHelpers } = require('../database');
+const { dbHelpers, getSetting } = require('../database');
+const { hariIni } = require('../lib/waktu');
 const { auth, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -9,7 +10,7 @@ router.get('/', async (req, res) => {
     const { upcoming } = req.query;
     let kajian = await dbHelpers.findAll('kajian');
     if (upcoming === 'true') {
-      const today = new Date().toISOString().split('T')[0];
+      const today = hariIni(await getSetting('timezone'));
       kajian = kajian.filter(k => k.tanggal >= today).sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.jam_mulai.localeCompare(b.jam_mulai)).slice(0, 5);
     } else {
       kajian.sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.jam_mulai.localeCompare(a.jam_mulai));

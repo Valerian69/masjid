@@ -1,5 +1,6 @@
 const express = require('express');
-const { dbHelpers } = require('../database');
+const { dbHelpers, getSetting } = require('../database');
+const { hariIni, bulanIni } = require('../lib/waktu');
 const { auth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -9,7 +10,8 @@ router.get('/', async (req, res) => {
     const allJadwal = await dbHelpers.findAll('jadwal_sholat');
     const jadwalSholat = allJadwal.filter(j => j.is_active === 1 || j.is_active === true).sort((a, b) => a.waktu.localeCompare(b.waktu));
 
-    const today = new Date().toISOString().split('T')[0];
+    const zona = await getSetting('timezone');
+    const today = hariIni(zona);
     const allKajian = await dbHelpers.findAll('kajian');
     const kajian = allKajian.filter(k => k.tanggal >= today).sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.jam_mulai.localeCompare(b.jam_mulai)).slice(0, 3);
 
@@ -21,8 +23,7 @@ router.get('/', async (req, res) => {
 
     const allKeuangan = await dbHelpers.findAll('keuangan');
     const saldo = allKeuangan.reduce((sum, d) => sum + (d.jenis === 'masuk' ? d.jumlah : -d.jumlah), 0);
-    const now = new Date();
-    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const thisMonth = bulanIni(zona);
     const totalInfaq = allKeuangan.filter(d => d.jenis === 'masuk' && d.kategori === 'Infaq' && d.tanggal.startsWith(thisMonth)).reduce((sum, d) => sum + d.jumlah, 0);
 
     const allSettings = await dbHelpers.findAll('settings');
@@ -52,7 +53,7 @@ router.get('/admin', auth, async (req, res) => {
     const allKeuangan = await dbHelpers.findAll('keuangan');
     const saldo = allKeuangan.reduce((sum, d) => sum + (d.jenis === 'masuk' ? d.jumlah : -d.jumlah), 0);
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = hariIni(await getSetting('timezone'));
     const allKajian = await dbHelpers.findAll('kajian');
     const kajianTerdekat = allKajian.filter(k => k.tanggal >= today).sort((a, b) => a.tanggal.localeCompare(b.tanggal)).slice(0, 3);
 

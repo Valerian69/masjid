@@ -1,6 +1,7 @@
 const express = require('express');
 const PDFDocument = require('pdfkit');
-const { dbHelpers } = require('../database');
+const { dbHelpers, getSetting } = require('../database');
+const { hariIni, bulanIni, bulanLalu, bulanMundur, capWaktu } = require('../lib/waktu');
 const { auth, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -38,8 +39,8 @@ router.get('/public', async (req, res) => {
   try {
     const data = (await dbHelpers.findAll('keuangan')).filter(d => d.status !== 'cancelled');
     const saldo = data.reduce((sum, d) => sum + (d.jenis === 'masuk' ? d.jumlah : -d.jumlah), 0);
-    const now = new Date();
-    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const zona = await getSetting('timezone');
+    const thisMonth = bulanIni(zona);
     const totalInfaq = data.filter(d => d.jenis === 'masuk' && d.kategori === 'Infaq' && d.tanggal.startsWith(thisMonth)).reduce((sum, d) => sum + d.jumlah, 0);
     res.json({ saldo, total_infaq_bulan: totalInfaq });
   } catch (err) {
@@ -50,10 +51,9 @@ router.get('/public', async (req, res) => {
 router.get('/summary', auth, async (req, res) => {
   try {
     const data = (await dbHelpers.findAll('keuangan')).filter(d => d.status !== 'cancelled');
-    const now = new Date();
-    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthStr = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, '0')}`;
+    const zona = await getSetting('timezone');
+    const thisMonth = bulanIni(zona);
+    const lastMonthStr = bulanLalu(zona);
 
     const totalMasuk = data.filter(d => d.jenis === 'masuk').reduce((sum, d) => sum + d.jumlah, 0);
     const totalKeluar = data.filter(d => d.jenis === 'keluar').reduce((sum, d) => sum + d.jumlah, 0);
@@ -81,17 +81,12 @@ router.get('/summary', auth, async (req, res) => {
 router.get('/monthly-trend', auth, async (req, res) => {
   try {
     const data = (await dbHelpers.findAll('keuangan')).filter(d => d.status !== 'cancelled');
-    const months = [];
-    const now = new Date();
-
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const prefix = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const label = d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
-      const masuk = data.filter(x => x.jenis === 'masuk' && x.tanggal.startsWith(prefix)).reduce((s, x) => s + x.jumlah, 0);
-      const keluar = data.filter(x => x.jenis === 'keluar' && x.tanggal.startsWith(prefix)).reduce((s, x) => s + x.jumlah, 0);
-      months.push({ label, masuk, keluar });
-    }
+    const zona = await getSetting('timezone');
+    const months = bulanMundur(zona, 6).map(({ prefix, label }) => ({
+      label,
+      masuk: data.filter(x => x.jenis === 'masuk' && x.tanggal.startsWith(prefix)).reduce((s, x) => s + x.jumlah, 0),
+      keluar: data.filter(x => x.jenis === 'keluar' && x.tanggal.startsWith(prefix)).reduce((s, x) => s + x.jumlah, 0),
+    }));
 
     res.json(months);
   } catch (err) {
@@ -102,8 +97,8 @@ router.get('/monthly-trend', auth, async (req, res) => {
 router.get('/category-breakdown', auth, async (req, res) => {
   try {
     const data = (await dbHelpers.findAll('keuangan')).filter(d => d.status !== 'cancelled');
-    const now = new Date();
-    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const zona = await getSetting('timezone');
+    const thisMonth = bulanIni(zona);
     const monthData = data.filter(d => d.tanggal.startsWith(thisMonth));
 
     const masuk = {};
@@ -157,7 +152,8 @@ router.get('/export', auth, authorize('superadmin', 'bendahara'), async (req, re
     ).join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename=keuangan-${new Date().toISOString().slice(0, 10)}.csv`);
+    const zona = await getSetting('timezone');
+    res.setHeader('Content-Disposition', `attachment; filename=keuangan-${hariIni(zona)}.csv`);
     res.send(header + rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to export', detail: err.message });
@@ -305,7 +301,7 @@ router.get('/report/pdf', auth, authorize('superadmin', 'bendahara'), async (req
     doc.moveTo(50, y).lineTo(545, y).strokeColor(lightGray).lineWidth(1).stroke();
     y += 10;
     doc.fontSize(7).fillColor(gray).font('Helvetica')
-      .text(`Dicetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`, 50, y, { width: pageW / 2 })
+      .text(`Dicetak: ${capWaktu(settingsObj.timezone)}`, 50, y, { width: pageW / 2 })
       .text(`${mosqueName} - Sistem Keuangan Masjid`, 50, y + 12, { width: pageW / 2 });
 
     doc.end();
