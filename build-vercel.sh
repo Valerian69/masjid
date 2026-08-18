@@ -7,7 +7,7 @@ set -e
 
 echo "🔨 Building TV Display..."
 cd frontend/tv-display
-REACT_APP_API_URL=/api npm run build
+GENERATE_SOURCEMAP=false REACT_APP_API_URL=/api npm run build
 cd ../..
 rm -rf tv && cp -r frontend/tv-display/build tv
 echo "✅ TV Display → tv/"
@@ -15,7 +15,7 @@ echo "✅ TV Display → tv/"
 echo ""
 echo "🔨 Building Admin Panel..."
 cd frontend/admin-panel
-PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build
+GENERATE_SOURCEMAP=false PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build
 cd ../..
 rm -rf admin && cp -r frontend/admin-panel/build admin
 echo "✅ Admin Panel → admin/"

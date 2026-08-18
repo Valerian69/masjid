@@ -92,7 +92,7 @@ const Agenda = () => {
         <h1>Agenda Kegiatan</h1>
         <p className="page-header-subtitle">Kelola kegiatan dan acara masjid</p>
         <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="agenda-add">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Agenda
         </button>
       </div>
@@ -102,35 +102,35 @@ const Agenda = () => {
           <div className="card-body">
             <div className="admin-form-grid">
               <div className="form-group">
-                <label className="form-label">Judul</label>
-                <input value={form.judul} onChange={e => setForm({...form, judul: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="agenda-judul">Judul</label>
+                <input id="agenda-judul" value={form.judul} onChange={e => setForm({...form, judul: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Tanggal</label>
-                <input type="date" value={form.tanggal} onChange={e => setForm({...form, tanggal: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="agenda-tanggal">Tanggal</label>
+                <input id="agenda-tanggal" type="date" value={form.tanggal} onChange={e => setForm({...form, tanggal: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Jam Mulai</label>
-                <input type="time" value={form.jam_mulai} onChange={e => setForm({...form, jam_mulai: e.target.value})} className="form-input" />
+                <label className="form-label" htmlFor="agenda-jam_mulai">Jam Mulai</label>
+                <input id="agenda-jam_mulai" type="time" value={form.jam_mulai} onChange={e => setForm({...form, jam_mulai: e.target.value})} className="form-input" />
               </div>
               <div className="form-group">
-                <label className="form-label">Jam Selesai</label>
-                <input type="time" value={form.jam_selesai} onChange={e => setForm({...form, jam_selesai: e.target.value})} className="form-input" />
+                <label className="form-label" htmlFor="agenda-jam_selesai">Jam Selesai</label>
+                <input id="agenda-jam_selesai" type="time" value={form.jam_selesai} onChange={e => setForm({...form, jam_selesai: e.target.value})} className="form-input" />
               </div>
               <div className="form-group">
-                <label className="form-label">Lokasi</label>
-                <input value={form.lokasi} onChange={e => setForm({...form, lokasi: e.target.value})} className="form-input" />
+                <label className="form-label" htmlFor="agenda-lokasi">Lokasi</label>
+                <input id="agenda-lokasi" value={form.lokasi} onChange={e => setForm({...form, lokasi: e.target.value})} className="form-input" />
               </div>
               <div className="form-group">
-                <label className="form-label">Status</label>
-                <select value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input" data-tour="agenda-status">
+                <label className="form-label" htmlFor="agenda-is_published">Status</label>
+                <select id="agenda-is_published" value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input" data-tour="agenda-status">
                   <option value={1}>Publish</option>
                   <option value={0}>Draft</option>
                 </select>
               </div>
               <div className="form-group admin-form-full">
-                <label className="form-label">Deskripsi</label>
-                <textarea value={form.deskripsi} onChange={e => setForm({...form, deskripsi: e.target.value})} className="form-input" style={{ height: 80 }} />
+                <label className="form-label" htmlFor="agenda-deskripsi">Deskripsi</label>
+                <textarea id="agenda-deskripsi" value={form.deskripsi} onChange={e => setForm({...form, deskripsi: e.target.value})} className="form-input" style={{ height: 80 }} />
               </div>
             </div>
             <div className="admin-form-actions">

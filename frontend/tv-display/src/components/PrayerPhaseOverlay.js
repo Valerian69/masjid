@@ -30,12 +30,14 @@ const renderContent = (phase, prayer, sisa, progress) => {
         <div className={`phase-countdown ${sisa <= 60 ? 'urgent' : ''}`}>{formatCountdown(sisa)}</div>
         <div className="phase-notice">
           {/* Ukuran diatur lewat CSS, bukan prop `size`: satuan vw tidak
-              didukung andal pada atribut width/height sebuah <svg>. */}
+              didukung andal pada atribut width/height sebuah <svg aria-hidden="true" focusable="false">. */}
           <PhoneOffIcon />
           Mohon Nonaktifkan Ponsel
         </div>
         <div className="phase-progress">
-          <div className="phase-progress-fill" style={{ width: `${progress * 100}%` }} />
+          {/* scaleX, bukan width: bilah ini berdetak tiap detik selama belasan
+              menit — transform tidak memicu layout ulang. */}
+          <div className="phase-progress-fill" style={{ transform: `scaleX(${progress})` }} />
         </div>
       </>
     );

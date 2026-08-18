@@ -1,16 +1,25 @@
 import React from 'react';
 import { formatIDR } from '../../utils/format';
 
+// Potong pada batas kata dan beri elipsis, supaya teks tidak berhenti
+// di tengah kata seolah-olah datanya rusak.
+const truncate = (text, max) => {
+  if (!text || text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+};
+
 const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) => {
   const maxTrend = Math.max(...trend.map((t) => Math.max(t.masuk || 0, t.keluar || 0)), 1);
   const totalCM = catMasuk.reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
   const totalCK = catKeluar.reduce((s, c) => s + (c.jumlah || 0), 0) || 1;
 
   const cards = [
-    { label: 'Saldo Total', value: formatIDR(summary.saldo), color: '#d4913d', bg: 'rgba(212,145,61,0.08)', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' },
-    { label: 'Bulan Ini Masuk', value: formatIDR(summary.bulan_ini_masuk), color: '#0b3d2e', bg: 'rgba(11,61,46,0.06)', icon: 'M12 19V5M5 12l7-7 7 7' },
-    { label: 'Bulan Ini Keluar', value: formatIDR(summary.bulan_ini_keluar), color: '#c62828', bg: 'rgba(198,40,40,0.06)', icon: 'M12 5v14M5 12l7 7 7-7' },
-    { label: 'Transaksi Bulan Ini', value: summary.jumlah_transaksi_bulan || 0, color: '#1565c0', bg: 'rgba(21,101,192,0.06)', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5h6', isNumber: true },
+    { label: 'Saldo Total', value: formatIDR(summary.saldo), color: 'var(--amber-ink)', bg: 'rgba(212,145,61,0.08)', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' },
+    { label: 'Bulan Ini Masuk', value: formatIDR(summary.bulan_ini_masuk), color: 'var(--emerald-800)', bg: 'rgba(11,61,46,0.06)', icon: 'M12 19V5M5 12l7-7 7 7' },
+    { label: 'Bulan Ini Keluar', value: formatIDR(summary.bulan_ini_keluar), color: 'var(--red-600)', bg: 'rgba(198,40,40,0.06)', icon: 'M12 5v14M5 12l7 7 7-7' },
+    { label: 'Transaksi Bulan Ini', value: summary.jumlah_transaksi_bulan || 0, color: 'var(--blue-600)', bg: 'rgba(21,101,192,0.06)', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5h6', isNumber: true },
   ];
 
   return (
@@ -19,7 +28,7 @@ const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) =
         {cards.map((card, i) => (
           <div key={i} className="stat-card" style={{ '--stat-color': card.color, '--stat-bg': card.bg }}>
             <div className="stat-icon" style={{ background: card.bg, color: card.color }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
+              <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={card.icon} /></svg>
             </div>
             <div>
               <div className="stat-value" style={{ color: card.color, fontSize: card.isNumber ? '1.5rem' : '1.25rem' }}>{card.value}</div>
@@ -45,8 +54,8 @@ const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) =
               ))}
             </div>
             <div className="bar-chart-legend">
-              <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#0b3d2e' }} /> Masuk</div>
-              <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: '#c62828' }} /> Keluar</div>
+              <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: 'var(--emerald-800)' }} /> Masuk</div>
+              <div className="bar-chart-legend-item"><div className="bar-chart-legend-dot" style={{ background: 'var(--red-600)' }} /> Keluar</div>
             </div>
           </div>
         </div>
@@ -56,7 +65,7 @@ const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) =
           <div className="card-body">
             {catMasuk.length > 0 && (
               <div style={{ marginBottom: 16 }}>
-                <div className="category-section-title" style={{ color: '#0b3d2e' }}>Pemasukan</div>
+                <div className="category-section-title" style={{ color: 'var(--emerald-800)' }}>Pemasukan</div>
                 {catMasuk.slice(0, 4).map((cat, i) => (
                   <div key={i} className="category-bar">
                     <div className="bar-name">{cat.kategori}</div>
@@ -70,7 +79,7 @@ const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) =
             )}
             {catKeluar.length > 0 && (
               <div>
-                <div className="category-section-title" style={{ color: '#c62828' }}>Pengeluaran</div>
+                <div className="category-section-title" style={{ color: 'var(--red-600)' }}>Pengeluaran</div>
                 {catKeluar.slice(0, 4).map((cat, i) => (
                   <div key={i} className="category-bar">
                     <div className="bar-name">{cat.kategori}</div>
@@ -97,7 +106,7 @@ const KeuanganDashboard = ({ summary, trend, catMasuk, catKeluar, transaksi }) =
               <div className={`transaction-icon ${item.jenis}`}>{item.jenis === 'masuk' ? '↑' : '↓'}</div>
               <div>
                 <div className="transaction-info-title">{item.kategori}{item.penerima ? ` — ${item.penerima}` : ''}</div>
-                <div className="transaction-info-sub">{item.tanggal}{item.deskripsi ? ` · ${item.deskripsi.slice(0, 40)}` : ''}</div>
+                <div className="transaction-info-sub">{item.tanggal}{item.deskripsi ? ` · ${truncate(item.deskripsi, 40)}` : ''}</div>
               </div>
             </div>
             <div className={`transaction-amount ${item.jenis}`}>

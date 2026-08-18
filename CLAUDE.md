@@ -18,7 +18,8 @@ Open source, deploy gratis ke Vercel + Supabase. Lihat [README.md](README.md) un
 - **Background TV:** Near-black with green undertone `#061a14` (glassmorphism cards)
 - **Background Admin:** Warm off-white `#f0f2f1` with emerald sidebar
 - **Typography:** Outfit (body/UI) + Amiri (mosque name/hijriah date only)
-- **Animations:** Crossfade page transitions (0.8s), breathing countdown, radial ambient glow
+- **Animations:** Compositor-only ambient glow behind the TV hero (opacity), fade-in entrances, secondary-panel rotation. Nothing animates a layout or paint property on a loop — the TV runs 24/7
+- **Scale:** TV sizes derive from a single `--u` unit in `global.css` (`clamp(6px, calc(0.96vh + 0.6px), 13px)`); every TV dimension is a multiple of it, so 1366×768 and 1920×1080 get the same proportions
 - **Icons:** Phosphor-style stroke-based SVG components (`Icons.js` in each frontend)
   - Consistent: `strokeWidth="1.5"`, `strokeLinecap="round"`, `strokeLinejoin="round"`
   - No emoji — all visual indicators use SVG icons
@@ -57,26 +58,29 @@ masjid/
 │   └── .env                   # Environment variables (not in git)
 ├── frontend/tv-display/       # TV Display (port 3000)
 │   └── src/
-│       ├── App.js             # Main TV layout + crossfade page rotation (API_URL = /api)
+│       ├── App.js             # Main TV layout + polling, stale-data state (API_URL = /api)
 │       ├── lib/prayerPhase.js     # Pure azan/iqomah/blank phase logic (+ tests)
-│       ├── hooks/usePrayerPhase.js # 1-second tick wrapper around computePhase
+│       ├── hooks/useClock.js      # ClockProvider: one 1-second tick for the whole screen
+│       ├── hooks/usePrayerPhase.js # Derives the phase from that tick via computePhase
+│       ├── hooks/usePrefersReducedMotion.js # Read in JS, not only CSS (see RunningText)
 │       ├── components/
 │       │   ├── Icons.js       # Shared Phosphor-style SVG icon components
 │       │   ├── Header.js      # Mosque name + Hijri date + live clock
-│       │   ├── PrayerSchedule.js  # Prayer times + breathing countdown
-│       │   ├── KajianFinance.js   # Combined Kajian + Finance card
-│       │   ├── Agenda.js      # Upcoming events
-│       │   ├── Laporan.js     # Activity reports display (full content, no truncation)
-│       │   ├── RunningText.js # Scrolling announcement text (55s cycle)
+│       │   ├── PrayerSchedule.js  # Eight prayer rows, next one highlighted
+│       │   ├── NextPrayer.js  # Hero: next prayer name + countdown
+│       │   ├── SecondaryRotator.js # Rotates Kajian / Agenda / Laporan / Keuangan (12s)
+│       │   ├── RunningText.js # Marquee at a fixed 90 px/s; static pages under reduced motion
 │       │   ├── PrayerPhaseOverlay.js  # Azan / iqomah countdown / blank screen
-│       │   └── PhaseErrorBoundary.js  # Keeps overlay bugs from blanking the TV
+│       │   ├── PhaseErrorBoundary.js  # Keeps overlay bugs from blanking the TV
+│       │   └── AppErrorBoundary.js    # Root boundary: explains the failure, self-reloads
 │       └── styles/global.css  # TV display styles (design system)
 ├── frontend/admin-panel/      # Admin Panel (port 3001)
 │   └── src/
 │       ├── App.js             # Router with basename="/admin"
 │       ├── context/AuthContext.js  # Auth state management
 │       ├── services/api.js    # Axios API client (API_URL = /api)
-│       ├── components/Layout.js    # Sidebar + layout (emerald theme)
+│       ├── components/Layout.js    # Sidebar + layout (emerald theme) + skip link
+│       ├── components/useDialog.js  # Escape, focus trap, focus restore for modals
 │       └── pages/
 │           ├── Login.js       # Login page (ambient glow design)
 │           ├── Dashboard.js   # Admin dashboard (stats + kajian + agenda)
@@ -263,17 +267,26 @@ All data stored in Supabase (PostgreSQL). Schema defined in `supabase/schema.sql
 - Auth: JWT token in `Authorization: Bearer <token>` header
 - Finance operations (bendahara/superadmin only) create audit log entries
 - Frontend auto-refreshes TV data every 30 seconds
-- Running text scrolls in 55-second cycle
+- Running text scrolls at a fixed **90 px/s**; `RunningText.js` measures the content and sets `--marquee-duration`, so adding announcements never speeds up the scroll
 - Hijriah date calculated using `Intl.DateTimeFormat` with `islamic-umalqura` calendar
 - Prayer times synced from EQuran.id API (free, no API key needed) — settings `provinsi` and `kabkota` control location
 - PDF reports generated server-side with PDFKit (professional layout with header, summary, tables)
-- TV pages crossfade (0.8s transition) instead of hard-cutting
+- Under `prefers-reduced-motion`, the marquee is replaced by static announcements that cycle every 9s — never disabled via CSS, which would leave the bar empty
 - On Fridays, "Dzuhur" is displayed as "Jum'at" in TV display and admin panel (frontend-only logic, DB keeps "Dzuhur")
 - Iqomah phases (azan → countdown → blank screen) are derived from the browser clock by `computePhase()` in `frontend/tv-display/src/lib/prayerPhase.js` — no scheduled state transitions or timer chains, just a value re-derived from the current phase's inputs every tick, so the display recovers its phase after a reload
 - Durations live in `settings` as flat keys: `iqomah_enabled`, `ikamah_<sholat>`, `sholat_<sholat>` for subuh/dzuhur/ashar/maghrib/isya (minutes, 0 skips the phase, invalid values fall back to defaults)
 - The azan notice runs inside the iqomah duration, not in addition to it; Jum'at (Dzuhur on Fridays) skips the sequence entirely
 - Tour steps are pure data in `pageTours.js`; pages only carry `data-tour` attributes and never import the tour. `useTourTarget` is the only code that touches page DOM
 - `pageTours.test.js` statically verifies every `data-tour` selector referenced by a step actually exists in the page sources — the guard against markup drifting away from tour content
+
+## Accessibility (do not regress)
+- Every form control has an `id` and its `<label>` an `htmlFor`. Adding a field means adding both
+- `--amber` (`#d4913d`) is a **fill** colour only. For amber text use `--amber-ink`; on an amber fill use `--amber-on-fill`. Text on emerald grounds uses `--on-emerald{,-secondary,-muted}` — never `rgba(240,242,241,…)`, which is how the login page ended up with nine AA failures
+- Interactive targets get a 44px floor under `pointer: coarse` **and** `max-width: 768px`
+- Modals use `useDialog` (Escape, focus trap, focus restore) and autofocus the safe action, never the destructive one
+- `prefers-reduced-motion` removes motion, never content. No blanket `*{animation-duration:.01ms}` — it left the TV announcement bar empty and does not reset `animation-delay`
+- Decorative SVGs carry `aria-hidden="true" focusable="false"`; icon-only buttons carry `aria-label`
+- Charts encode their data in their geometry and carry a scale the reader can calibrate against (see `LatencyChart` in `Monitoring.js`)
 
 ## Security
 - **JWT_SECRET mandatory:** Server fails to start without it (no hardcoded fallback)
@@ -367,7 +380,7 @@ rsync -av --delete --exclude='node_modules/' --exclude='.env' backend/ api/backe
 - Do NOT run `npm run build` alone — it lacks `PUBLIC_URL` and env vars needed for Vercel
 
 ## Key Features
-- **TV Display:** Live prayer countdown (breathing animation), running text scroll (55s), crossfade page rotation (10s), ambient radial glow, glassmorphism cards, full laporan content, skeleton loading states, Friday-aware ("Dzuhur" → "Jum'at"), iqomah sequence (azan notice → full-screen countdown with "Mohon Nonaktifkan Ponsel" → dark blank screen during prayer)
+- **TV Display:** Live prayer countdown, running text at a constant reading speed, rotating secondary panel (12s), ambient radial glow, glassmorphism cards, viewport-derived type that fits 1366×768 and 1920×1080 alike, skeleton loading, offline screen and stale-data badge, root error boundary with self-reload, Friday-aware ("Dzuhur" → "Jum'at"), iqomah sequence (azan notice → full-screen countdown with "Mohon Nonaktifkan Ponsel" → dark blank screen during prayer)
 - **Admin Panel:** CRUD for all modules, role-based access, audit trail, laporan management, emerald sidebar with geometric pattern, premium design system (mockup-aligned tokens), mobile-responsive forms (sticky submit button), toast notifications + confirm modal, loading/empty/error states
 - **Onboarding:** First-login welcome modal (role-aware) + two tours sharing one engine — a 10-step **menu tour** that maps the sidebar, and **per-page tours** (37 steps across 10 pages) that spotlight real controls and drive the page to reveal them (switching tabs, opening forms). Both run from one floating help button. On phones (≤768px) the menu tour becomes full-screen swipe cards, since the sidebar is off-canvas there. Permanent **Panduan** page (feature guide + role/permission table). Seen-state stored per user in `localStorage` (`masjid_onboarding_seen_v1_<userId>`)
 - **Finance Dashboard:** Summary cards, 6-month trend chart, category breakdown, recent transactions, 3-tab view (Dashboard/Transaksi/Laporan)

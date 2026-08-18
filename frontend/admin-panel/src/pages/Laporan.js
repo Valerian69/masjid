@@ -82,7 +82,7 @@ const Laporan = () => {
           <p className="page-header-subtitle">Kelola laporan kegiatan masjid</p>
         </div>
         <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="lap-add">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Laporan
         </button>
       </div>
@@ -92,16 +92,16 @@ const Laporan = () => {
           <div className="card-body">
             <div className="admin-form-grid">
               <div className="form-group">
-                <label className="form-label">Judul</label>
-                <input value={form.judul} onChange={e => setForm({...form, judul: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="laporan-judul">Judul</label>
+                <input id="laporan-judul" value={form.judul} onChange={e => setForm({...form, judul: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Tanggal</label>
-                <input type="date" value={form.tanggal} onChange={e => setForm({...form, tanggal: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="laporan-tanggal">Tanggal</label>
+                <input id="laporan-tanggal" type="date" value={form.tanggal} onChange={e => setForm({...form, tanggal: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Kategori</label>
-                <select value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} className="form-input" data-tour="lap-kategori">
+                <label className="form-label" htmlFor="laporan-kategori">Kategori</label>
+                <select id="laporan-kategori" value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} className="form-input" data-tour="lap-kategori">
                   <option value="kegiatan">Kegiatan</option>
                   <option value="renovasi">Renovasi</option>
                   <option value="sosial">Sosial</option>
@@ -110,15 +110,15 @@ const Laporan = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Status</label>
-                <select value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input" data-tour="lap-status">
+                <label className="form-label" htmlFor="laporan-is_published">Status</label>
+                <select id="laporan-is_published" value={form.is_published} onChange={e => setForm({...form, is_published: parseInt(e.target.value)})} className="form-input" data-tour="lap-status">
                   <option value={1}>Publish</option>
                   <option value={0}>Draft</option>
                 </select>
               </div>
               <div className="form-group admin-form-full">
-                <label className="form-label">Isi Laporan</label>
-                <textarea value={form.isi} onChange={e => setForm({...form, isi: e.target.value})} className="form-input" style={{ height: 120 }} required />
+                <label className="form-label" htmlFor="laporan-isi">Isi Laporan</label>
+                <textarea id="laporan-isi" value={form.isi} onChange={e => setForm({...form, isi: e.target.value})} className="form-input" style={{ height: 120 }} required />
               </div>
             </div>
             <div className="admin-form-actions">

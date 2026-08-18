@@ -38,7 +38,7 @@ const Login = () => {
         <div className="login-brand-features">
           <div className="login-brand-feature">
             <div className="login-brand-feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
@@ -49,7 +49,7 @@ const Login = () => {
           </div>
           <div className="login-brand-feature">
             <div className="login-brand-feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
               </svg>
             </div>
@@ -60,7 +60,7 @@ const Login = () => {
           </div>
           <div className="login-brand-feature">
             <div className="login-brand-feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
@@ -77,7 +77,7 @@ const Login = () => {
         <div className="login-card">
           <div className="login-card-logo">
             <div className="login-card-logo-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/>
               </svg>
             </div>
@@ -91,16 +91,18 @@ const Login = () => {
           <p className="login-subtitle">Gunakan kredensial yang diberikan admin</p>
 
           {error && (
-            <div className="alert alert-error" style={{ marginBottom: 16 }}>
+            <div className="alert alert-error" role="alert" style={{ marginBottom: 16 }}>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
-              <label className="form-label">Username</label>
+              <label className="form-label" htmlFor="login-username">Username</label>
               <input
+                id="login-username"
                 type="text"
+                autoComplete="username"
                 placeholder="Masukkan username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -109,9 +111,11 @@ const Login = () => {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Password</label>
+              <label className="form-label" htmlFor="login-password">Password</label>
               <input
+                id="login-password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="Masukkan password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

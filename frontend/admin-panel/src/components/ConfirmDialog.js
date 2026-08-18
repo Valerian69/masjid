@@ -1,14 +1,58 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useId, useRef, useState } from 'react';
+import useDialog from './useDialog';
 
 const ConfirmContext = createContext(null);
 
 const warningIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="24" height="24">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="24" height="24" aria-hidden="true" focusable="false">
     <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
     <line x1="12" y1="9" x2="12" y2="13"/>
     <line x1="12" y1="17" x2="12.01" y2="17"/>
   </svg>
 );
+
+const ConfirmDialogView = ({ state, onClose }) => {
+  const titleId = useId();
+  const messageId = useId();
+  // Fokus awal ke Batal.
+  //
+  // Sebelumnya autoFocus ada di tombol Hapus, jadi pengguna keyboard yang
+  // menekan Enter secara refleks langsung menghapus catatan. Aksi merusak
+  // tidak boleh menjadi hal yang terjadi kalau seseorang tidak melakukan
+  // apa-apa selain menekan tombol paling umum.
+  const cancelRef = useRef(null);
+  const dialogRef = useDialog({ open: true, onDismiss: () => onClose(false), initialRef: cancelRef });
+
+  return (
+    <div className="modal-overlay" onClick={() => onClose(false)}>
+      <div
+        ref={dialogRef}
+        className="modal-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={messageId}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={`modal-icon ${state.danger ? 'modal-icon-danger' : ''}`}>{warningIcon}</div>
+        <h3 className="modal-title" id={titleId}>{state.title}</h3>
+        <p className="modal-message" id={messageId}>{state.message}</p>
+        <div className="modal-actions">
+          <button ref={cancelRef} type="button" className="btn btn-outline" onClick={() => onClose(false)}>
+            {state.cancelText}
+          </button>
+          <button
+            type="button"
+            className={`btn ${state.danger ? 'btn-danger' : 'btn-primary'}`}
+            onClick={() => onClose(true)}
+          >
+            {state.confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const ConfirmProvider = ({ children }) => {
   const [state, setState] = useState(null);
@@ -36,21 +80,7 @@ export const ConfirmProvider = ({ children }) => {
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      {state && (
-        <div className="modal-overlay" onClick={() => close(false)}>
-          <div className="modal-dialog" role="alertdialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-            <div className={`modal-icon ${state.danger ? 'modal-icon-danger' : ''}`}>{warningIcon}</div>
-            <h3 className="modal-title">{state.title}</h3>
-            <p className="modal-message">{state.message}</p>
-            <div className="modal-actions">
-              <button className="btn btn-outline" onClick={() => close(false)}>{state.cancelText}</button>
-              <button className={`btn ${state.danger ? 'btn-danger' : 'btn-primary'}`} onClick={() => close(true)} autoFocus>
-                {state.confirmText}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {state && <ConfirmDialogView state={state} onClose={close} />}
     </ConfirmContext.Provider>
   );
 };
