@@ -14,8 +14,8 @@
   --bg-card: rgba(11, 61, 46, 0.18);
   --bg-card-hover: rgba(11, 61, 46, 0.28);
   --text-primary: #f0f4f2;
-  --text-secondary: #b8ccc4;
-  --text-muted: #7a9a8e;
+  --text-secondary: #d3e4dc;
+  --text-muted: #a9c3b8;
   --border: rgba(212, 145, 61, 0.2);
   --border-subtle: rgba(26, 158, 104, 0.15);
   --border-glass: rgba(255, 255, 255, 0.08);
@@ -24,14 +24,14 @@
   --radius: 14px;
   --radius-sm: 10px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-}
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  /* Satu unit skala untuk seluruh layar.
+     Semua ukuran TV diturunkan dari tinggi viewport, karena keterbatasan
+     ruang di layar TV selalu vertikal: delapan baris sholat harus muat utuh,
+     apa pun resolusi TV-nya. TV signage murah umumnya 1366x768; TV yang
+     lebih baru 1920x1080. Dengan --u, keduanya mendapat proporsi yang sama,
+     bukan tipografi yang sama lalu terpotong di layar pendek. */
+  --u: clamp(6px, calc(0.96vh + 0.6px), 13px);
 }
 
 body {
@@ -50,8 +50,8 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
-  gap: 10px;
-  padding: 14px 18px;
+  gap: calc(var(--u) * 1.4);
+  padding: calc(var(--u) * 1.8) calc(var(--u) * 2.2);
   position: relative;
   overflow: hidden;
 }
@@ -101,19 +101,12 @@ body {
   100% { background-position: 200% 0; }
 }
 
-@keyframes countdownBreath {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 145, 61, 0); }
-  50% { transform: scale(1.006); box-shadow: 0 0 20px 2px rgba(212, 145, 61, 0.06); }
-}
-
-@keyframes countdownGlow {
-  0%, 100% { text-shadow: 0 0 20px rgba(240, 198, 110, 0.15); }
-  50% { text-shadow: 0 0 36px rgba(240, 198, 110, 0.35); }
-}
-
-@keyframes scrollText {
-  0% { transform: translateX(100vw); }
-  100% { transform: translateX(-100%); }
+/* Cahaya ambien di balik hero. Hanya opacity yang dianimasikan supaya
+   compositor bisa menanganinya tanpa repaint — penting untuk layar yang
+   menyala 24 jam sehari di perangkat TV stick. */
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
 
 @keyframes pulse-dot {
@@ -132,66 +125,40 @@ body {
 
 .stagger-1 { animation-delay: 0ms; }
 .stagger-2 { animation-delay: 60ms; }
-.stagger-3 { animation-delay: 120ms; }
-.stagger-4 { animation-delay: 180ms; }
-.stagger-5 { animation-delay: 240ms; }
-.stagger-6 { animation-delay: 300ms; }
-.stagger-7 { animation-delay: 360ms; }
 .stagger-8 { animation-delay: 420ms; }
 
-/* ── Page Transitions ── */
+/* Gerak yang dikurangi.
+   Yang dimatikan hanya gerak dekoratif. Teks berjalan TIDAK dimatikan lewat
+   CSS: mematikan animasinya akan mendorong konten ke translateX(-100%) dan
+   menghapus seluruh pengumuman dari layar. RunningText.js membaca preferensi
+   ini sendiri dan berganti ke mode halaman statis. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .secondary-body {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 
-.page-container {
-  min-height: 0;
-  height: 100%;
-  position: relative;
-}
+  .header-icon,
+  .loading-icon,
+  .next-prayer::after,
+  .running-text-content .dot,
+  .phase-azan::before,
+  .phase-countdown.urgent,
+  .phase-blank-text {
+    animation: none;
+  }
 
-.page {
-  position: absolute;
-  inset: 0;
-  height: 100%;
-  opacity: 0;
-  z-index: 0;
-  pointer-events: none;
-}
+  .next-prayer::after { opacity: 0.7; }
 
-.page.leaving {
-  opacity: 0;
-  z-index: 0;
-  transition: opacity 0.35s ease-out;
-}
-
-.page.active {
-  opacity: 1;
-  z-index: 2;
-  pointer-events: auto;
-  transition: opacity 0.4s ease-in 0.2s;
-}
-
-.page-main {
-  display: grid;
-  grid-template-columns: 5fr 3fr;
-  gap: 10px;
-  height: 100%;
-}
-
-.page-laporan {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.page-laporan .laporan-section {
-  flex: 1;
-}
-
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 0;
-  height: 100%;
+  .card,
+  .prayer-item,
+  .secondary-dots .dot,
+  .phase-overlay,
+  .phase-progress-fill {
+    transition: none;
+  }
 }
 
 /* ── Header ── */
@@ -200,7 +167,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 28px;
+  padding: calc(var(--u) * 1.6) calc(var(--u) * 3.2);
   background: linear-gradient(
     90deg,
     rgba(11, 61, 46, 0.6) 0%,
@@ -217,42 +184,48 @@ body {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: calc(var(--u) * 1.4);
+  min-width: 0;
 }
 
 .header-icon {
-  width: 42px;
-  height: 42px;
+  width: calc(var(--u) * 5.4);
+  height: calc(var(--u) * 5.4);
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(212, 145, 61, 0.12);
   border: 1px solid rgba(212, 145, 61, 0.2);
-  border-radius: 12px;
+  border-radius: 14px;
+  flex-shrink: 0;
   animation: gentle-float 4s ease-in-out infinite;
 }
 
 .header-icon svg {
-  width: 22px;
-  height: 22px;
+  width: calc(var(--u) * 3);
+  height: calc(var(--u) * 3);
   fill: var(--amber);
 }
 
 .masjid-name {
   font-family: 'Amiri', serif;
-  font-size: 2rem;
+  font-size: calc(var(--u) * 3.8);
   font-weight: 700;
   color: var(--amber);
   text-shadow: 0 2px 12px rgba(212, 145, 61, 0.15);
   letter-spacing: 0.02em;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header .date-hijriah {
   text-align: center;
   font-family: 'Amiri', serif;
-  font-size: 1.05rem;
+  font-size: calc(var(--u) * 2.2);
   color: var(--amber-glow);
-  opacity: 0.85;
+  white-space: nowrap;
 }
 
 .header .date-time {
@@ -260,18 +233,34 @@ body {
 }
 
 .header .date-time .time {
-  font-size: 2.2rem;
+  font-size: calc(var(--u) * 4.5);
   font-weight: 600;
-  color: var(--text-primary);
+  color: #ffffff;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 
 .header .date-time .date {
-  font-size: 0.85rem;
+  font-size: calc(var(--u) * 1.6);
   color: var(--text-secondary);
   font-weight: 400;
   letter-spacing: 0.02em;
+}
+
+/* Penanda data basi. Layar ini tidak ditunggui siapa pun, jadi kegagalan
+   sinkronisasi harus terlihat dari seberang ruangan — bukan diam-diam
+   menampilkan jadwal kemarin. */
+.header .data-age {
+  font-size: calc(var(--u) * 1.4);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.header .data-age.is-stale {
+  color: var(--amber-glow);
+  font-weight: 600;
 }
 
 /* ── Cards (Glassmorphism) ── */
@@ -280,26 +269,21 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: calc(var(--u) * 2) calc(var(--u) * 2.2);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-inset), var(--shadow-card);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s var(--ease-out);
-}
-
-.card:hover {
-  background: var(--bg-card-hover);
-  border-color: rgba(212, 145, 61, 0.18);
+  transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
 }
 
 .card-title {
-  font-size: 0.95rem;
+  font-size: calc(var(--u) * 2.1);
   font-weight: 600;
   color: var(--amber);
-  margin-bottom: 12px;
-  padding-bottom: 10px;
+  margin-bottom: calc(var(--u) * 1.4);
+  padding-bottom: calc(var(--u) * 1.2);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -308,9 +292,27 @@ body {
 }
 
 .card-title svg {
-  width: 18px;
-  height: 18px;
+  width: calc(var(--u) * 2.6);
+  height: calc(var(--u) * 2.6);
   opacity: 0.85;
+  flex-shrink: 0;
+}
+
+/* ── Layout: jadwal sholat (dominan) + kolom kanan ── */
+
+.tv-main {
+  display: grid;
+  grid-template-columns: 1.32fr 1fr;
+  gap: calc(var(--u) * 1.6);
+  height: 100%;
+  min-height: 0;
+}
+
+.tv-right {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 1.6);
+  min-height: 0;
 }
 
 /* ── Prayer Schedule ── */
@@ -319,245 +321,315 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
 }
 
+/* Delapan baris membagi rata tinggi kolom. Tipografi ikut --u, sehingga
+   baris terakhir (Isya) tetap utuh di layar 768px maupun 1080px. */
 .prayer-list {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: calc(var(--u) * 0.8);
   min-height: 0;
-  overflow: hidden;
 }
 
 .prayer-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 11px 16px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid transparent;
-  transition: all 0.3s var(--ease-out);
-  animation: fadeInUp 0.4s var(--ease-out) both;
-}
-
-.prayer-item:hover {
+  gap: calc(var(--u) * 1.5);
+  padding: 0 calc(var(--u) * 2.8);
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
-}
-
-.prayer-item.active {
-  background: linear-gradient(
-    90deg,
-    rgba(212, 145, 61, 0.12),
-    rgba(20, 107, 74, 0.12)
-  );
-  border-color: rgba(212, 145, 61, 0.35);
-  transform: scale(1.015);
-  box-shadow: 0 0 16px rgba(212, 145, 61, 0.08);
+  border: 2px solid transparent;
+  min-width: 0;
+  transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
 }
 
 .prayer-item .name {
-  font-size: 1.25rem;
-  font-weight: 500;
+  font-size: calc(var(--u) * 3);
+  font-weight: 600;
+  color: #ffffff;
   letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .prayer-item .time {
-  font-size: 1.45rem;
-  font-weight: 600;
+  font-size: calc(var(--u) * 3.75);
+  font-weight: 700;
   color: var(--amber);
   font-variant-numeric: tabular-nums;
-}
-
-.prayer-item.active .name {
-  color: var(--amber-glow);
-}
-
-/* ── Countdown ── */
-
-.countdown-section {
-  margin-top: 10px;
-  padding: 16px;
-  background: linear-gradient(
-    135deg,
-    rgba(11, 61, 46, 0.45),
-    rgba(20, 107, 74, 0.25)
-  );
-  border-radius: var(--radius);
-  text-align: center;
-  border: 1px solid var(--border);
   flex-shrink: 0;
-  animation: countdownBreath 4s ease-in-out infinite;
-  box-shadow: var(--shadow-inset);
 }
 
-.countdown-label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
+/* Sholat berikutnya — sorotan kuat */
+.prayer-item.next {
+  background: linear-gradient(90deg, rgba(212, 145, 61, 0.28), rgba(212, 145, 61, 0.12));
+  border-color: var(--amber);
+  box-shadow: 0 2px 24px rgba(212, 145, 61, 0.18);
+}
+
+.prayer-item.next .name { color: var(--amber-glow); font-weight: 700; }
+.prayer-item.next .time { color: var(--amber-glow); }
+
+/* ── Next-prayer HERO (kanan atas, paling menonjol) ── */
+
+.next-prayer {
+  position: relative;
+  flex-shrink: 0;
+  text-align: center;
+  padding: calc(var(--u) * 2.2) calc(var(--u) * 2) calc(var(--u) * 2.6);
+  border-radius: var(--radius);
+  background: linear-gradient(150deg, rgba(20, 107, 74, 0.42), rgba(11, 61, 46, 0.30));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-inset), var(--shadow-card);
+  overflow: hidden;
+}
+
+.next-prayer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 64%, rgba(240, 198, 110, 0.16), transparent 68%);
+  animation: heroGlow 4s ease-in-out infinite;
+}
+
+.next-prayer > * {
+  position: relative;
+  z-index: 1;
+}
+
+.next-prayer-label {
+  font-size: calc(var(--u) * 1.6);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-.countdown-time {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--amber-glow);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-  animation: countdownGlow 4s ease-in-out infinite;
-}
-
-.countdown-prayer-name {
-  font-size: 1.2rem;
-  color: var(--text-primary);
-  margin-top: 4px;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
-/* ── Kajian + Finance ── */
-
-.kajian-finance-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+.next-prayer-name {
+  font-size: calc(var(--u) * 3.4);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 4px 0 6px;
+  line-height: 1.1;
 }
 
-.kajian-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  overflow: hidden;
-  min-height: 0;
-}
+.next-prayer-at { color: var(--amber-glow); font-weight: 600; }
 
-.kajian-item {
-  padding: 9px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.025);
-  border-left: 3px solid var(--amber);
-  transition: all 0.25s var(--ease-out);
-}
-
-.kajian-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(2px);
-}
-
-.kajian-item .title {
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--text-primary);
-}
-
-.kajian-item .ustadz {
-  font-size: 0.78rem;
+.next-prayer-countdown {
+  font-size: calc(var(--u) * 7.5);
+  font-weight: 800;
+  line-height: 1;
   color: var(--amber-glow);
-  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 28px rgba(240, 198, 110, 0.22);
 }
 
-.kajian-item .datetime {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+/* ── Secondary rotating panel (kanan bawah) ── */
+
+.secondary-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--u) * 2) calc(var(--u) * 2.2);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-inset), var(--shadow-card);
+  overflow: hidden;
+}
+
+.secondary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: calc(var(--u) * 1.4);
+  padding-bottom: calc(var(--u) * 1.2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.secondary-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: calc(var(--u) * 2.1);
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 0.02em;
+}
+
+.secondary-title svg { flex-shrink: 0; }
+
+.secondary-dots { display: flex; gap: 8px; }
+
+.secondary-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background-color 0.3s var(--ease-out);
+}
+
+.secondary-dots .dot.on { background: var(--amber); width: 26px; border-radius: 5px; }
+
+.secondary-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  animation: fadeInUp 0.5s var(--ease-out) both;
+}
+
+.sec-list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 1.2);
+  height: 100%;
+}
+
+/* Panel sudah punya judul kategori sendiri, jadi garis tepi berwarna di tiap
+   baris tidak membawa informasi apa pun. Yang membedakan kini permukaannya. */
+.sec-item {
+  padding: calc(var(--u) * 1.2) calc(var(--u) * 1.6);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sec-item.laporan { background: rgba(212, 145, 61, 0.07); }
+
+.sec-item-title {
+  font-size: calc(var(--u) * 2);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.sec-item-accent {
+  font-size: calc(var(--u) * 1.65);
+  color: var(--amber-glow);
+  font-weight: 600;
   margin-top: 2px;
 }
 
-.finance-divider {
-  height: 1px;
-  background: var(--border-subtle);
-  margin: 8px 0;
-}
-
-.finance-section-inline {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.finance-box {
-  flex: 1;
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  text-align: center;
-  transition: transform 0.25s var(--ease-out);
-}
-
-.finance-box:hover {
-  transform: translateY(-1px);
-}
-
-.finance-box.saldo {
-  background: linear-gradient(135deg, rgba(212, 145, 61, 0.1), rgba(212, 145, 61, 0.04));
-  border: 1px solid rgba(212, 145, 61, 0.2);
-}
-
-.finance-box.infaq {
-  background: linear-gradient(135deg, rgba(26, 158, 104, 0.1), rgba(26, 158, 104, 0.04));
-  border: 1px solid rgba(26, 158, 104, 0.2);
-}
-
-.finance-label {
-  font-size: 0.68rem;
+.sec-item-sub {
+  font-size: calc(var(--u) * 1.5);
   color: var(--text-secondary);
-  margin-bottom: 3px;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  margin-top: 3px;
 }
 
-.finance-amount {
-  font-size: 1.02rem;
+.sec-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--u) * 1.2);
+  margin-bottom: 4px;
+}
+
+.sec-badge {
+  font-size: calc(var(--u) * 1.2);
   font-weight: 700;
-  color: var(--amber);
-  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--amber-glow);
+  background: rgba(212, 145, 61, 0.16);
+  padding: 3px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
-.finance-box.infaq .finance-amount {
-  color: var(--emerald-light);
+.sec-item-date { font-size: calc(var(--u) * 1.45); color: var(--text-muted); }
+
+.sec-item-text {
+  font-size: calc(var(--u) * 1.5);
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* ── Agenda ── */
-
-.agenda-card {
+/* Panel keuangan */
+.sec-finance {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  gap: calc(var(--u) * 1.4);
+  height: 100%;
+  justify-content: center;
 }
 
-.agenda-list {
+.sec-finance-box {
+  padding: calc(var(--u) * 2.2);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.sec-finance-box.saldo {
+  background: linear-gradient(135deg, rgba(212, 145, 61, 0.14), rgba(212, 145, 61, 0.05));
+  border: 1px solid rgba(212, 145, 61, 0.25);
+}
+
+.sec-finance-box.infaq {
+  background: linear-gradient(135deg, rgba(26, 158, 104, 0.14), rgba(26, 158, 104, 0.05));
+  border: 1px solid rgba(26, 158, 104, 0.25);
+}
+
+.sec-finance-label {
+  font-size: calc(var(--u) * 1.6);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.sec-finance-amount {
+  font-size: calc(var(--u) * 3.6);
+  font-weight: 800;
+  color: var(--amber-glow);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.sec-finance-box.infaq .sec-finance-amount { color: var(--emerald-light); }
+
+/* ── Empty State ── */
+
+.empty-state {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.agenda-item {
-  padding: 9px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.025);
-  border-left: 3px solid var(--emerald-mid);
-  transition: all 0.25s var(--ease-out);
-}
-
-.agenda-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(2px);
-}
-
-.agenda-item .title {
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--text-primary);
-}
-
-.agenda-item .date {
-  font-size: 0.72rem;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 1.2);
+  text-align: center;
   color: var(--text-muted);
+  padding: calc(var(--u) * 2);
+}
+
+.empty-state svg {
+  width: calc(var(--u) * 4.5);
+  height: calc(var(--u) * 4.5);
+  opacity: 0.45;
+}
+
+.empty-state-title {
+  font-size: calc(var(--u) * 1.9);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.empty-state-sub {
+  font-size: calc(var(--u) * 1.5);
+  max-width: 32ch;
+  line-height: 1.45;
 }
 
 /* ── Running Text ── */
@@ -571,10 +643,10 @@ body {
   );
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
-  padding: 10px 24px;
+  padding: calc(var(--u) * 1.4) calc(var(--u) * 2.8);
   overflow: hidden;
   position: relative;
-  min-height: 44px;
+  min-height: calc(var(--u) * 6.2);
   display: flex;
   align-items: center;
   backdrop-filter: blur(8px);
@@ -602,125 +674,48 @@ body {
   background: linear-gradient(-90deg, rgba(11, 61, 46, 0.8), transparent);
 }
 
+/* Durasi diset dari JS berdasarkan lebar konten, supaya kecepatan baca tetap
+   sama berapa pun jumlah pengumuman yang ditulis takmir. */
 .running-text-content {
   white-space: nowrap;
-  animation: scrollText 55s linear infinite;
-  font-size: 0.95rem;
+  animation: scrollText var(--marquee-duration, 55s) linear infinite;
+  font-size: calc(var(--u) * 2.2);
   color: var(--amber-glow);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+@keyframes scrollText {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
 .running-text-content .dot {
   display: inline-block;
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--amber);
   opacity: 0.5;
+  flex-shrink: 0;
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
-/* ── Empty State ── */
-
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  font-style: italic;
-  opacity: 0.6;
-}
-
-/* ── Laporan ── */
-
-.laporan-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius);
-  padding: 18px;
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-inset), var(--shadow-card);
-}
-
-.section-title {
-  font-size: 0.95rem;
+/* Mode gerak-dikurangi: satu pengumuman diam pada satu waktu, berganti
+   perlahan. Kontennya tetap terbaca; yang hilang hanya geraknya. */
+.running-text-static {
+  width: 100%;
+  text-align: center;
+  font-size: calc(var(--u) * 2.2);
+  color: var(--amber-glow);
   font-weight: 600;
-  color: var(--amber);
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.section-title svg {
-  width: 18px;
-  height: 18px;
-  opacity: 0.85;
-}
-
-.laporan-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.laporan-card {
-  background: rgba(255, 255, 255, 0.025);
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  border-left: 3px solid var(--amber);
-  transition: all 0.25s var(--ease-out);
-}
-
-.laporan-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-1px);
-}
-
-.laporan-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.laporan-badge {
-  font-size: 0.62rem;
-  padding: 3px 10px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, var(--emerald-deep), var(--emerald-mid));
-  color: var(--text-primary);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.laporan-date {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-}
-
-.laporan-card-title {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.laporan-card-text {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Loading Skeleton ── */
@@ -762,8 +757,8 @@ body {
 .skeleton-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 5fr 3fr;
-  gap: 10px;
+  grid-template-columns: 1.32fr 1fr;
+  gap: 16px;
 }
 
 .skeleton-card {
@@ -813,185 +808,49 @@ body {
   border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TV READABILITY OVERHAUL — larger type, higher contrast, prayer-
-   times dominant, permanent layout with rotating secondary panel.
-   (Appended last so it overrides the base rules above.)
-   ═══════════════════════════════════════════════════════════════ */
+/* ── Layar gagal muat ────────────────────────────────────────────────
+   Ditampilkan hanya kalau belum pernah ada data sama sekali. Layar ini tidak
+   ditunggui siapa pun, jadi kegagalan harus menjelaskan dirinya sendiri
+   alih-alih menyisakan kartu-kartu kosong. */
 
-:root {
-  --text-secondary: #d3e4dc;   /* lighter for distance readability */
-  --text-muted: #a9c3b8;
-}
-
-.tv-display { gap: 14px; padding: 18px 22px; }
-
-/* ── Layout: prayer schedule (dominant) + right column ── */
-.tv-main {
-  display: grid;
-  grid-template-columns: 1.32fr 1fr;
-  gap: 16px;
-  height: 100%;
-  min-height: 0;
-}
-.tv-right {
+.tv-fallback {
+  width: 100vw;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  min-height: 0;
-}
-
-/* ── Header (bigger) ── */
-.header { padding: 16px 32px; }
-.header-icon { width: 54px; height: 54px; border-radius: 14px; }
-.header-icon svg { width: 30px; height: 30px; }
-.masjid-name { font-size: 2.7rem; }
-.header .date-hijriah { font-size: 1.55rem; opacity: 1; color: var(--amber-glow); }
-.header .date-time .time { font-size: 3.2rem; color: #ffffff; }
-.header .date-time .date { font-size: 1.15rem; color: var(--text-secondary); }
-
-/* ── Cards ── */
-.card { padding: 20px 22px; }
-.card-title { font-size: 1.45rem; margin-bottom: 14px; padding-bottom: 12px; }
-.card-title svg { width: 26px; height: 26px; }
-
-/* ── Prayer schedule: big rows filling the column ── */
-.prayer-schedule { height: 100%; }
-.prayer-list { gap: 8px; justify-content: space-between; }
-.prayer-item {
-  flex: 1;
-  padding: 0 28px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-}
-.prayer-item .name { font-size: 2.1rem; font-weight: 600; color: #ffffff; }
-.prayer-item .time { font-size: 2.7rem; font-weight: 700; }
-
-/* Next upcoming prayer — strong highlight */
-.prayer-item.next {
-  background: linear-gradient(90deg, rgba(212,145,61,0.28), rgba(212,145,61,0.12));
-  border: 2px solid var(--amber);
-  box-shadow: 0 0 24px rgba(212,145,61,0.18);
-}
-.prayer-item.next .name { color: var(--amber-glow); font-weight: 700; }
-.prayer-item.next .time { color: var(--amber-glow); }
-
-/* ── Next-prayer HERO (top-right, most prominent) ── */
-.next-prayer {
-  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 2);
   text-align: center;
-  padding: 22px 20px 26px;
-  border-radius: var(--radius);
-  background: linear-gradient(150deg, rgba(20,107,74,0.42), rgba(11,61,46,0.30));
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-inset), var(--shadow-card);
-  animation: countdownBreath 4s ease-in-out infinite;
+  padding: calc(var(--u) * 4);
+  background: var(--bg-deep);
 }
-.next-prayer-label {
-  font-size: 1.15rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  font-weight: 500;
+
+.tv-fallback svg {
+  width: calc(var(--u) * 8);
+  height: calc(var(--u) * 8);
+  fill: var(--amber);
+  opacity: 0.5;
 }
-.next-prayer-name {
-  font-size: 2.4rem;
+
+.tv-fallback-title {
+  font-size: calc(var(--u) * 3.4);
   font-weight: 700;
-  color: #ffffff;
-  margin: 4px 0 6px;
+  color: var(--text-primary);
 }
-.next-prayer-at { color: var(--amber-glow); font-weight: 600; }
-.next-prayer-countdown {
-  font-size: 5.4rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--amber-glow);
+
+.tv-fallback-text {
+  font-size: calc(var(--u) * 2);
+  color: var(--text-secondary);
+  max-width: 46ch;
+  line-height: 1.5;
+}
+
+.tv-fallback-hint {
+  font-size: calc(var(--u) * 1.6);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
-  animation: countdownGlow 4s ease-in-out infinite;
 }
-
-/* ── Secondary rotating panel (bottom-right) ── */
-.secondary-panel {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 22px;
-  border-radius: var(--radius);
-  background: var(--bg-card);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--shadow-inset), var(--shadow-card);
-  overflow: hidden;
-}
-.secondary-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-.secondary-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.45rem;
-  font-weight: 600;
-  color: var(--amber);
-  letter-spacing: 0.02em;
-}
-.secondary-dots { display: flex; gap: 8px; }
-.secondary-dots .dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(255,255,255,0.18);
-  transition: all 0.3s var(--ease-out);
-}
-.secondary-dots .dot.on { background: var(--amber); width: 26px; border-radius: 5px; }
-
-.secondary-body {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  animation: fadeInUp 0.5s var(--ease-out) both;
-}
-.sec-list { display: flex; flex-direction: column; gap: 12px; height: 100%; }
-.sec-item {
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.04);
-  border-left: 4px solid var(--amber);
-}
-.sec-item.agenda { border-left-color: var(--emerald-light); }
-.sec-item.laporan { border-left-color: var(--amber-glow); }
-.sec-item-title { font-size: 1.4rem; font-weight: 700; color: #ffffff; line-height: 1.25; }
-.sec-item-accent { font-size: 1.15rem; color: var(--amber-glow); font-weight: 600; margin-top: 2px; }
-.sec-item-sub { font-size: 1.05rem; color: var(--text-secondary); margin-top: 3px; }
-.sec-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.sec-badge {
-  font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-  color: var(--amber-glow); background: rgba(212,145,61,0.16);
-  padding: 3px 12px; border-radius: 999px;
-}
-.sec-item-date { font-size: 1rem; color: var(--text-muted); }
-.sec-item-text {
-  font-size: 1.05rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.45;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-
-/* Finance panel */
-.sec-finance { display: flex; flex-direction: column; gap: 14px; height: 100%; justify-content: center; }
-.sec-finance-box { padding: 22px; border-radius: var(--radius); text-align: center; }
-.sec-finance-box.saldo { background: linear-gradient(135deg, rgba(212,145,61,0.14), rgba(212,145,61,0.05)); border: 1px solid rgba(212,145,61,0.25); }
-.sec-finance-box.infaq { background: linear-gradient(135deg, rgba(26,158,104,0.14), rgba(26,158,104,0.05)); border: 1px solid rgba(26,158,104,0.25); }
-.sec-finance-label { font-size: 1.1rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
-.sec-finance-amount { font-size: 2.6rem; font-weight: 800; color: var(--amber-glow); font-variant-numeric: tabular-nums; }
-.sec-finance-box.infaq .sec-finance-amount { color: var(--emerald-light); }
-
-/* ── Running text (bigger, higher contrast) ── */
-.running-text-bar { min-height: 62px; padding: 14px 28px; }
-.running-text-content { font-size: 1.55rem; color: var(--amber-glow); font-weight: 600; }
-.running-text-content .dot { width: 7px; height: 7px; }
 
 /* ── Fase sholat: azan / ikamah / layar gelap ─────────────────────── */
 /* Posisi blok ini di akhir file bersifat load-bearing. .phase-dim tetap di
@@ -1168,10 +1027,14 @@ body {
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* scaleX alih-alih width: progress ini berdetak tiap detik selama belasan
+   menit, lima kali sehari — transform tidak memicu layout. */
 .phase-progress-fill {
   height: 100%;
+  width: 100%;
+  transform-origin: left center;
   background: var(--amber);
-  transition: width 1s linear;
+  transition: transform 1s linear;
 }
 
 /* Fase layar gelap */

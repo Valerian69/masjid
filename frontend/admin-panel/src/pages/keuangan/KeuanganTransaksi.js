@@ -16,32 +16,32 @@ const KeuanganTransaksi = ({
     <div className="filter-bar" data-tour="keu-filter">
       <div className="filter-row">
         <div className="form-group flex-grow">
-          <label className="form-label">Cari</label>
-          <input value={filter.search} onChange={(e) => changeFilter('search', e.target.value)} className="form-input" placeholder="Deskripsi, kategori, catatan..." />
+          <label className="form-label" htmlFor="keuangantransaksi-cari">Cari</label>
+          <input id="keuangantransaksi-cari" value={filter.search} onChange={(e) => changeFilter('search', e.target.value)} className="form-input" placeholder="Deskripsi, kategori, catatan..." />
         </div>
         <div className="form-group">
-          <label className="form-label">Dari</label>
-          <input type="date" value={filter.start_date} onChange={(e) => changeFilter('start_date', e.target.value)} className="form-input" />
+          <label className="form-label" htmlFor="keuangantransaksi-dari">Dari</label>
+          <input id="keuangantransaksi-dari" type="date" value={filter.start_date} onChange={(e) => changeFilter('start_date', e.target.value)} className="form-input" />
         </div>
         <div className="form-group">
-          <label className="form-label">Sampai</label>
-          <input type="date" value={filter.end_date} onChange={(e) => changeFilter('end_date', e.target.value)} className="form-input" />
+          <label className="form-label" htmlFor="keuangantransaksi-sampai">Sampai</label>
+          <input id="keuangantransaksi-sampai" type="date" value={filter.end_date} onChange={(e) => changeFilter('end_date', e.target.value)} className="form-input" />
         </div>
         <div className="form-group">
-          <label className="form-label">Jenis</label>
-          <select value={filter.jenis} onChange={(e) => changeFilter('jenis', e.target.value)} className="form-input">
+          <label className="form-label" htmlFor="keuangantransaksi-jenis">Jenis</label>
+          <select id="keuangantransaksi-jenis" value={filter.jenis} onChange={(e) => changeFilter('jenis', e.target.value)} className="form-input">
             <option value="">Semua</option><option value="masuk">Masuk</option><option value="keluar">Keluar</option>
           </select>
         </div>
         <div className="form-group">
-          <label className="form-label">Metode</label>
-          <select value={filter.metode} onChange={(e) => changeFilter('metode', e.target.value)} className="form-input">
+          <label className="form-label" htmlFor="keuangantransaksi-metode">Metode</label>
+          <select id="keuangantransaksi-metode" value={filter.metode} onChange={(e) => changeFilter('metode', e.target.value)} className="form-input">
             <option value="">Semua</option><option value="cash">Tunai</option><option value="transfer">Transfer</option><option value="e-wallet">E-Wallet</option>
           </select>
         </div>
         <div className="form-group">
-          <label className="form-label">Status</label>
-          <select value={filter.status} onChange={(e) => changeFilter('status', e.target.value)} className="form-input">
+          <label className="form-label" htmlFor="keuangantransaksi-status">Status</label>
+          <select id="keuangantransaksi-status" value={filter.status} onChange={(e) => changeFilter('status', e.target.value)} className="form-input">
             <option value="">Semua</option><option value="confirmed">Dikonfirmasi</option><option value="pending">Menunggu</option><option value="cancelled">Dibatalkan</option>
           </select>
         </div>
@@ -66,7 +66,7 @@ const KeuanganTransaksi = ({
               <td>{metodeLabel(item.metode_pembayaran)}</td>
               <td>{item.penerima || '-'}</td>
               <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.deskripsi || '-'}</td>
-              <td className="text-right" style={{ fontWeight: 600, color: item.jenis === 'masuk' ? '#0b3d2e' : '#c62828' }}>
+              <td className="text-right" style={{ fontWeight: 600, color: item.jenis === 'masuk' ? 'var(--emerald-800)' : 'var(--red-600)' }}>
                 {item.jenis === 'masuk' ? '+' : '-'}{formatIDR(item.jumlah)}
               </td>
               <td>

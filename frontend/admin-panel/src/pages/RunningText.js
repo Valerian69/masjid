@@ -84,7 +84,7 @@ const RunningText = () => {
         </div>
         <div className="page-header-actions">
           <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="rt-add">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Teks
           </button>
         </div>
@@ -95,24 +95,24 @@ const RunningText = () => {
           <div className="card-body">
             <div className="admin-form-grid-3">
               <div className="form-group">
-                <label className="form-label">Teks</label>
-                <input value={form.teks} onChange={e => setForm({...form, teks: e.target.value})} className="form-input" required placeholder="Masukkan teks pengumuman..." />
+                <label className="form-label" htmlFor="runningtext-teks">Teks</label>
+                <input id="runningtext-teks" value={form.teks} onChange={e => setForm({...form, teks: e.target.value})} className="form-input" required placeholder="Masukkan teks pengumuman..." />
               </div>
               <div className="form-group">
-                <label className="form-label">Jenis</label>
-                <select value={form.jenis} onChange={e => setForm({...form, jenis: e.target.value})} className="form-input">
+                <label className="form-label" htmlFor="runningtext-jenis">Jenis</label>
+                <select id="runningtext-jenis" value={form.jenis} onChange={e => setForm({...form, jenis: e.target.value})} className="form-input">
                   <option value="pengumuman">Pengumuman</option>
                   <option value="infaq">Infaq</option>
                   <option value="info">Info</option>
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Urutan</label>
-                <input type="number" value={form.urutan} onChange={e => setForm({...form, urutan: parseInt(e.target.value)})} className="form-input" min="0" data-tour="rt-urutan" />
+                <label className="form-label" htmlFor="runningtext-urutan">Urutan</label>
+                <input id="runningtext-urutan" type="number" value={form.urutan} onChange={e => setForm({...form, urutan: parseInt(e.target.value)})} className="form-input" min="0" data-tour="rt-urutan" />
               </div>
               <div className="form-group">
-                <label className="form-label">Status</label>
-                <select value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input">
+                <label className="form-label" htmlFor="runningtext-is_active">Status</label>
+                <select id="runningtext-is_active" value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input">
                   <option value={1}>Aktif</option>
                   <option value={0}>Nonaktif</option>
                 </select>

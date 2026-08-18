@@ -9,13 +9,13 @@ import ErrorState from '../components/ErrorState';
 const emptyForm = { nama_sholat: '', waktu: '05:00', is_active: 1 };
 
 const SyncIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
     <path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" />
   </svg>
 );
 
 const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
     <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
@@ -32,7 +32,7 @@ const PrayerIcon = ({ nama }) => {
   const config = icons[nama] || icons.Subuh;
   return (
     <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: config.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <svg viewBox="0 0 24 24" fill="none" stroke={config.stroke} strokeWidth="1.5" width="18" height="18">{config.svg}</svg>
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke={config.stroke} strokeWidth="1.5" width="18" height="18">{config.svg}</svg>
     </div>
   );
 };
@@ -146,16 +146,16 @@ const JadwalSholat = () => {
           <div className="card-body">
             <div className="admin-form-grid-3">
               <div className="form-group">
-                <label className="form-label">Nama Sholat</label>
-                <input value={form.nama_sholat} onChange={e => setForm({...form, nama_sholat: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="jadwalsholat-nama_sholat">Nama Sholat</label>
+                <input id="jadwalsholat-nama_sholat" value={form.nama_sholat} onChange={e => setForm({...form, nama_sholat: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Waktu</label>
-                <input type="time" value={form.waktu} onChange={e => setForm({...form, waktu: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="jadwalsholat-waktu">Waktu</label>
+                <input id="jadwalsholat-waktu" type="time" value={form.waktu} onChange={e => setForm({...form, waktu: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Status</label>
-                <select value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input" data-tour="jadwal-status">
+                <label className="form-label" htmlFor="jadwalsholat-is_active">Status</label>
+                <select id="jadwalsholat-is_active" value={form.is_active} onChange={e => setForm({...form, is_active: parseInt(e.target.value)})} className="form-input" data-tour="jadwal-status">
                   <option value={1}>Aktif</option>
                   <option value={0}>Nonaktif</option>
                 </select>

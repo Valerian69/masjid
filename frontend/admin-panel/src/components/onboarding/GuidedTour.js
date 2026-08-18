@@ -90,7 +90,7 @@ const GuidedTour = () => {
         <div className="tour-tooltip-head">
           <span className="tour-step-count">{stepIndex + 1} / {steps.length}</span>
           <button className="tour-close" onClick={stopTour} aria-label="Tutup tur">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
         </div>
         <h3 className="tour-tooltip-title">{view.title}</h3>

@@ -1,7 +1,7 @@
 {
   "name": "masjid-dashboard",
   "version": "1.0.0",
-  "description": "Dashboard Informasi Masjid — Jadwal sholat, kajian, keuangan, agenda untuk TV display dan panel admin",
+  "description": "Dashboard Informasi Masjid \u2014 Jadwal sholat, kajian, keuangan, agenda untuk TV display dan panel admin",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend/tv-display && npm install --prefix frontend/admin-panel",
-    "build:tv": "cd frontend/tv-display && REACT_APP_API_URL=/api npm run build",
-    "build:admin": "cd frontend/admin-panel && PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build",
+    "build:tv": "cd frontend/tv-display && GENERATE_SOURCEMAP=false REACT_APP_API_URL=/api npm run build",
+    "build:admin": "cd frontend/admin-panel && GENERATE_SOURCEMAP=false PUBLIC_URL=/admin REACT_APP_API_URL=/api npm run build",
     "build": "npm run build:tv && npm run build:admin",
     "build:vercel": "./build-vercel.sh",
     "dev:backend": "cd backend && npm run dev",

@@ -9,11 +9,11 @@ import ErrorState from '../components/ErrorState';
 const emptyForm = { username: '', password: '', full_name: '', role: 'marbot' };
 
 const CheckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="var(--emerald-500)" strokeWidth="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-500)" strokeWidth="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
 );
 
 const CrossIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="var(--red-500)" strokeWidth="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="var(--red-500)" strokeWidth="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 );
 
 const Users = () => {
@@ -117,7 +117,7 @@ const Users = () => {
         {currentUser?.role === 'superadmin' && (
           <div className="page-header-actions">
             <button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyForm); }} className="btn btn-primary btn-sm" data-tour="users-add">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
               Tambah User
             </button>
           </div>
@@ -129,20 +129,20 @@ const Users = () => {
           <div className="card-body">
             <div className="admin-form-grid">
               <div className="form-group">
-                <label className="form-label">Username</label>
-                <input value={form.username} onChange={e => setForm({...form, username: e.target.value})} className="form-input" required disabled={!!editingId} />
+                <label className="form-label" htmlFor="users-username">Username</label>
+                <input id="users-username" autoComplete="off" value={form.username} onChange={e => setForm({...form, username: e.target.value})} className="form-input" required disabled={!!editingId} />
               </div>
               <div className="form-group">
-                <label className="form-label">{editingId ? 'Password (kosongkan jika tidak diubah)' : 'Password'}</label>
-                <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="form-input" required={!editingId} />
+                <label className="form-label" htmlFor="users-password">{editingId ? 'Password (kosongkan jika tidak diubah)' : 'Password'}</label>
+                <input id="users-password" type="password" autoComplete="new-password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="form-input" required={!editingId} />
               </div>
               <div className="form-group">
-                <label className="form-label">Nama Lengkap</label>
-                <input value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} className="form-input" required />
+                <label className="form-label" htmlFor="users-full_name">Nama Lengkap</label>
+                <input id="users-full_name" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Role</label>
-                <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} className="form-input">
+                <label className="form-label" htmlFor="users-role">Role</label>
+                <select id="users-role" value={form.role} onChange={e => setForm({...form, role: e.target.value})} className="form-input">
                   <option value="superadmin">Superadmin</option>
                   <option value="takmir">Takmir</option>
                   <option value="bendahara">Bendahara</option>

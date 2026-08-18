@@ -4,7 +4,7 @@ import { useToast } from '../components/Toast';
 import Loading from '../components/Loading';
 
 const SyncIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
     <path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" />
   </svg>
 );
@@ -148,26 +148,26 @@ const Settings = () => {
             </div>
             <div className="card-body">
               <div className="form-group">
-                <label className="form-label">Nama Masjid</label>
-                <input value={settings.masjid_name || ''} onChange={e => setSettings({...settings, masjid_name: e.target.value})} className="form-input" placeholder="Masukkan nama masjid" required />
+                <label className="form-label" htmlFor="settings-nama-masjid">Nama Masjid</label>
+                <input id="settings-nama-masjid" value={settings.masjid_name || ''} onChange={e => setSettings({...settings, masjid_name: e.target.value})} className="form-input" placeholder="Masukkan nama masjid" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Alamat Masjid</label>
-                <textarea value={settings.masjid_address || ''} onChange={e => setSettings({...settings, masjid_address: e.target.value})} className="form-textarea" rows="2" placeholder="Masukkan alamat masjid" />
+                <label className="form-label" htmlFor="settings-alamat-masjid">Alamat Masjid</label>
+                <textarea id="settings-alamat-masjid" value={settings.masjid_address || ''} onChange={e => setSettings({...settings, masjid_address: e.target.value})} className="form-textarea" rows="2" placeholder="Masukkan alamat masjid" />
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Latitude</label>
-                  <input value={settings.latitude || ''} onChange={e => setSettings({...settings, latitude: e.target.value})} className="form-input" placeholder="-6.2088" />
+                  <label className="form-label" htmlFor="settings-latitude">Latitude</label>
+                  <input id="settings-latitude" value={settings.latitude || ''} onChange={e => setSettings({...settings, latitude: e.target.value})} className="form-input" placeholder="-6.2088" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Longitude</label>
-                  <input value={settings.longitude || ''} onChange={e => setSettings({...settings, longitude: e.target.value})} className="form-input" placeholder="106.8456" />
+                  <label className="form-label" htmlFor="settings-longitude">Longitude</label>
+                  <input id="settings-longitude" value={settings.longitude || ''} onChange={e => setSettings({...settings, longitude: e.target.value})} className="form-input" placeholder="106.8456" />
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">Timezone</label>
-                <select value={settings.timezone || 'Asia/Jakarta'} onChange={e => setSettings({...settings, timezone: e.target.value})} className="form-select">
+                <label className="form-label" htmlFor="settings-timezone">Timezone</label>
+                <select id="settings-timezone" value={settings.timezone || 'Asia/Jakarta'} onChange={e => setSettings({...settings, timezone: e.target.value})} className="form-select">
                   <option value="Asia/Jakarta">WIB (Asia/Jakarta)</option>
                   <option value="Asia/Makassar">WITA (Asia/Makassar)</option>
                   <option value="Asia/Jayapura">WIT (Asia/Jayapura)</option>
@@ -186,7 +186,7 @@ const Settings = () => {
             <div className="card-body">
               <div style={{ background: 'linear-gradient(135deg, #061a14, #0b3d2e)', borderRadius: 'var(--radius)', padding: 'var(--space-6)', color: 'white', minHeight: 300 }}>
                 <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700 }}>{settings.masjid_name || 'Masjid Al-Hikmah'}</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700 }}>{settings.masjid_name || 'Nama Masjid'}</div>
                   <div className="body-xs" style={{ opacity: 0.5, marginTop: 4 }}>17 Jumadil Akhir 1448 H</div>
                 </div>
 
@@ -210,13 +210,13 @@ const Settings = () => {
                 </div>
 
                 <div style={{ marginTop: 'var(--space-4)', background: 'rgba(212,145,61,0.08)', border: '1px solid rgba(212,145,61,0.15)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-3)' }}>
-                  <div className="body-xs" style={{ color: '#f0c66e' }}>Kajian Terdekat</div>
+                  <div className="body-xs" style={{ color: 'var(--amber-400)' }}>Kajian Terdekat</div>
                   <div style={{ fontWeight: 500, fontSize: '0.875rem', marginTop: 2 }}>Tafsir Al-Mishbah — Jumat, 19:00</div>
                 </div>
 
                 <div style={{ marginTop: 'var(--space-3)', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-2) var(--space-3)' }}>
                   <div className="body-xs" style={{ opacity: 0.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    Selamat datang di {settings.masjid_name || 'Masjid Al-Hikmah'} — Jadwal kajian minggu ini: Tafsir Al-Mishbah, Jumat 19:00 WIB —
+                    Selamat datang di {settings.masjid_name || 'Nama Masjid'} — Jadwal kajian minggu ini: Tafsir Al-Mishbah, Jumat 19:00 WIB —
                   </div>
                 </div>
               </div>
@@ -236,13 +236,13 @@ const Settings = () => {
             </button>
           </div>
           <div className="card-body">
-            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 16 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 16 }}>
               Pilih lokasi masjid untuk mengambil jadwal sholat otomatis dari EQuran.id
             </p>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Provinsi</label>
-                <select value={settings.provinsi || ''} onChange={handleProvinsiChange} className="form-select">
+                <label className="form-label" htmlFor="settings-provinsi">Provinsi</label>
+                <select id="settings-provinsi" value={settings.provinsi || ''} onChange={handleProvinsiChange} className="form-select">
                   <option value="">-- Pilih Provinsi --</option>
                   {provinsiList.map(p => (
                     <option key={p} value={p}>{p}</option>
@@ -250,8 +250,8 @@ const Settings = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Kabupaten / Kota</label>
-                <select value={settings.kabkota || ''} onChange={e => setSettings({...settings, kabkota: e.target.value})} className="form-select" disabled={!settings.provinsi}>
+                <label className="form-label" htmlFor="settings-kabupaten-kota">Kabupaten / Kota</label>
+                <select id="settings-kabupaten-kota" value={settings.kabkota || ''} onChange={e => setSettings({...settings, kabkota: e.target.value})} className="form-select" disabled={!settings.provinsi}>
                   <option value="">-- Pilih Kab/Kota --</option>
                   {kabkotaList.map(k => (
                     <option key={k} value={k}>{k}</option>
@@ -267,12 +267,12 @@ const Settings = () => {
             <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Jeda Ikamah</h3>
           </div>
           <div className="card-body" data-tour="set-ikamah-durasi">
-            <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 16 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 16 }}>
               Setelah waktu sholat masuk, TV menampilkan notifikasi azan, lalu hitung mundur menuju ikamah, lalu layar gelap selama sholat berjamaah.
             </p>
             <div className="form-group">
-              <label className="form-label">Aktifkan Jeda Ikamah &amp; Layar Sholat</label>
-              <select value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select">
+              <label className="form-label" htmlFor="settings-aktifkan-jeda-ikamah-layar-sholat">Aktifkan Jeda Ikamah &amp; Layar Sholat</label>
+              <select id="settings-aktifkan-jeda-ikamah-layar-sholat" value={settings.iqomah_enabled || 'true'} onChange={e => setSettings({...settings, iqomah_enabled: e.target.value})} className="form-select">
                 <option value="true">Aktif</option>
                 <option value="false">Nonaktif</option>
               </select>
@@ -280,20 +280,20 @@ const Settings = () => {
             {PRAYERS.map(p => (
               <div key={p.key} className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Jeda Ikamah {p.label} (menit)</label>
-                  <input type="number" min="0" max="120" step="1" className="form-input"
+                  <label className="form-label" htmlFor="settings-jeda-ikamah-menit">Jeda Ikamah {p.label} (menit)</label>
+                  <input id="settings-jeda-ikamah-menit" type="number" min="0" max="120" step="1" className="form-input"
                     value={settings[`ikamah_${p.key}`] ?? ''}
                     onChange={e => setSettings({...settings, [`ikamah_${p.key}`]: e.target.value})} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Layar Gelap {p.label} (menit)</label>
-                  <input type="number" min="0" max="120" step="1" className="form-input"
+                  <label className="form-label" htmlFor="settings-layar-gelap-menit">Layar Gelap {p.label} (menit)</label>
+                  <input id="settings-layar-gelap-menit" type="number" min="0" max="120" step="1" className="form-input"
                     value={settings[`sholat_${p.key}`] ?? ''}
                     onChange={e => setSettings({...settings, [`sholat_${p.key}`]: e.target.value})} />
                 </div>
               </div>
             ))}
-            <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 8 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 8 }}>
               Sholat Jum'at dilewati — saat waktu Jum'at TV tetap menampilkan tampilan normal. Sholat lain di hari Jumat tetap berjalan seperti biasa. Isi 0 untuk melewati salah satu fase.
             </p>
           </div>

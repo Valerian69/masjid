@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import 'moment/locale/id';
-import { BookIcon, CalendarIcon, DocumentIcon, WalletIcon } from './Icons';
+import { BookIcon, CalendarIcon, DocumentIcon, WalletIcon, MosqueIcon } from './Icons';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 const ROTATE_MS = 12000;
@@ -86,7 +86,21 @@ const SecondaryRotator = ({ kajian, agenda, keuangan }) => {
     return () => clearInterval(t);
   }, [panels.length]);
 
-  if (panels.length === 0) return <div className="secondary-panel" />;
+  // Kartu kosong tanpa penjelasan terlihat seperti kerusakan. Kalau memang
+  // belum ada kajian, agenda, maupun laporan, katakan begitu.
+  if (panels.length === 0) {
+    return (
+      <div className="secondary-panel">
+        <div className="empty-state">
+          <MosqueIcon size={40} />
+          <div className="empty-state-title">Belum ada agenda terjadwal</div>
+          <div className="empty-state-sub">
+            Kajian, agenda, dan laporan kegiatan akan tampil di sini setelah diisi lewat panel admin.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const current = panels[Math.min(index, panels.length - 1)];
 

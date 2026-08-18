@@ -5,7 +5,7 @@ import { useOnboarding } from './OnboardingContext';
 import { getPageTour, pageTourLabel } from './pageTours';
 
 const HelpIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
     <line x1="12" y1="17" x2="12.01" y2="17" />

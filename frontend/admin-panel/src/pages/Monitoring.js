@@ -20,6 +20,61 @@ const formatUptime = (seconds) => {
   return parts.join(' ');
 };
 
+// Skala "cantik" di atas nilai terbesar, supaya tinggi batang punya acuan yang
+// bisa dibaca alih-alih dinormalisasi ke nilai maksimum yang berubah-ubah.
+const niceMax = (value) => {
+  if (!value || value <= 0) return 10;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+  const scaled = value / magnitude;
+  const step = scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 5 ? 5 : 10;
+  return step * magnitude;
+};
+
+// Tinggi batang diturunkan dari nilainya.
+//
+// Versi sebelumnya memaku tinggi 60px/85px/110px, jadi grafiknya selalu
+// menggambar tangga curam bahkan ketika p50 dan p99 hanya terpaut belasan
+// milidetik — persis kebalikan dari yang dibutuhkan halaman ini. Sekarang
+// ada sumbu maksimum juga, supaya tingginya bisa dikalibrasi mata.
+const LatencyChart = ({ p50, p95, p99 }) => {
+  const series = [
+    { key: 'p50', value: p50, tone: 'ok' },
+    { key: 'p95', value: p95, tone: 'warn' },
+    { key: 'p99', value: p99, tone: 'high' },
+  ].filter((d) => d.value != null);
+
+  if (series.length === 0) {
+    return <p className="chart-empty">Belum ada data latensi</p>;
+  }
+
+  const max = niceMax(Math.max(...series.map((d) => d.value)));
+  const summary = series.map((d) => `${d.key} ${d.value} milidetik`).join(', ');
+
+  return (
+    <div className="latency-chart" role="img" aria-label={`Distribusi latensi: ${summary}. Skala nol sampai ${max} milidetik.`}>
+      <div className="latency-axis" aria-hidden="true">
+        <span>{max}</span>
+        <span>{Math.round(max / 2)}</span>
+        <span>0</span>
+      </div>
+      <div className="latency-plot">
+        <div className="latency-gridline" style={{ bottom: '100%' }} aria-hidden="true" />
+        <div className="latency-gridline" style={{ bottom: '50%' }} aria-hidden="true" />
+        {series.map((d) => (
+          <div key={d.key} className="latency-bar">
+            <div className="latency-bar-value">{d.value}ms</div>
+            <div
+              className={`latency-bar-fill tone-${d.tone}`}
+              style={{ height: `${Math.max(2, (d.value / max) * 100)}%` }}
+            />
+            <div className="latency-bar-label">{d.key}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Monitoring = () => {
   const { user } = useAuth();
   const toast = useToast();
@@ -109,17 +164,17 @@ const Monitoring = () => {
         </div>
         <div className="page-header-actions" data-tour="mon-danger">
           <button onClick={fetchAll} className="btn btn-outline btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" /></svg>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15" /></svg>
             Refresh
           </button>
           {user?.role === 'superadmin' && (
             <>
               <button onClick={handleReset} className="btn btn-danger btn-sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /></svg>
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /></svg>
                 Reset Metrics
               </button>
               <button onClick={handleCleanData} className="btn btn-danger btn-sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /></svg>
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /></svg>
                 Clean Data
               </button>
             </>
@@ -138,11 +193,11 @@ const Monitoring = () => {
 
       <div className="grid grid-5" style={{ marginBottom: 24 }}>
         {[
-          { label: 'Total Requests', value: http.totalRequests.toLocaleString(), color: 'var(--emerald-600)', bg: 'var(--green-light)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> },
-          { label: 'Error Rate', value: `${http.errorRate}%`, color: errorRate < 1 ? 'var(--emerald-500)' : errorRate < 5 ? 'var(--amber)' : 'var(--red)', bg: errorRate < 1 ? 'var(--green-light)' : errorRate < 5 ? 'rgba(212,145,61,0.08)' : 'var(--red-light)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
-          { label: 'Avg Latency (p95)', value: `${http.p95}ms`, color: 'var(--blue)', bg: 'rgba(21,101,192,0.08)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
-          { label: 'Memory Used', value: `${memPercent.toFixed(0)}%`, color: 'var(--orange)', bg: 'rgba(230,81,0,0.08)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> },
-          { label: 'Total Records', value: database.totalRecords.toLocaleString(), color: 'var(--purple)', bg: 'rgba(127,31,162,0.08)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> },
+          { label: 'Total Requests', value: http.totalRequests.toLocaleString(), color: 'var(--emerald-600)', bg: 'var(--green-light)', icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> },
+          { label: 'Error Rate', value: `${http.errorRate}%`, color: errorRate < 1 ? 'var(--emerald-500)' : errorRate < 5 ? 'var(--amber)' : 'var(--red)', bg: errorRate < 1 ? 'var(--green-light)' : errorRate < 5 ? 'rgba(212,145,61,0.08)' : 'var(--red-light)', icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
+          { label: 'Avg Latency (p95)', value: `${http.p95}ms`, color: 'var(--blue)', bg: 'rgba(21,101,192,0.08)', icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+          { label: 'Memory Used', value: `${memPercent.toFixed(0)}%`, color: 'var(--orange)', bg: 'rgba(230,81,0,0.08)', icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> },
+          { label: 'Total Records', value: database.totalRecords.toLocaleString(), color: 'var(--purple)', bg: 'rgba(127,31,162,0.08)', icon: <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> },
         ].map((stat, i) => (
           <div key={i} className="stat-card" style={{ '--stat-color': stat.color, '--stat-bg': stat.bg }}>
             <div className="stat-icon" style={{ background: stat.bg, color: stat.color }}>{stat.icon}</div>
@@ -162,7 +217,7 @@ const Monitoring = () => {
                 <span className="body-sm" style={{ fontWeight: 600 }}>{memPercent.toFixed(1)}% ({system.memory.heapUsed} / {system.memory.heapTotal})</span>
               </div>
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${Math.min(memPercent, 100)}%`, background: memPercent > 80 ? 'var(--red)' : memPercent > 60 ? 'var(--amber)' : 'var(--emerald-mid)' }} />
+                <div className="progress-fill" style={{ transform: `scaleX(${Math.min(memPercent, 100) / 100})`, background: memPercent > 80 ? 'var(--red)' : memPercent > 60 ? 'var(--amber)' : 'var(--emerald-mid)' }} />
               </div>
             </div>
             <table className="info-table">
@@ -186,8 +241,8 @@ const Monitoring = () => {
               const colors = { users: 'var(--emerald-500)', jadwal_sholat: 'var(--blue-500)', kajian: 'var(--purple)', keuangan: 'var(--amber)', agenda: 'var(--orange)', running_text: 'var(--emerald-mid)', settings: 'var(--emerald-mid)', audit_log: 'var(--emerald-mid)', laporan: 'var(--red)' };
               return (
                 <div key={col} className="category-bar">
-                  <span className="bar-name" style={{ width: 120 }}>{col}</span>
-                  <div className="bar-track"><div className="bar-fill" style={{ width: `${(count / maxCount) * 100}%`, background: colors[col] || 'var(--emerald-mid)' }} /></div>
+                  <span className="bar-name bar-name-wide">{col}</span>
+                  <div className="bar-track"><div className="bar-fill" style={{ transform: `scaleX(${count / maxCount})`, background: colors[col] || 'var(--emerald-mid)' }} /></div>
                   <span className="bar-value">{count}</span>
                 </div>
               );
@@ -204,8 +259,8 @@ const Monitoring = () => {
               ? <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 20 }}>Belum ada data</p>
               : Object.entries(http.byMethod).sort((a, b) => b[1] - a[1]).map(([method, count]) => (
                 <div key={method} className="category-bar">
-                  <span className="bar-name" style={{ width: 60 }}><span className={`badge ${methodBadge[method] || 'badge-slate'}`} style={{ fontSize: '0.6875rem' }}>{method}</span></span>
-                  <div className="bar-track"><div className="bar-fill" style={{ width: `${(count / http.totalRequests) * 100}%`, background: methodColors[method] || 'var(--emerald-mid)' }} /></div>
+                  <span className="bar-name bar-name-badge"><span className={`badge ${methodBadge[method] || 'badge-slate'}`}>{method}</span></span>
+                  <div className="bar-track"><div className="bar-fill" style={{ transform: `scaleX(${count / http.totalRequests})`, background: methodColors[method] || 'var(--emerald-mid)' }} /></div>
                   <span className="bar-value">{count.toLocaleString()}</span>
                 </div>
               ))
@@ -224,8 +279,8 @@ const Monitoring = () => {
                 const fillColor = s < 300 ? 'var(--emerald-500)' : s < 400 ? 'var(--blue-500)' : s < 500 ? 'var(--amber)' : 'var(--red)';
                 return (
                   <div key={status} className="category-bar">
-                    <span className="bar-name" style={{ width: 60 }}><span className={`badge ${color}`} style={{ fontSize: '0.6875rem' }}>{status}</span></span>
-                    <div className="bar-track"><div className="bar-fill" style={{ width: `${(count / http.totalRequests) * 100}%`, background: fillColor }} /></div>
+                    <span className="bar-name bar-name-badge"><span className={`badge ${color}`}>{status}</span></span>
+                    <div className="bar-track"><div className="bar-fill" style={{ transform: `scaleX(${count / http.totalRequests})`, background: fillColor }} /></div>
                     <span className="bar-value">{count.toLocaleString()}</span>
                   </div>
                 );
@@ -236,28 +291,8 @@ const Monitoring = () => {
 
         <div className="card" data-tour="mon-latency">
           <div className="card-header"><h2>Latency Distribution</h2></div>
-          <div className="card-body" style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 160, paddingBottom: 32, position: 'relative' }}>
-            {http.p50 != null && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-                <div style={{ width: '100%', height: 60, background: 'linear-gradient(180deg, var(--emerald-mid), var(--emerald-deep))', borderRadius: '6px 6px 0 0' }} />
-                <span className="body-xs text-muted">p50</span>
-                <span className="body-xs" style={{ fontWeight: 600 }}>{http.p50}ms</span>
-              </div>
-            )}
-            {http.p95 != null && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-                <div style={{ width: '100%', height: 85, background: 'linear-gradient(180deg, var(--amber-glow), var(--amber))', borderRadius: '6px 6px 0 0' }} />
-                <span className="body-xs text-muted">p95</span>
-                <span className="body-xs" style={{ fontWeight: 600 }}>{http.p95}ms</span>
-              </div>
-            )}
-            {http.p99 != null && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-                <div style={{ width: '100%', height: 110, background: 'linear-gradient(180deg, #f87171, var(--red))', borderRadius: '6px 6px 0 0' }} />
-                <span className="body-xs text-muted">p99</span>
-                <span className="body-xs" style={{ fontWeight: 600 }}>{http.p99}ms</span>
-              </div>
-            )}
+          <div className="card-body">
+            <LatencyChart p50={http.p50} p95={http.p95} p99={http.p99} />
           </div>
         </div>
       </div>
@@ -294,11 +329,13 @@ const Monitoring = () => {
           <div className="card-body" style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
             {errors.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 32, color: 'var(--emerald-mid)' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32" style={{ marginBottom: 8 }}><path d="M20 6L9 17l-5-5" /></svg>
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32" style={{ marginBottom: 8 }}><path d="M20 6L9 17l-5-5" /></svg>
                 <p style={{ margin: 0 }}>Tidak ada error</p>
               </div>
             ) : errors.map((e, i) => (
-              <div key={i} style={{ padding: '16px 20px', borderBottom: i < errors.length - 1 ? '1px solid var(--border-light)' : 'none', borderLeft: '3px solid var(--red)' }}>
+              /* Keadaan dikodekan lewat latar bernada dan lencana status yang
+                 sudah ada, bukan pita tebal di satu sisi. */
+              <div key={i} className="error-row">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span className="badge badge-red" style={{ fontSize: '0.625rem' }}>{e.status}</span>
                   <span className="body-xs text-muted">{new Date(e.timestamp).toLocaleTimeString('id-ID')}</span>
